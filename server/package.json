@@ -1,0 +1,45 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+  "dev": "nodemon --env-file=.env index.js",
+  "start": "nodemon --env-file=.env index.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@openrouter/ai-sdk-provider": "^0.7.2",
+    "@prisma/client": "^6.11.1",
+    "@vercel/blob": "^1.1.1",
+    "ai": "^4.3.17",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.16.0",
+    "mongoose": "^8.15.0",
+    "multer": "^2.0.1",
+    "mysql2": "^3.12.0",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^7.0.4",
+    "nodemon": "^3.1.9",
+    "openai": "^5.8.2",
+    "react-google-recaptcha": "^3.1.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3"
+  }
+}
