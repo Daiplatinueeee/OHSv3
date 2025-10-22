@@ -188,13 +188,13 @@ export default function DeclineModal({ isOpen, onClose, account, anomalies, onCo
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl lg:max-w-4xl rounded-xl p-6 bg-white shadow-lg border border-gray-100 font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
+        <DialogContent className="sm:max-w-2xl lg:max-w-4xl rounded-xl p-4 sm:p-6 bg-white shadow-lg border border-gray-100 font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] max-h-[90vh] overflow-y-auto">
           <DialogHeader className="relative pb-4 border-b border-gray-200">
-            <DialogTitle className="flex items-center gap-3 text-2xl font-medium text-gray-700">
+            <DialogTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl font-medium text-gray-700">
               <AlertTriangle className="h-7 w-7 text-red-500" />
               Decline Application
             </DialogTitle>
-            <DialogDescription className="text-gray-600 mt-2">
+            <DialogDescription className="text-sm sm:text-base text-gray-600 mt-2">
               Review and provide reasons for declining {account.name}'s application.
             </DialogDescription>
             <Button
@@ -207,7 +207,7 @@ export default function DeclineModal({ isOpen, onClose, account, anomalies, onCo
             </Button>
           </DialogHeader>
 
-          <div className="py-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="py-4 sm:py-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Left Column: Anomalous Documents with Previews */}
             <div>
               {anomalousDocuments.length > 0 ? (
@@ -216,7 +216,7 @@ export default function DeclineModal({ isOpen, onClose, account, anomalies, onCo
                     <AlertTriangle className="h-4 w-4" />
                     Documents Marked with Anomalies
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4">
                     {anomalousDocuments.map((key) => {
                       const docName = documentMap[key] || key
                       const previewKey = documentPreviewMap[key]
@@ -297,14 +297,14 @@ export default function DeclineModal({ isOpen, onClose, account, anomalies, onCo
             </div>
           </div>
 
-          <DialogFooter className="pt-4 border-t border-gray-200 flex justify-end gap-3">
-            <Button variant="outline" onClick={onClose} className="rounded-full px-5 py-2 bg-transparent">
+          <DialogFooter className="pt-4 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3">
+            <Button variant="outline" onClick={onClose} className="rounded-full px-4 sm:px-5 py-2 bg-transparent w-full sm:w-auto">
               Cancel
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={selectedReasons.length === 0 || isConfirming}
-              className="rounded-full px-5 py-2 bg-red-500 hover:bg-red-600 text-white"
+              className="rounded-full px-4 sm:px-5 py-2 bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto"
             >
               {isConfirming ? (
                 <>

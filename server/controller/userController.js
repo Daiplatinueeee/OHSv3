@@ -1162,10 +1162,14 @@ export const updateUserStatus = async (req, res) => {
       })
     }
 
-    if (!status || !["pending", "active", "inactive", "suspended", "declined", "on review"].includes(status)) {
+    if (
+      !status ||
+      !["pending", "active", "inactive", "suspended", "declined", "on review"].includes(status)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Valid status is required (pending, active, inactive, suspended, declined, on review).",
+        message:
+          "Valid status is required (pending, active, inactive, suspended, declined, on review).",
       })
     }
 
@@ -1200,7 +1204,9 @@ export const updateUserStatus = async (req, res) => {
       }
 
       const suspensionStartDate = new Date()
-      const suspensionEndDate = new Date(suspensionStartDate.getTime() + suspensionDuration * 24 * 60 * 60 * 1000)
+      const suspensionEndDate = new Date(
+        suspensionStartDate.getTime() + suspensionDuration * 24 * 60 * 60 * 1000
+      )
 
       updateFields.suspensionDuration = suspensionDuration
       updateFields.suspensionStartDate = suspensionStartDate
@@ -1217,15 +1223,32 @@ export const updateUserStatus = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { $set: updateFields },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     ).select("-password -otp -otpExpires -secretAnswer -secretCode -secretQuestion")
 
     console.log("[v0] User status updated successfully:", id)
 
+    // ✅ Helper function to format suspension dates
+    const formatDate = (date) => {
+      if (!date) return null
+      const d = new Date(date)
+      const options = { year: "numeric", month: "short", day: "numeric" }
+      const formatted = d.toLocaleDateString("en-US", options)
+      const weekday = d.toLocaleDateString("en-US", { weekday: "short" })
+      return `${formatted} (${weekday})`
+    }
+
+    // ✅ Format suspension dates before sending response
+    const formattedUser = {
+      ...updatedUser.toObject(),
+      suspensionStartDate: formatDate(updatedUser.suspensionStartDate),
+      suspensionEndDate: formatDate(updatedUser.suspensionEndDate),
+    }
+
     res.status(200).json({
       success: true,
       message: "User status updated successfully.",
-      user: updatedUser,
+      user: formattedUser,
     })
   } catch (error) {
     console.error("[v0] Error updating user status:", error)
@@ -1235,6 +1258,7 @@ export const updateUserStatus = async (req, res) => {
     })
   }
 }
+
 
 export const updateUserRole = async (req, res) => {
   try {
@@ -1506,5 +1530,70 @@ export const fetchProviders = async (req, res) => {
   } catch (error) {
     console.error("Error fetching providers:", error)
     res.status(500).json({ message: "Server error fetching providers", error: error.message })
+  }
+}
+
+export const updateUserVerification = async (req, res) => {
+  try {
+    const { userId } = req.params
+
+    const { isVerified } = req.body
+    const adminId = req.userId // From authenticateToken middleware
+
+    console.log("[v0] Verification update request for user ID:", userId)
+    console.log("[v0] New verification status:", isVerified)
+    console.log("[v0] Admin ID:", adminId)
+
+    if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format.",
+      })
+    }
+
+    if (typeof isVerified !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "Valid verification status is required (true or false).",
+      })
+    }
+
+    // Check if the requesting user is an admin
+    const admin = await User.findById(adminId)
+    if (!admin || (admin.accountType !== "admin" && admin.accountType !== "coo")) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admin privileges required.",
+      })
+    }
+
+    // Find the user to update
+    const userToUpdate = await User.findById(userId)
+    if (!userToUpdate) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      })
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { isVerified } },
+      { new: true, runValidators: true },
+    ).select("-password -otp -otpExpires -secretAnswer -secretCode -secretQuestion")
+
+    console.log("[v0] User verification status updated successfully:", userId)
+
+    res.status(200).json({
+      success: true,
+      message: `User ${isVerified ? "verified" : "unverified"} successfully.`,
+      user: updatedUser,
+    })
+  } catch (error) {
+    console.error("[v0] Error updating user verification status:", error)
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while updating verification status.",
+    })
   }
 }

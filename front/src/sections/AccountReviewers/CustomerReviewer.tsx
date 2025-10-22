@@ -105,12 +105,13 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
   const [isEditMode, setIsEditMode] = React.useState(false)
   const [isChangeStatusModalOpen, setIsChangeStatusModalOpen] = React.useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false)
-  const [modalMode, setModalMode] = React.useState<"status" | "role">("status")
+  const [modalMode, setModalMode] = React.useState<"status" | "role" | "verify">("status")
   const [selectedStatus, setSelectedStatus] = React.useState(account.status)
   const [selectedRole, setSelectedRole] = React.useState(account.role)
-  const [suspensionDuration, setSuspensionDuration] = React.useState({
+  const [suspensionDuration, setSuspensionDuration] = React.useState<{ value: number; unit: string; reason?: string }>({
     value: 1,
     unit: "days",
+    reason: "",
   })
   const [editableFields, setEditableFields] = React.useState({
     name: account.name,
@@ -261,16 +262,26 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
       const requestBody: any = { status: newStatus }
       console.log("[v0] Initial request body:", requestBody)
 
-      // Add suspension-specific data if status is suspended
+      // ✅ Handle suspension-specific data
       if (newStatus === "suspended" && suspensionData) {
         let durationInDays = suspensionData.value
         if (suspensionData.unit === "weeks") durationInDays *= 7
         else if (suspensionData.unit === "months") durationInDays *= 30
         else if (suspensionData.unit === "years") durationInDays *= 365
 
+        // ✅ Use typed reason if available, otherwise fallback
+        const reason =
+          suspensionData.reason && suspensionData.reason.trim() !== ""
+            ? suspensionData.reason.trim()
+            : `Suspended for ${suspensionData.value} ${suspensionData.unit}`
+
         requestBody.suspensionDuration = durationInDays
-        requestBody.suspensionReason = `Suspended for ${suspensionData.value} ${suspensionData.unit}`
-        console.log("[v0] Added suspension data:", { durationInDays, suspensionReason: requestBody.suspensionReason })
+        requestBody.suspensionReason = reason
+
+        console.log("[v0] Added suspension data:", {
+          durationInDays,
+          suspensionReason: reason,
+        })
       }
 
       const apiUrl = `http://localhost:3000/api/admin/users/${account.id}/status`
@@ -299,7 +310,6 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
       if (response.ok) {
         console.log("[v0] Status update successful")
         toast.success(data.message || `Account status updated to ${newStatus}`)
-        // Update local state or trigger parent component update
         onAccountAction(account.id, newStatus, account.verificationStatus, documentAnomalies)
       } else {
         console.log("[v0] Status update failed:", data)
@@ -317,6 +327,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
       toast.error("Network error. Please try again.")
     }
   }
+
 
   const handleRoleChange = async (newRole: string) => {
     console.log("[v0] handleRoleChange called with:", newRole)
@@ -406,6 +417,58 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
     setModalMode("status")
   }
 
+  const handleVerificationUpdate = async (isVerified: boolean) => {
+    console.log("[v0] handleVerificationUpdate called with:", isVerified)
+
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        toast.error("Authentication required. Please log in again.")
+        return
+      }
+
+      const requestBody = { isVerified }
+      const apiUrl = `http://localhost:3000/api/admin/users/${account.id}/verify`
+
+      console.log("[v0] Making verification update API call to:", apiUrl)
+      console.log("[v0] Request body:", requestBody)
+
+      const response = await fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      console.log("[v0] Verification update response status:", response.status)
+
+      const data = await response.json()
+      console.log("[v0] Verification update response data:", data)
+
+      if (response.ok) {
+        console.log("[v0] Verification update successful")
+        toast.success(data.message || `User verification status updated`)
+        setIsChangeStatusModalOpen(false)
+        setModalMode("status")
+      } else {
+        console.log("[v0] Verification update failed:", data)
+        toast.error(data.message || "Failed to update verification status")
+      }
+    } catch (error) {
+      console.error("[v0] Error updating verification status:", error)
+      if (error instanceof Error) {
+        console.error("[v0] Error details:", {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        })
+      }
+      toast.error("Network error. Please try again.")
+    }
+  }
+
   const handleConfirmDelete = async () => {
     try {
       const token = localStorage.getItem("token")
@@ -452,13 +515,13 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
   }
 
   return (
-    <div className="py-4 px-2 min-h-screen bg-[#F5F5F7] font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] mt-10">
+    <div className="py-4 px-2 sm:px-4 lg:px-6 min-h-screen bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] mt-10">
       <style>{keyframes}</style>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-medium mb-1 text-gray-700">Account Details</h1>
-          <h2 className="text-3xl font-medium text-sky-500">Customer Profile Review</h2>
+          <h1 className="text-xl sm:text-2xl font-medium mb-1 text-gray-700">Account Details</h1>
+          <h2 className="text-2xl sm:text-3xl font-medium text-sky-500">Customer Profile Review</h2>
         </div>
 
         <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
@@ -483,7 +546,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
               {/* Profile Header */}
               <div className="bg-white rounded-xl overflow-hidden mb-6 border border-gray-100">
                 {/* Cover Photo */}
-                <div className="relative h-60 overflow-hidden">
+                <div className="relative h-40 sm:h-48 md:h-60 overflow-hidden">
                   {account.coverPhoto ? (
                     <img
                       src={account.coverPhoto || placeholder}
@@ -500,9 +563,9 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
 
                 {/* Profile Info */}
                 <div className="relative px-6 pb-6">
-                  <div className="absolute -top-16 left-6">
+                  <div className="absolute -top-12 sm:-top-16 left-4 sm:left-6">
                     <div className="relative">
-                      <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white">
+                      <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white overflow-hidden bg-white">
                         {account.profilePicturePreview ? (
                           <img
                             src={
@@ -533,11 +596,11 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                     </div>
                   </div>
 
-                  <div className="pt-20">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h1 className="text-2xl font-medium text-gray-700">{account.name}</h1>
+                  <div className="pt-16 sm:pt-20">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                      <div className="w-full sm:w-auto">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h1 className="text-xl sm:text-2xl font-medium text-gray-700">{account.name}</h1>
                           <span className="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
                             {selectedRole}
                           </span>
@@ -552,15 +615,15 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 w-full sm:w-auto">
                         <Button
                           onClick={() => setIsDeleteModalOpen(true)}
                           variant="outline"
                           size="sm"
-                          className="flex items-center gap-2 text-red-600 hover:text-red-700 bg-transparent"
+                          className="flex items-center gap-2 text-red-600 hover:text-red-700 bg-transparent text-sm"
                         >
                           <Trash2 className="h-4 w-4" />
-                          Delete
+                          <span className="hidden sm:inline">Delete</span>
                         </Button>
                       </div>
                     </div>
@@ -581,10 +644,10 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
               </div>
 
               {/* Personal Information Section */}
-              <div className="bg-white rounded-xl p-6 mb-6 border border-gray-100">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-medium">Personal Information</h2>
-                  <div className="flex gap-2">
+              <div className="bg-white rounded-xl p-4 sm:p-6 mb-6 border border-gray-100">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                  <h2 className="text-lg sm:text-xl font-medium">Personal Information</h2>
+                  <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                     <Button
                       onClick={() => setIsChangeStatusModalOpen(true)}
                       variant="outline"
@@ -739,8 +802,8 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
             </div>
 
             {/* Navigation and Action buttons */}
-            <div className="flex justify-end gap-3 mt-8">
-              <Button variant="outline" onClick={onClose} className="flex items-center gap-2 bg-transparent">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8">
+              <Button variant="outline" onClick={onClose} className="flex items-center justify-center gap-2 bg-transparent w-full sm:w-auto">
                 <ChevronLeft className="h-4 w-4" />
                 Close
               </Button>
@@ -748,7 +811,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                 <>
                   <Button
                     onClick={handleDeclineApplicationClick}
-                    className="group relative flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-2xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-red-400/20"
+                    className="group relative flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-2xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-red-400/20 w-full sm:w-auto"
                   >
                     <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                     <X className="h-4 w-4 relative z-10" />
@@ -756,7 +819,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                   </Button>
                   <Button
                     onClick={handleAcceptApplication}
-                    className="group relative flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-2xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-green-400/20"
+                    className="group relative flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-b from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-2xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-green-400/20 w-full sm:w-auto"
                   >
                     <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                     <CheckCircle className="h-4 w-4 relative z-10" />
@@ -802,10 +865,15 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center justify-center p-4"
           style={{ animation: "fadeIn 0.3s ease-out" }}
+          onClick={() => {
+            setIsChangeStatusModalOpen(false)
+            setModalMode("status")
+          }}
         >
           <div
-            className="mx-auto max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
+            className="mx-auto max-w-md w-full bg-white backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-4 sm:p-6"
             style={{ animation: "fadeIn 0.5s ease-out 0.2s both" }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col items-center text-center">
               <div
@@ -816,13 +884,15 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
               </div>
 
               <h3 className="text-xl font-medium text-gray-900 mb-2" style={{ animation: "slideInUp 0.4s ease-out" }}>
-                {modalMode === "status" ? "Change Account Status" : "Change Account Role"}
+                {modalMode === "status" ? "Change Account Status" : modalMode === "role" ? "Change Account Role" : "Verify Account"}
               </h3>
 
               <p className="text-gray-600 mb-6" style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}>
                 {modalMode === "status"
                   ? `Select the new status for ${account.name}'s account`
-                  : `Select the new role for ${account.name}'s account`}
+                  : modalMode === "role"
+                  ? `Select the new role for ${account.name}'s account`
+                  : `Update verification status for ${account.name}'s account`}
               </p>
 
               <div className="w-full mb-4" style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}>
@@ -832,6 +902,8 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                     onChange={(e) => {
                       if (e.target.value === "Change Role") {
                         setModalMode("role")
+                      } else if (e.target.value === "Verify") {
+                        setModalMode("verify")
                       } else {
                         setSelectedStatus(e.target.value)
                       }
@@ -844,9 +916,10 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                     <option value="On Review">On Review</option>
                     <option value="Suspended">Suspended</option>
                     <option value="Declined">Declined</option>
+                    <option value="Verify">Verify User</option>
                     <option value="Change Role">Change Role</option>
                   </select>
-                ) : (
+                ) : modalMode === "role" ? (
                   <select
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
@@ -857,64 +930,116 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                     <option value="provider">Provider</option>
                     <option value="COO">COO</option>
                   </select>
+                ) : (
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-sm text-gray-700 mb-4">
+                      Current verification status: <span className="font-medium">{account.verificationStatus}</span>
+                    </p>
+                    <div className="flex flex-col gap-3">
+                      <button
+                        onClick={() => handleVerificationUpdate(true)}
+                        className="w-full px-4 py-3 bg-transparent text-green-500 border border-green-500 rounded-full font-medium hover:bg-green-500/50 hover:text-white transition-colors"
+                      >
+                        Mark as Verified
+                      </button>
+                      <button
+                        onClick={() => handleVerificationUpdate(false)}
+                        className="w-full px-4 py-3 bg-transparent text-red-500 border border-red-500 rounded-full font-medium hover:bg-red-500/50 hover:text-white transition-colors"
+                      >
+                        Mark as Unverified
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
 
               {modalMode === "status" && selectedStatus === "Suspended" && (
-                <div className="w-full mb-4" style={{ animation: "fadeIn 0.3s ease-out" }}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Suspension Duration</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      min="1"
-                      max="999"
-                      value={suspensionDuration.value}
-                      onChange={(e) =>
-                        setSuspensionDuration((prev) => ({ ...prev, value: Number.parseInt(e.target.value) || 1 }))
-                      }
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <select
-                      value={suspensionDuration.unit}
-                      onChange={(e) => setSuspensionDuration((prev) => ({ ...prev, unit: e.target.value }))}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="days">Days</option>
-                      <option value="weeks">Weeks</option>
-                      <option value="months">Months</option>
-                      <option value="years">Years</option>
-                    </select>
+                <div className="w-full mb-4 space-y-4" style={{ animation: "fadeIn 0.3s ease-out" }}>
+                  {/* Suspension Duration */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Suspension Duration
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        min="1"
+                        max="999"
+                        value={suspensionDuration.value}
+                        onChange={(e) =>
+                          setSuspensionDuration((prev) => ({
+                            ...prev,
+                            value: Number.parseInt(e.target.value) || 1,
+                          }))
+                        }
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <select
+                        value={suspensionDuration.unit}
+                        onChange={(e) =>
+                          setSuspensionDuration((prev) => ({
+                            ...prev,
+                            unit: e.target.value,
+                          }))
+                        }
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="days">Days</option>
+                        <option value="weeks">Weeks</option>
+                        <option value="months">Months</option>
+                        <option value="years">Years</option>
+                      </select>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Account will be suspended for {suspensionDuration.value}{" "}
+                      {suspensionDuration.unit}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Account will be suspended for {suspensionDuration.value} {suspensionDuration.unit}
-                  </p>
+
+                  {/* Suspension Reason */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Suspension Reason
+                    </label>
+                    <textarea
+                      placeholder="Enter reason for suspension..."
+                      value={suspensionDuration.reason || ""}
+                      onChange={(e) =>
+                        setSuspensionDuration((prev) => ({ ...prev, reason: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
               )}
+
 
               <div className="flex gap-3 w-full" style={{ animation: "fadeIn 0.5s ease-out 0.4s both" }}>
                 <button
                   onClick={() => {
-                    if (modalMode === "role") {
+                    if (modalMode === "role" || modalMode === "verify") {
                       setModalMode("status")
                     } else {
                       setIsChangeStatusModalOpen(false)
                       setModalMode("status")
                     }
                   }}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-full font-medium hover:bg-gray-50 active:scale-95 transition-all duration-200"
+                  className="flex-1 px-3 sm:px-6 py-3 border border-gray-300 text-gray-700 rounded-full font-medium hover:bg-gray-50 active:scale-95 transition-all duration-200 text-sm sm:text-base"
                 >
-                  {modalMode === "role" ? "Back" : "Cancel"}
+                  {modalMode === "role" || modalMode === "verify" ? "Back" : "Cancel"}
                 </button>
-                <button
-                  onClick={modalMode === "status" ? handleConfirmStatusChange : handleConfirmRoleChange}
-                  className="flex-1 px-6 py-3 bg-blue-500 text-white rounded-full font-medium shadow-sm hover:bg-blue-600 active:scale-95 transition-all duration-200"
-                >
-                  {modalMode === "status"
-                    ? selectedStatus === "Suspended"
-                      ? "Suspend Account"
-                      : "Update Status"
-                    : "Update Role"}
-                </button>
+                {modalMode !== "verify" && (
+                  <button
+                    onClick={modalMode === "status" ? handleConfirmStatusChange : handleConfirmRoleChange}
+                    className="flex-1 px-3 sm:px-6 py-3 bg-blue-500 text-white rounded-full font-medium shadow-sm hover:bg-blue-600 active:scale-95 transition-all duration-200 text-sm sm:text-base"
+                  >
+                    {modalMode === "status"
+                      ? selectedStatus === "Suspended"
+                        ? "Suspend Account"
+                        : "Update Status"
+                      : "Update Role"}
+                  </button>
+                )}
               </div>
             </div>
           </div>

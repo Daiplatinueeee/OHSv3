@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect, useCallback } from "react"
 import { X, AlertTriangle, XCircle, Clock, CheckCircle2, AlertCircle } from "lucide-react"
@@ -191,6 +189,7 @@ export default function LoginAlt() {
           setLoading(false)
           return
         }
+
         const response = await fetch("http://localhost:3000/api/users/login", {
           method: "POST",
           headers: {
@@ -203,38 +202,72 @@ export default function LoginAlt() {
         console.log("Server response data (password login):", data) // Debugging log
 
         if (response.ok) {
+          const user = data.user
+
+          // ✅ --- STATUS CHECKS START ---
+          if (user.status === "pending") {
+            setUnsuccessMessage("Your account is still pending approval. Please wait for confirmation from our team.")
+            setShowUnsuccessModal(true)
+            setTimeout(() => setShowUnsuccessModal(false), 4000)
+            setLoading(false)
+            return
+          }
+
+          if (user.status === "declined") {
+            setUnsuccessMessage(
+              `Your account has been declined.\nReason: ${user.declinedReason || "No reason provided."}`
+            )
+            setShowUnsuccessModal(true)
+            setTimeout(() => setShowUnsuccessModal(false), 5000)
+            setLoading(false)
+            return
+          }
+
+          if (user.status === "suspended") {
+            const {
+              suspensionDuration,
+              suspensionReason,
+            } = user
+
+            setUnsuccessMessage(
+              `Your account is suspended.\n\nDuration: ${suspensionDuration || "N/A"} days\nReason: ${suspensionReason || "N/A"}`
+            )
+
+            setShowUnsuccessModal(true)
+            setTimeout(() => setShowUnsuccessModal(false), 6000)
+            setLoading(false)
+            return
+          }
+          // ✅ --- STATUS CHECKS END ---
+
+          // Continue normal login flow
           setSuccessMessage(
-            "Please take a moment to review our policies, terms of service, and important safety guidelines to prevent any unnecessary incidents and ensure a smooth experience.",
+            "Please take a moment to review our policies, terms of service, and important safety guidelines to prevent any unnecessary incidents and ensure a smooth experience."
           )
           setShowSuccessModal(true)
           setIsCountdownActive(true)
           setCountdown(20)
 
           // Store user data and token separately
-          localStorage.setItem("user", JSON.stringify(data.user))
+          localStorage.setItem("user", JSON.stringify(user))
           if (data.token) {
             localStorage.setItem("token", data.token)
-            console.log("Token saved to localStorage:", data.token) // Debugging log
+            console.log("Token saved to localStorage:", data.token)
           } else {
-            console.warn("No token received from password login response.") // Debugging log
+            console.warn("No token received from password login response.")
           }
 
-          // --- START ADDITION FOR SAVE CREDENTIALS ---
+          // --- SAVE CREDENTIALS ---
           if (saveCredentials) {
-            // WARNING: Storing passwords directly in localStorage is not recommended for production
-            // applications due to security risks (e.g., XSS attacks).
-            // For a production environment, consider more secure methods like
-            // server-side sessions, secure HTTP-only cookies, or token-based authentication
-            // where the token is stored securely.
             localStorage.setItem("savedEmail", email)
             localStorage.setItem("savedPassword", password)
           } else {
             localStorage.removeItem("savedEmail")
             localStorage.removeItem("savedPassword")
           }
-          // --- END ADDITION FOR SAVE CREDENTIALS ---
 
-          const userAccountType = data.user.accountType
+          // Redirect by account type
+          const userAccountType = user.accountType
           let redirectPath = "/"
           switch (userAccountType) {
             case "customer":
@@ -253,6 +286,7 @@ export default function LoginAlt() {
               redirectPath = "/"
           }
 
+          // Countdown redirect
           const timer = setInterval(() => {
             setCountdown((prev) => {
               if (prev <= 1) {
@@ -281,17 +315,16 @@ export default function LoginAlt() {
         })
 
         const data = await response.json()
-        console.log("Server response data (send OTP):", data) // Debugging log
+        console.log("Server response data (send OTP):", data)
 
         if (response.ok) {
           setSuccessMessage(data.message)
           setShowSuccessModal(true)
           setTimeout(() => {
             setShowSuccessModal(false)
-            setShowOtpModal(true) // Show OTP modal after sending link
+            setShowOtpModal(true)
           }, 1500)
         } else {
-          // Handle specific error for email not registered
           if (response.status === 404) {
             setUnsuccessMessage(data.message || "Email not registered. Please create an account first.")
           } else {
@@ -310,6 +343,7 @@ export default function LoginAlt() {
       setLoading(false)
     }
   }
+
 
   const handleFinalLoginSuccess = useCallback((responsePayload: { user: any; token?: string }) => {
     setSuccessMessage(
@@ -527,7 +561,7 @@ export default function LoginAlt() {
       if (email && (!showPasswordField || password) && !loading) {
         // Create a synthetic mouse event to match the existing handleLogin signature
         const syntheticEvent = {
-          preventDefault: () => {},
+          preventDefault: () => { },
         } as React.MouseEvent<HTMLButtonElement>
         handleLogin(syntheticEvent)
       }
@@ -547,9 +581,8 @@ export default function LoginAlt() {
             {slideshowImages.map((image, index) => (
               <div
                 key={index}
-                className={`absolute inset-0 transition-opacity duration-1000 ${
-                  activeSlide === index ? "opacity-100" : "opacity-0"
-                }`}
+                className={`absolute inset-0 transition-opacity duration-1000 ${activeSlide === index ? "opacity-100" : "opacity-0"
+                  }`}
               >
                 <img src={image.src || "/placeholder.svg"} className="object-cover w-full h-full rounded-br-[200px]" />
               </div>
@@ -593,9 +626,8 @@ export default function LoginAlt() {
           </div>
           {/* Password field with animation */}
           <div
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              showPasswordField ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-            }`}
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${showPasswordField ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+              }`}
           >
             <div className="space-y-1.5 pt-4">
               <label htmlFor="password" className="text-sm font-medium">
@@ -762,9 +794,8 @@ export default function LoginAlt() {
                     }}
                     disabled={!termsAccepted} // Disabled if terms not accepted
                     className={`flex flex-col items-center justify-center p-6 border-2 rounded-xl transition-all w-[13rem] cursor-pointer
-                ${
-                  termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
-                }`}
+                ${termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
+                      }`}
                   >
                     <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
                       <svg
@@ -794,9 +825,8 @@ export default function LoginAlt() {
                     }}
                     disabled={!termsAccepted} // Disabled if terms not accepted
                     className={`flex flex-col items-center justify-center p-6 border-2 rounded-xl transition-all w-[13rem] cursor-pointer
-                ${
-                  termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
-                }`}
+                ${termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
+                      }`}
                   >
                     <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
                       <svg
@@ -953,12 +983,15 @@ export default function LoginAlt() {
               </div>
 
               <h3 className="text-xl font-medium text-gray-900 mb-2" style={{ animation: "slideInUp 0.4s ease-out" }}>
-                Terms Not Accepted
+                Oh nooo! Something went wrong.
               </h3>
 
-              <p className="text-gray-600 mb-6" style={{ animation: "fadeIn 0.5s ease-out 0.2s both" }}>
-                {unsuccessMessage}
-              </p>
+              <div className="text-gray-600 mb-6" style={{ animation: "fadeIn 0.5s ease-out 0.2s both" }}>
+                {unsuccessMessage.split('\n').map((line, index) => (
+                  <p key={index}>{line}</p>
+                ))}
+              </div>
+
 
               <button
                 onClick={() => setShowUnsuccessModal(false)}
@@ -990,7 +1023,7 @@ export default function LoginAlt() {
               </div>
 
               <h3 className="text-xl font-medium text-gray-800 mb-2" style={{ animation: "slideInUp 0.4s ease-out" }}>
-                Welcome Aboard!
+                You're good to go! Let's get started.
               </h3>
 
               <p
@@ -1008,11 +1041,10 @@ export default function LoginAlt() {
                     setCountdown(0)
                   }}
                   disabled={isCountdownActive}
-                  className={`flex-1 px-6 py-3 rounded-full font-medium transition-all duration-200 ${
-                    isCountdownActive
-                      ? "bg-gray-400 text-white cursor-not-allowed"
-                      : "bg-sky-500 text-white hover:bg-sky-600 active:scale-95"
-                  }`}
+                  className={`flex-1 px-6 py-3 rounded-full font-medium transition-all duration-200 ${isCountdownActive
+                    ? "bg-gray-400 text-white cursor-not-allowed"
+                    : "bg-sky-500 text-white hover:bg-sky-600 active:scale-95"
+                    }`}
                 >
                   {isCountdownActive ? `Continue (${countdown}s)` : "Continue"}
                 </button>

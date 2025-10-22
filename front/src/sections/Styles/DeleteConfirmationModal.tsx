@@ -100,7 +100,7 @@ export default function DeleteConfirmationModal({
       style={{ animation: "fadeIn 0.3s ease-out" }}
     >
       <div
-        className="mx-auto max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
+        className="mx-auto max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-4 sm:p-6"
         style={{ animation: "fadeIn 0.5s ease-out 0.2s both" }}
       >
         <div className="flex flex-col items-center text-center">
@@ -111,26 +111,26 @@ export default function DeleteConfirmationModal({
             <Trash2 className="h-10 w-10 text-red-500" style={{ animation: "bounceIn 0.6s ease-out" }} />
           </div>
 
-          <h3 className="text-xl font-medium text-gray-900 mb-2" style={{ animation: "slideInUp 0.4s ease-out" }}>
+          <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2" style={{ animation: "slideInUp 0.4s ease-out" }}>
             Delete Account
           </h3>
 
-          <p className="text-gray-600 mb-6" style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}>
+          <p className="text-sm sm:text-base text-gray-600 mb-6" style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}>
             Are you sure you want to delete {account.name}'s account? This action cannot be undone.
           </p>
 
-          <div className="flex gap-3 w-full" style={{ animation: "fadeIn 0.5s ease-out 0.4s both" }}>
+          <div className="flex flex-col sm:flex-row gap-3 w-full" style={{ animation: "fadeIn 0.5s ease-out 0.4s both" }}>
             <button
               onClick={onClose}
               disabled={isDeleting}
-              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-full font-medium hover:bg-gray-50 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 sm:px-6 py-3 border border-gray-300 text-gray-700 rounded-full font-medium hover:bg-gray-50 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               onClick={handleDeleteAccount}
               disabled={isDeleting}
-              className="flex-1 px-6 py-3 bg-red-500 text-white rounded-full font-medium shadow-sm hover:bg-red-600 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 sm:px-6 py-3 bg-red-500 text-white rounded-full font-medium shadow-sm hover:bg-red-600 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               {isDeleting ? "Deleting..." : "Delete Account"}
             </button>

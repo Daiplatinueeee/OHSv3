@@ -50,11 +50,11 @@ export default function ImagePopup({ imageUrl, isOpen, onClose, onImageChange }:
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
       onClick={onClose}
     >
       <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
-        <div className="absolute top-21 right-6 z-10 flex gap-2">
+        <div className="absolute top-4 sm:top-21 right-2 sm:right-6 z-10 flex gap-2">
           {/* Change image button */}
           {onImageChange && (
             <button
@@ -86,7 +86,7 @@ export default function ImagePopup({ imageUrl, isOpen, onClose, onImageChange }:
           <img
             src={imageUrl || "/placeholder.svg"}
             alt="Document preview"
-            className="w-[80vw] max-w-full h-[75vh] max-h-[80vh] object-fill"
+            className="w-[90vw] sm:w-[80vw] max-w-full h-[70vh] sm:h-[75vh] max-h-[80vh] object-contain sm:object-fill"
             onLoad={(e) => {
               // Ensure image is properly sized
               const img = e.target as HTMLImageElement

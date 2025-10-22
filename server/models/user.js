@@ -29,11 +29,11 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     suspensionStartDate: {
-      type: Date,
+      type: String,
       default: null,
     },
     suspensionEndDate: {
-      type: Date,
+      type: String,
       default: null,
     },
     suspensionReason: {

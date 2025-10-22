@@ -33,6 +33,7 @@ import {
   getUserProfileById,
   bulkAddProviders,
   fetchProviders,
+  updateUserVerification
 } from "./controller/userController.js"
 import { createService, getServices, deleteService, getServicesByUserId, getServicesByCompanyId, getTotalServicesByCompany, updateServiceDetails } from "./controller/serviceController.js"
 import {
@@ -1088,7 +1089,6 @@ app.get("/api/user/location", authenticateToken, getUserLocation)
 app.post("/api/providers/bulk", authenticateToken, bulkAddProviders)
 app.get("/api/fetchProviders", authenticateToken, fetchProviders)
 
-
 // Fetch user activities
 app.post("/api/allUserActivities", authenticateToken, fetchUserActivities)
 
@@ -1107,6 +1107,9 @@ app.get("/api/subscription/:userId/", authenticateToken, getSubscription)
 // Advertisement endpoint
 app.post("/api/advertise/:userId/", authenticateToken, saveAdvertisement)
 app.get("/api/advertisements", authenticateToken, showAdvertisement)
+
+// Admin updating verification status
+app.put("/api/admin/users/:userId/verify", authenticateToken, updateUserVerification)
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
