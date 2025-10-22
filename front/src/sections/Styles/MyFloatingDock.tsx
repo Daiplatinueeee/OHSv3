@@ -10,9 +10,9 @@ import {
   PowerOff,
   Bell,
   CircleUserRound,
-  Newspaper,
   ChevronUp,
   Coffee,
+  Flag,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import NotificationPopup, { type NotificationItem } from "../Customer_Tabs/Notification"
@@ -245,7 +245,7 @@ const FloatingDock: React.FC = () => {
             isActive={location.pathname === "/menu"}
           />
           <DockItem
-            icon={<CreditCard size={20} strokeWidth={1.5} color="gray" />}
+            icon={<Flag size={20} strokeWidth={1.5} color="gray" />}
             label="Reports"
             to="/admin/reports"
             isActive={location.pathname === "/menu"}
@@ -304,12 +304,6 @@ const FloatingDock: React.FC = () => {
             label="Profile"
             to="/admin/my-account"
             isActive={location.pathname === "/"}
-          />
-          <DockItem
-            icon={<Newspaper size={20} strokeWidth={1.5} color="gray" />}
-            label="News"
-            to="/admin/news"
-            isActive={location.pathname === "/admin/news"}
           />
           <DockItem
             icon={<PowerOff size={20} strokeWidth={1.5} color="gray" />}

@@ -123,10 +123,10 @@ const transformBackendUserToAccount = (backendUser: any): Account => {
     status: backendUser.isActive ? "Active" : "Pending",
     joinDate: backendUser.createdAt
       ? new Date(backendUser.createdAt).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
       : "N/A",
     lastLogin: "N/A", // Backend doesn't provide this
     avatar: backendUser.profilePicture || "/placeholder.svg?height=40&width=40",
@@ -319,10 +319,10 @@ function AccountsTab() {
                 : "Inactive",
         joinDate: user.createdAt
           ? new Date(user.createdAt).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
           : "N/A",
         lastLogin: user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "N/A",
         avatar: user.profilePicture || "/placeholder.svg?height=40&width=40",
@@ -920,11 +920,11 @@ function AccountsTab() {
       prevAccounts.map((acc) =>
         acc.id === accountId
           ? {
-              ...acc,
-              status: newStatus,
-              verificationStatus: newVerificationStatus,
-              ...updatedAnomalies, // Apply updated anomaly states
-            }
+            ...acc,
+            status: newStatus,
+            verificationStatus: newVerificationStatus,
+            ...updatedAnomalies, // Apply updated anomaly states
+          }
           : acc,
       ),
     )
@@ -1030,96 +1030,120 @@ function AccountsTab() {
         <>
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-16">
             {/* Header with Time and Date */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-              <div>
-                <h1 className="text-2xl font-medium text-gray-700">Accounts Management</h1>
-                <p className="text-gray-500 text-sm font-light">View and manage all user accounts in your system</p>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+              {/* Left Section - Title and Description */}
+              <div className="text-center sm:text-left">
+                <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+                  Accounts Management
+                </h1>
+                <p className="text-gray-500 text-sm sm:text-base font-light">
+                  View and manage all user accounts in your system
+                </p>
               </div>
-              <div className="mt-4 md:mt-0 flex flex-col items-end">
-                <div className="text-2xl font-medium text-[#0A84FF]">{timeString}</div>
-                <div className="text-sm text-gray-500 font-light">{dateString}</div>
+
+              {/* Right Section - Time and Date */}
+              <div className="flex flex-col items-center sm:items-end">
+                <div className="text-xl sm:text-2xl font-semibold text-[#0A84FF]">
+                  {timeString}
+                </div>
+                <div className="text-sm sm:text-base text-gray-500 font-light">
+                  {dateString}
+                </div>
               </div>
             </div>
+
 
             {/* Account Overview */}
             <div className="mb-8">
               <div className="bg-gradient-to-r from-[#0A84FF] to-[#5AC8FA] rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 text-white">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <div>
-                      <h2 className="text-xl font-medium">Account Overview</h2>
-                      <p className="text-white/90 font-light">Manage and monitor all registered accounts</p>
+                <div className="p-4 sm:p-6 text-white">
+                  {/* Header Section */}
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div className="text-center md:text-left w-full md:w-auto">
+                      <h2 className="text-lg sm:text-xl font-semibold">Account Overview</h2>
+                      <p className="text-white/90 text-sm sm:text-base font-light">
+                        Manage and monitor all registered accounts
+                      </p>
                     </div>
-                    <div className="mt-4 md:mt-0 flex gap-2">
+
+                    {/* Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                       <Button
-                        className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0"
+                        className="flex justify-center bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0 text-sm sm:text-base"
                         onClick={refreshAccounts}
                       >
-                        <RefreshCw className="mr-2 h-4 w-4" />
+                        <RefreshCw className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                         Refresh
                       </Button>
                       <Button
-                        className="bg-white text-[#0A84FF] hover:bg-white/90 border-0"
+                        className="flex justify-center bg-white text-[#0A84FF] hover:bg-white/90 border-0 text-sm sm:text-base"
                         onClick={() => setIsAddAccountModalOpen(true)}
                       >
-                        <UserPlus className="mr-2 h-4 w-4" />
+                        <UserPlus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                         Add Account
                       </Button>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Total Accounts */}
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-white/20 rounded-full p-2">
-                          <Users className="h-5 w-5 text-white" />
+                        <div className="bg-white/20 rounded-full p-2 sm:p-3">
+                          <Users className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
-                        <span className="text-sm font-medium">Total Accounts</span>
+                        <span className="text-sm sm:text-base font-medium">Total Accounts</span>
                       </div>
-                      <div className="text-3xl font-medium">{accountStats.totalAccounts}</div>
-                      <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                      <div className="text-2xl sm:text-3xl font-semibold">{accountStats.totalAccounts}</div>
+                      <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                         <ArrowRight className="h-3 w-3 mr-1" />
                         <span>+12% increase</span>
                       </div>
                     </div>
 
-                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                    {/* Active Users */}
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-white/20 rounded-full p-2">
-                          <CheckCircle className="h-5 w-5 text-white" />
+                        <div className="bg-white/20 rounded-full p-2 sm:p-3">
+                          <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
-                        <span className="text-sm font-medium">Active Users</span>
+                        <span className="text-sm sm:text-base font-medium">Active Users</span>
                       </div>
-                      <div className="text-3xl font-medium">{accountStats.activeUsers}</div>
-                      <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                      <div className="text-2xl sm:text-3xl font-semibold">{accountStats.activeUsers}</div>
+                      <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                         <ArrowRight className="h-3 w-3 mr-1" />
                         <span>+8% increase</span>
                       </div>
                     </div>
 
-                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                    {/* New This Month */}
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-white/20 rounded-full p-2">
-                          <UserPlus className="h-5 w-5 text-white" />
+                        <div className="bg-white/20 rounded-full p-2 sm:p-3">
+                          <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
-                        <span className="text-sm font-medium">New This Month</span>
+                        <span className="text-sm sm:text-base font-medium">New This Month</span>
                       </div>
-                      <div className="text-3xl font-medium">{accountStats.newThisMonth}</div>
-                      <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                      <div className="text-2xl sm:text-3xl font-semibold">{accountStats.newThisMonth}</div>
+                      <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                         <ArrowRight className="h-3 w-3 mr-1" />
                         <span>+24% increase</span>
                       </div>
                     </div>
 
-                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                    {/* Conversion Rate */}
+                    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-white/20 rounded-full p-2">
-                          <ChevronDown className="h-5 w-5 text-white" />
+                        <div className="bg-white/20 rounded-full p-2 sm:p-3">
+                          <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                         </div>
-                        <span className="text-sm font-medium">Conversion Rate</span>
+                        <span className="text-sm sm:text-base font-medium">Conversion Rate</span>
                       </div>
-                      <div className="text-3xl font-medium">{accountStats.conversionRate}%</div>
-                      <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                      <div className="text-2xl sm:text-3xl font-semibold">
+                        {accountStats.conversionRate}%
+                      </div>
+                      <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                         <ArrowRight className="h-3 w-3 mr-1" />
                         <span>+5% increase</span>
                       </div>
@@ -1129,19 +1153,31 @@ function AccountsTab() {
               </div>
             </div>
 
+
             {/* Main Content - Split Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               {/* Accounts List - Left Side */}
               <div className="lg:col-span-2 overflow-auto max-h-[95rem]">
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-gray-100">
+                  {/* Header */}
+                  <div className="p-4 sm:p-6 border-b border-gray-100">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                      <h2 className="text-lg font-medium text-gray-800">Registered Accounts</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                        Registered Accounts
+                      </h2>
+
+                      {/* Search, Filter & Role Select */}
                       <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                        <div className="relative w-full md:w-64">
+                        {/* Search Bar */}
+                        <div className="relative w-full sm:w-64">
                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <Input placeholder="Search accounts..." className="pl-9 bg-[#F2F2F7] border-0" />
+                          <Input
+                            placeholder="Search accounts..."
+                            className="pl-9 bg-[#F2F2F7] border-0 w-full"
+                          />
                         </div>
+
+                        {/* Select Dropdown */}
                         <Select defaultValue="all">
                           <SelectTrigger className="w-full sm:w-[180px] bg-[#F2F2F7] border-0 font-medium text-gray-700">
                             <SelectValue placeholder="Filter by role" />
@@ -1153,76 +1189,96 @@ function AccountsTab() {
                             <SelectItem value="admin">Administrators</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Button variant="outline" className="bg-[#F2F2F7] border-0 text-gray-700">
+
+                        {/* Filter Button */}
+                        <Button
+                          variant="outline"
+                          className="bg-[#F2F2F7] border-0 text-gray-700 flex items-center justify-center"
+                        >
                           <Filter className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4">
-                    <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-auto">
-                      <TabsList className="bg-[#F2F2F7] mb-4">
-                        <TabsTrigger value="all" className="text-xs data-[state=active]:bg-white">
+                  {/* Tabs */}
+                  <div className="p-4 sm:p-6">
+                    <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
+                      <TabsList className="bg-[#F2F2F7] mb-4 flex flex-wrap justify-start sm:justify-between overflow-auto rounded-lg">
+                        <TabsTrigger value="all" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           All
                         </TabsTrigger>
-                        <TabsTrigger value="customers" className="text-xs data-[state=active]:bg-white">
+                        <TabsTrigger value="customers" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           Customers
                         </TabsTrigger>
-                        <TabsTrigger value="providers" className="text-xs data-[state=active]:bg-white">
+                        <TabsTrigger value="providers" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           Providers
                         </TabsTrigger>
-                        <TabsTrigger value="admins" className="text-xs data-[state=active]:bg-white">
+                        <TabsTrigger value="admins" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           Admins
                         </TabsTrigger>
-                        <TabsTrigger value="inactive" className="text-xs data-[state=active]:bg-white">
+                        <TabsTrigger value="inactive" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           Inactive
                         </TabsTrigger>
-                        <TabsTrigger value="pending" className="text-xs data-[state=active]:bg-white">
+                        <TabsTrigger value="pending" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           Pending
                         </TabsTrigger>
                       </TabsList>
 
+                      {/* Accounts */}
                       <div className="space-y-3">
                         {filteredAccounts.map((account) => (
                           <div
                             key={account.id}
-                            className={`bg-[#F2F2F7]/50 rounded-xl p-4 hover:bg-[#F2F2F7] transition-colors cursor-pointer ${selectedAccount?.id === account.id ? "ring-1 ring-[#0A84FF]" : ""}`}
+                            className={`bg-[#F2F2F7]/50 rounded-xl p-4 hover:bg-[#F2F2F7] transition-colors cursor-pointer ${selectedAccount?.id === account.id ? "ring-1 ring-[#0A84FF]" : ""
+                              }`}
                             onClick={() => handleAccountSelect(account)}
                           >
-                            <div className="flex items-start gap-4">
-                              <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
-                                <AvatarImage src={account.avatar || "/placeholder.svg"} alt={account.name} />
-                                <AvatarFallback className="bg-[#E9F6FF] text-[#0A84FF]">
-                                  {account.name.charAt(0)}
-                                  {account.name.split(" ")[1]?.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
+                            {/* Account Card */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                              {/* Avatar and Info */}
+                              <div className="flex items-start gap-4 w-full">
+                                <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+                                  <AvatarImage
+                                    src={account.avatar || "/placeholder.svg"}
+                                    alt={account.name}
+                                  />
+                                  <AvatarFallback className="bg-[#E9F6FF] text-[#0A84FF]">
+                                    {account.name.charAt(0)}
+                                    {account.name.split(" ")[1]?.charAt(0)}
+                                  </AvatarFallback>
+                                </Avatar>
 
-                              <div className="flex-1 min-w-0">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                  <h3 className="font-medium text-gray-800">{account.name}</h3>
-                                  <div className="flex flex-wrap gap-2">
-                                    {renderStatusBadge(account.status)}
-                                    {renderRoleBadge(account.role)}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <h3 className="font-medium text-gray-800 truncate">
+                                      {account.name}
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                      {renderStatusBadge(account.status)}
+                                      {renderRoleBadge(account.role)}
+                                    </div>
                                   </div>
-                                </div>
 
-                                <div className="text-sm text-gray-500 mt-1 font-light">{account.email}</div>
-
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 mt-3 text-xs text-gray-600 font-light">
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="h-3 w-3 text-gray-400" />
-                                    <span>Joined: {account.joinDate}</span>
+                                  <div className="text-sm text-gray-500 mt-1 font-light break-all">
+                                    {account.email}
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3 text-gray-400" />
-                                    <span>Last login: {account.lastLogin}</span>
+
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 mt-3 text-xs text-gray-600 font-light">
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="h-3 w-3 text-gray-400" />
+                                      <span>Joined: {account.joinDate}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Clock className="h-3 w-3 text-gray-400" />
+                                      <span>Last login: {account.lastLogin}</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
 
-                              <div className="flex flex-col items-end gap-2">
+                              {/* Actions Menu */}
+                              <div className="flex sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto justify-between sm:justify-end">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -1262,10 +1318,13 @@ function AccountsTab() {
                               </div>
                             </div>
 
+                            {/* Expanded Account Details */}
                             {selectedAccount?.id === account.id && (
                               <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-3">
-                                  <h4 className="font-medium text-sm text-gray-700">Contact Information</h4>
+                                  <h4 className="font-medium text-sm text-gray-700">
+                                    Contact Information
+                                  </h4>
                                   <div className="space-y-2">
                                     <div className="flex items-center gap-2 text-sm font-light">
                                       <Mail className="h-4 w-4 text-[#0A84FF]" />
@@ -1283,14 +1342,19 @@ function AccountsTab() {
                                 </div>
 
                                 <div className="space-y-3">
-                                  <h4 className="font-medium text-sm text-gray-700">Account Details</h4>
+                                  <h4 className="font-medium text-sm text-gray-700">
+                                    Account Details
+                                  </h4>
                                   <div className="space-y-2">
                                     <div className="flex items-center gap-2">
                                       <Shield className="h-4 w-4 text-[#0A84FF]" />
                                       <span className="font-light">Verification</span>
                                     </div>
                                     <span
-                                      className={`font-medium ${account.verificationStatus === "Verified" ? "text-[#30D158]" : "text-[#FF9500]"}`}
+                                      className={`font-medium ${account.verificationStatus === "Verified"
+                                        ? "text-[#30D158]"
+                                        : "text-[#FF9500]"
+                                        }`}
                                     >
                                       {account.verificationStatus}
                                     </span>
@@ -1302,7 +1366,7 @@ function AccountsTab() {
                                     variant="outline"
                                     size="sm"
                                     className="text-[#0A84FF] border-[#0A84FF]/20 hover:bg-[#E9F6FF] bg-transparent"
-                                    onClick={() => handleViewFullDetails(account)} // Updated onClick
+                                    onClick={() => handleViewFullDetails(account)}
                                   >
                                     View Full Details
                                     <ChevronRight className="ml-1 h-3 w-3" />
@@ -1316,8 +1380,9 @@ function AccountsTab() {
                     </Tabs>
                   </div>
 
-                  <div className="p-4 border-t border-gray-100 flex items-center justify-between">
-                    <div className="text-sm text-gray-500 font-light">
+                  {/* Footer */}
+                  <div className="p-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div className="text-sm text-gray-500 font-light text-center sm:text-left">
                       Showing <span className="font-medium">{filteredAccounts.length}</span> of{" "}
                       <span className="font-medium">{accounts.length}</span> accounts
                     </div>
@@ -1332,6 +1397,7 @@ function AccountsTab() {
                   </div>
                 </div>
               </div>
+
 
               {/* Account Analytics - Right Side */}
               <div>
@@ -1376,15 +1442,14 @@ function AccountsTab() {
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">
                                 <div
-                                  className={`w-3 h-3 rounded-full ${
-                                    index === 0
-                                      ? "bg-[#0A84FF]"
-                                      : index === 1
-                                        ? "bg-[#5E5CE6]"
-                                        : index === 2
-                                          ? "bg-[#5AC8FA]"
-                                          : "bg-[#007AFF]" // New color for Employees
-                                  }`}
+                                  className={`w-3 h-3 rounded-full ${index === 0
+                                    ? "bg-[#0A84FF]"
+                                    : index === 1
+                                      ? "bg-[#5E5CE6]"
+                                      : index === 2
+                                        ? "bg-[#5AC8FA]"
+                                        : "bg-[#007AFF]" // New color for Employees
+                                    }`}
                                 ></div>
                                 <span className="text-sm font-medium">{item.role}</span>
                               </div>
@@ -1392,15 +1457,14 @@ function AccountsTab() {
                             </div>
                             <div className="h-1.5 bg-[#F2F2F7] rounded-full">
                               <div
-                                className={`h-full rounded-full ${
-                                  index === 0
-                                    ? "bg-[#0A84FF]"
-                                    : index === 1
-                                      ? "bg-[#5E5CE6]"
-                                      : index === 2
-                                        ? "bg-[#5AC8FA]"
-                                        : "bg-[#007AFF]" // New color for Employees
-                                }`}
+                                className={`h-full rounded-full ${index === 0
+                                  ? "bg-[#0A84FF]"
+                                  : index === 1
+                                    ? "bg-[#5E5CE6]"
+                                    : index === 2
+                                      ? "bg-[#5AC8FA]"
+                                      : "bg-[#007AFF]" // New color for Employees
+                                  }`}
                                 style={{ width: `${item.percentage}%` }}
                               ></div>
                             </div>
@@ -1425,15 +1489,14 @@ function AccountsTab() {
                             <div className="text-xs text-gray-500 font-light">{status.status}</div>
                             <div className="text-lg font-medium text-gray-800">{status.count}</div>
                             <div
-                              className={`text-xs ${
-                                status.status === "Active"
-                                  ? "text-[#30D158]"
-                                  : status.status === "Inactive"
-                                    ? "text-[#8E8E93]"
-                                    : status.status === "Pending"
-                                      ? "text-[#FF9500]"
-                                      : "text-[#FF453A]"
-                              }`}
+                              className={`text-xs ${status.status === "Active"
+                                ? "text-[#30D158]"
+                                : status.status === "Inactive"
+                                  ? "text-[#8E8E93]"
+                                  : status.status === "Pending"
+                                    ? "text-[#FF9500]"
+                                    : "text-[#FF453A]"
+                                }`}
                             >
                               {status.percentage}%
                             </div>
@@ -1447,15 +1510,14 @@ function AccountsTab() {
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-2">
                                 <div
-                                  className={`w-3 h-3 rounded-full ${
-                                    status.status === "Active"
-                                      ? "bg-[#30D158]"
-                                      : status.status === "Inactive"
-                                        ? "bg-[#8E8E93]"
-                                        : status.status === "Pending"
-                                          ? "bg-[#FF9500]"
-                                          : "bg-[#FF453A]"
-                                  }`}
+                                  className={`w-3 h-3 rounded-full ${status.status === "Active"
+                                    ? "bg-[#30D158]"
+                                    : status.status === "Inactive"
+                                      ? "bg-[#8E8E93]"
+                                      : status.status === "Pending"
+                                        ? "bg-[#FF9500]"
+                                        : "bg-[#FF453A]"
+                                    }`}
                                 ></div>
                                 <span className="text-sm font-medium">{status.status}</span>
                               </div>
@@ -1463,15 +1525,14 @@ function AccountsTab() {
                             </div>
                             <div className="h-1.5 bg-[#F2F2F7] rounded-full">
                               <div
-                                className={`h-full rounded-full ${
-                                  status.status === "Active"
-                                    ? "bg-[#30D158]"
-                                    : status.status === "Inactive"
-                                      ? "bg-[#8E8E93]"
-                                      : status.status === "Pending"
-                                        ? "bg-[#FF9500]"
-                                        : "bg-[#FF453A]"
-                                }`}
+                                className={`h-full rounded-full ${status.status === "Active"
+                                  ? "bg-[#30D158]"
+                                  : status.status === "Inactive"
+                                    ? "bg-[#8E8E93]"
+                                    : status.status === "Pending"
+                                      ? "bg-[#FF9500]"
+                                      : "bg-[#FF453A]"
+                                  }`}
                                 style={{ width: `${status.percentage}%` }}
                               ></div>
                             </div>
@@ -1486,7 +1547,7 @@ function AccountsTab() {
 
             {/* Add Account Modal */}
             <Dialog open={isAddAccountModalOpen} onOpenChange={setIsAddAccountModalOpen}>
-              <DialogContent className="sm:max-w-4xl rounded-2xl border-none shadow-lg overflow-hidden p-0 bg-white/90 backdrop-blur-xl">
+              <DialogContent className="w-[95%] sm:max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border-none shadow-lg bg-white/90 backdrop-blur-xl p-0">
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   {/* Left side - Form */}
                   <div className="p-6">
@@ -1495,7 +1556,8 @@ function AccountsTab() {
                       Create a new user account with the specified role.
                     </DialogDescription>
 
-                    <div className="grid gap-4" style={{ animation: "slideInUp 0.3s ease-out" }}>
+                    <div className="grid gap-4 animate-slideInUp">
+                      {/* First Name */}
                       <div className="grid gap-2">
                         <Label htmlFor="firstName" className="text-gray-700">
                           First Name <span className="text-gray-400 text-sm">(Optional)</span>
@@ -1508,6 +1570,8 @@ function AccountsTab() {
                           placeholder="Enter first name (optional)"
                         />
                       </div>
+
+                      {/* Last Name */}
                       <div className="grid gap-2">
                         <Label htmlFor="lastName" className="text-gray-700">
                           Last Name <span className="text-gray-400 text-sm">(Optional)</span>
@@ -1520,6 +1584,8 @@ function AccountsTab() {
                           placeholder="Enter last name (optional)"
                         />
                       </div>
+
+                      {/* Email */}
                       <div className="grid gap-2">
                         <Label htmlFor="email" className="text-gray-700">
                           Email <span className="text-red-500">*</span>
@@ -1532,6 +1598,8 @@ function AccountsTab() {
                           placeholder="Enter email address"
                         />
                       </div>
+
+                      {/* Password */}
                       <div className="grid gap-2">
                         <Label htmlFor="password" className="text-gray-700">
                           Password <span className="text-red-500">*</span>
@@ -1545,7 +1613,9 @@ function AccountsTab() {
                           placeholder="Enter password"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+
+                      {/* Account Type & Gender */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="grid gap-2">
                           <Label htmlFor="type" className="text-gray-700">
                             Account Type <span className="text-red-500">*</span>
@@ -1562,6 +1632,7 @@ function AccountsTab() {
                             </SelectContent>
                           </Select>
                         </div>
+
                         <div className="grid gap-2">
                           <Label htmlFor="gender" className="text-gray-700">
                             Gender <span className="text-gray-400 text-sm">(Optional)</span>
@@ -1580,11 +1651,21 @@ function AccountsTab() {
                         </div>
                       </div>
 
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsAddAccountModalOpen(false)}>
+                      {/* Action Buttons */}
+                      <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsAddAccountModalOpen(false)}
+                          className="w-full sm:w-auto"
+                        >
                           Cancel
                         </Button>
-                        <Button variant="default" onClick={handleAddAccount} disabled={isSubmitting}>
+                        <Button
+                          variant="default"
+                          onClick={handleAddAccount}
+                          disabled={isSubmitting}
+                          className="w-full sm:w-auto"
+                        >
                           {isSubmitting ? "Creating..." : "Create"}
                         </Button>
                       </div>
@@ -1592,11 +1673,13 @@ function AccountsTab() {
                   </div>
 
                   {/* Right side - Information and preview */}
-                  <div className="bg-gradient-to-br from-[#0A84FF]/10 to-[#5AC8FA]/10 p-6 border-l border-gray-100">
+                  <div className="bg-gradient-to-br from-[#0A84FF]/10 to-[#5AC8FA]/10 p-6 border-t md:border-t-0 md:border-l border-gray-100">
                     <div className="h-full flex flex-col">
                       <div className="mb-6">
-                        <h3 className="text-lg font-medium text-gray-800 mb-2">Account Information</h3>
-                        <p className="text-sm text-gray-600">
+                        <h3 className="text-lg font-medium text-gray-800 mb-2 text-center md:text-left">
+                          Account Information
+                        </h3>
+                        <p className="text-sm text-gray-600 text-center md:text-left">
                           Create a new user account to provide access to the system. Different account types have
                           different permissions. <span className="text-red-500">*</span> indicates required fields.
                         </p>
@@ -1605,48 +1688,22 @@ function AccountsTab() {
                       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
                         <h4 className="text-sm font-medium text-gray-700 mb-3">Account Types</h4>
                         <div className="space-y-3">
-                          <div className="flex items-start gap-3">
-                            <div className="mt-0.5 bg-[#E9F6FF] p-1.5 rounded-full">
-                              <Shield className="h-3.5 w-3.5 text-[#0A84FF]" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-700">Admin</div>
-                              <div className="text-xs text-gray-500">
-                                Full system access and management capabilities
+                          {[
+                            { icon: Shield, color: "#0A84FF", bg: "#E9F6FF", title: "Admin", desc: "Full system access and management capabilities" },
+                            { icon: Users, color: "#5E5CE6", bg: "#F2EBFF", title: "COO", desc: "Can manage services and respond to customer requests" },
+                            { icon: User, color: "#007AFF", bg: "#E6F7FF", title: "Provider", desc: "Internal staff with specific operational roles" },
+                            { icon: User, color: "#30D158", bg: "#E8F8EF", title: "Customer", desc: "Can browse services and make requests" },
+                          ].map(({ icon: Icon, color, bg, title, desc }, index) => (
+                            <div key={index} className="flex items-start gap-3">
+                              <div className={`mt-0.5 p-1.5 rounded-full`} style={{ backgroundColor: bg }}>
+                                <Icon className="h-3.5 w-3.5" style={{ color }} />
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-700">{title}</div>
+                                <div className="text-xs text-gray-500">{desc}</div>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="mt-0.5 bg-[#F2EBFF] p-1.5 rounded-full">
-                              <Users className="h-3.5 w-3.5 text-[#5E5CE6]" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-700">COO</div>
-                              <div className="text-xs text-gray-500">
-                                Can manage services and respond to customer requests
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="mt-0.5 bg-[#E6F7FF] p-1.5 rounded-full">
-                              <User className="h-3.5 w-3.5 text-[#007AFF]" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-700">Provider</div>
-                              <div className="text-xs text-gray-500">
-                                Internal staff with specific operational roles
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="mt-0.5 bg-[#E8F8EF] p-1.5 rounded-full">
-                              <User className="h-3.5 w-3.5 text-[#30D158]" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-700">Customer</div>
-                              <div className="text-xs text-gray-500">Can browse services and make requests</div>
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -1654,6 +1711,7 @@ function AccountsTab() {
                 </div>
               </DialogContent>
             </Dialog>
+
 
             {/* Success Modal */}
             <Dialog open={isSuccessModalOpen} onOpenChange={setIsSuccessModalOpen}>

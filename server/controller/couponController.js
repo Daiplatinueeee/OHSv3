@@ -650,3 +650,29 @@ export const sendCouponToUser = async (req, res) => {
     });
   }
 }
+
+// ✅ Get up to 5 coupons created by a specific company
+export const getCompanyCouponsDashboard = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    if (!companyId) {
+      return res.status(400).json({ message: "Company ID is required." });
+    }
+
+    const coupons = await Coupon.find({ companyId })
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    res.status(200).json({
+      coupons,
+      count: coupons.length,
+    });
+  } catch (error) {
+    console.error("Error fetching company coupons:", error);
+    res.status(500).json({
+      message: "Failed to fetch coupons.",
+      error: error.message,
+    });
+  }
+}

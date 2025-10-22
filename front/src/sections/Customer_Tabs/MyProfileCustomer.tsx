@@ -316,6 +316,14 @@ function MyProfile() {
   const frontIdRef = useRef<HTMLInputElement>(null)
   const backIdRef = useRef<HTMLInputElement>(null)
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo[]>([])
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  })
+
+  const [, setPasswordLoading] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" })
 
   useEffect(() => {
     const generateSecretCode = async () => {
@@ -1017,6 +1025,68 @@ function MyProfile() {
     }
   }
 
+  const handleChangePassword = async (e: any) => {
+    e.preventDefault()
+    setPasswordMessage({ type: "", text: "" })
+
+    // Validate form
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "All fields are required." })
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "New passwords do not match." })
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordMessage({ type: "error", text: "New password must be at least 6 characters long." })
+      return
+    }
+
+    try {
+      setPasswordLoading(true)
+      const token = localStorage.getItem("token")
+      const userString = localStorage.getItem("user")
+      const user = userString ? JSON.parse(userString) : null
+      const userId = user?._id
+
+      if (!userId) {
+        setPasswordMessage({ type: "error", text: "User ID not found. Please log in again." })
+        return
+      }
+
+      const API_BASE_URL = "http://localhost:3000"
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setPasswordMessage({ type: "error", text: data.message || "Failed to change password." })
+        return
+      }
+
+      setPasswordMessage({ type: "success", text: "Password changed successfully!" })
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" })
+    } catch (error) {
+      console.error("Error changing password:", error)
+      setPasswordMessage({ type: "error", text: "An error occurred while changing password." })
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
   // Determine border color class for email input
   const emailBorderClass =
     emailValidationStatus === "available"
@@ -1634,7 +1704,7 @@ function MyProfile() {
       return (
         <div className="bg-white rounded-3xl p-6">
           <h3 className="text-xl font-medium text-gray-700 mb-6">Change Password</h3>
-          <form className="space-y-4 max-w-md">
+          <form className="space-y-4 max-w-md" onSubmit={handleChangePassword}>
             <div>
               <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 mb-1">
                 Current Password
@@ -1644,6 +1714,8 @@ function MyProfile() {
                 id="current-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Enter your current password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
               />
             </div>
             <div>
@@ -1655,6 +1727,8 @@ function MyProfile() {
                 id="new-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Enter your new password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
               />
             </div>
             <div>
@@ -1666,6 +1740,8 @@ function MyProfile() {
                 id="confirm-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Confirm your new password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
               />
             </div>
             <div className="pt-2">
@@ -1677,75 +1753,15 @@ function MyProfile() {
               </button>
             </div>
           </form>
-        </div>
-      )
-    }
-
-    if (activeTab === "delete") {
-      return (
-        <div className="bg-white rounded-3xl p-6">
-          <h3 className="text-xl font-medium mb-2 text-red-600">Delete Account</h3>
-          <p className="text-gray-600 mb-6">Once you delete your account, there is no going back. Please be certain.</p>
-
-          <div className="space-y-6">
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-              <h4 className="font-medium text-red-800 mb-2">Before you proceed, please understand:</h4>
-              <ul className="list-disc pl-5 space-y-2 text-red-700 text-sm">
-                <li>All your personal information will be permanently deleted</li>
-                <li>Your service listings will be removed from the platform</li>
-                <li>Your booking history will be anonymized</li>
-                <li>You will lose access to any pending payments</li>
-                <li>This action cannot be undone</li>
-              </ul>
+          {/* Display password message */}
+          {passwordMessage.text && (
+            <div
+              className={`mt-4 px-4 py-2 rounded-lg ${passwordMessage.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                }`}
+            >
+              {passwordMessage.text}
             </div>
-
-            <div className="border border-gray-200 rounded-xl p-4">
-              <h4 className="font-medium mb-3">Deletion Process:</h4>
-              <ol className="list-decimal pl-5 space-y-3 text-gray-700">
-                <li>
-                  <p className="font-medium">Request Account Deletion</p>
-                  <p className="text-sm text-gray-600">
-                    Submit your request by clicking the "Delete Account" button below.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Verification</p>
-                  <p className="text-sm text-gray-600">
-                    We'll send a verification code to your email address to confirm your identity.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Confirmation</p>
-                  <p className="text-sm text-gray-600">
-                    Enter the verification code and confirm your decision to delete your account.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Account Deletion</p>
-                  <p className="text-sm text-gray-600">
-                    Your account will be scheduled for deletion. This process may take up to 30 days to complete.
-                  </p>
-                </li>
-              </ol>
-            </div>
-
-            <div className="border-t border-gray-200 pt-6">
-              <p className="text-gray-700 mb-4">
-                To proceed with account deletion, please type <span className="font-medium">"DELETE MY ACCOUNT"</span>{" "}
-                in the field below:
-              </p>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Type DELETE MY ACCOUNT"
-                />
-              </div>
-              <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
-                Delete Account
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       )
     }
@@ -2018,7 +2034,7 @@ function MyProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Include animation keyframes */}
       <style>{keyframes}</style>
 
@@ -2064,7 +2080,7 @@ function MyProfile() {
                   className="w-full h-full object-cover"
                 />
                 {userDetails?.isVerified && (
-                  <div className="absolute -bottom-[-5px] -right-[-8px] flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-sky-500 text-white shadow-md">
+                  <div className="absolute -bottom-[-5px] -right-[-8px] flex h-7 w-7 items-center justify-center rounded-full bg-sky-500 text-white shadow-md">
                     <BadgeCheck className="h-10 w-10" strokeWidth={3} />
                   </div>
                 )}
@@ -2205,33 +2221,6 @@ function MyProfile() {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
                 Security
-              </button>
-              <button
-                onClick={() => setActiveTab("delete")}
-                className={`flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium ${activeTab === "delete"
-                  ? "border-sky-500 text-sky-500"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-trash-2"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  <line x1="10" x2="10" y1="11" y2="17" />
-                  <line x1="14" x2="14" y1="11" y2="17" />
-                </svg>
-                Delete Account
               </button>
             </nav>
           </div>

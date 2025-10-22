@@ -16,7 +16,6 @@ import {
   FileText,
   Trash2,
   User,
-  Crown,
   Sparkles,
   Calendar,
   BadgeCheck,
@@ -1272,25 +1271,39 @@ export default function Bookings() {
               : "bg-gray-50 border border-gray-200"
               }`}
           >
-            <div className="flex items-center">
-              <Crown className={`h-5 w-5 mr-5 ml-2 ${subscription.color}`} />
-              <div>
-                <h3 className="font-medium">
-                  {subscription.name} Plan
-                  <span
-                    className={`ml-2 text-sm ${services.length >= subscription.maxServices ? "text-red-600" : "text-gray-600"
-                      }`}
-                  >
-                    ({services.length}/
-                    {subscription.maxServices === Number.POSITIVE_INFINITY ? "∞" : subscription.maxServices})
-                  </span>
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {services.length >= subscription.maxServices
-                    ? "You've reached your service limit."
-                    : `You can add ${subscription.maxServices - services.length} more service${subscription.maxServices - services.length !== 1 ? "s" : ""
-                    }.`}
-                </p>
+            <div className="flex items-center justify-between w-full ">
+              <div className="flex justify-center items-center ml-5">
+                <div>
+                  <h3 className="font-medium">
+                    {subscription.name} Plan
+                    <span
+                      className={`ml-2 text-sm ${services.length >= subscription.maxServices ? "text-red-600" : "text-gray-600"
+                        }`}
+                    >
+                      ({services.length}/
+                      {subscription.maxServices === Number.POSITIVE_INFINITY ? "∞" : subscription.maxServices})
+                    </span>
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {services.length >= subscription.maxServices
+                      ? "You've reached your service limit."
+                      : `You can add ${subscription.maxServices - services.length} more service${subscription.maxServices - services.length !== 1 ? "s" : ""
+                      }.`}
+                  </p>
+                </div>
+              </div>
+              {/* Create Service button moved to the bottom */}
+              <div className="flex justify-center mr-2">
+                <button
+                  onClick={handleCreateService}
+                  className={`px-6 py-3 rounded-full flex items-center gap-2 ${services.length >= subscription.maxServices
+                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                    : "bg-sky-500 text-white hover:bg-sky-600"
+                    }`}
+                  disabled={services.length >= subscription.maxServices}
+                >
+                  {services.length >= subscription.maxServices ? "Service Limit Reached" : "Create Service"}
+                </button>
               </div>
             </div>
           </div>
@@ -1464,21 +1477,6 @@ export default function Bookings() {
               </button>
             </div>
           )}
-
-          {/* Create Service button moved to the bottom */}
-          <div className="mt-10 flex justify-center">
-            <button
-              onClick={handleCreateService}
-              className={`px-6 py-3 rounded-full flex items-center gap-2 ${services.length >= subscription.maxServices
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-sky-500 text-white hover:bg-sky-600"
-                }`}
-              disabled={services.length >= subscription.maxServices}
-            >
-              <Plus className="h-4 w-4" />
-              {services.length >= subscription.maxServices ? "Service Limit Reached" : "Create Service"}
-            </button>
-          </div>
         </div>
       )
     } else if (
@@ -1841,7 +1839,7 @@ export default function Bookings() {
                             setRecipientEmail("")
                           }}
                           disabled={coupon.isUsed || new Date(coupon.expiresAt) < new Date()}
-                          className="px-4 py-2 text-sky-500 hover:bg-sky-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-sky-500"
+                          className="px-4 py-2 text-sky-500 hover:bg-sky-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-sky-300"
                         >
                           <span>Send</span>
                           <Send className="h-4 w-4" />
@@ -2540,16 +2538,6 @@ export default function Bookings() {
                     </div>
 
                     <div className="space-y-4">
-                      {selectedBooking &&
-                        selectedBooking.status === "active" &&
-                        !ceoMarkedCompleted.includes(selectedBooking._id) && (
-                          <div className="bg-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-2xl p-4 text-blue-800 text-sm">
-                            <p className="font-medium">
-                              Admin is still holding your transaction until both customer and CEO marked as completed.
-                            </p>
-                          </div>
-                        )}
-
                       {showSuccess && processingBookingId === selectedBooking._id && (
                         <div className="bg-green-50/80 backdrop-blur-sm border border-green-200 rounded-2xl p-4 text-green-800 text-sm flex items-center">
                           <CheckCircle className="h-5 w-5 mr-2 text-green-500 animate-bounce" />
@@ -3144,7 +3132,7 @@ export default function Bookings() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h2 className="text-3xl font-medium text-gray-900">
-                    Powerful features for <span className="text-blue-500">powerful creators</span>
+                    Powerful features for <span className="text-sky-500">powerful creators</span>
                   </h2>
                   <p className="text-gray-600 mt-2">Choose a plan that's right for you</p>
                 </div>
@@ -3160,7 +3148,7 @@ export default function Bookings() {
                   checked={isYearlyBilling}
                   onChange={setIsYearlyBilling}
                   className={`
-              ${isYearlyBilling ? "bg-blue-600" : "bg-gray-300"}
+              ${isYearlyBilling ? "bg-sky-500" : "bg-gray-300"}
              relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                 >
                   <span className="sr-only">Enable yearly billing</span>
@@ -3202,7 +3190,7 @@ export default function Bookings() {
                       <div className="mb-6">
                         <span className="text-4xl font-bold">₱{isYearlyBilling ? plan.yearlyPrice : plan.price}</span>
                         <span className={`text-lg ${plan.tier === "mid" ? "text-blue-200" : "text-gray-500"}`}>
-                          /Month
+                          {isYearlyBilling ? "/ Yearly" : "/ Monthly"}
                         </span>
                       </div>
 
@@ -3210,8 +3198,8 @@ export default function Bookings() {
                         onClick={() => handleSelectPlan(plan.tier as SubscriptionTier)}
                         className={`w-full py-3 rounded-lg font-semibold transition-colors duration-200
                       ${plan.tier === "mid"
-                            ? "bg-white text-blue-600 hover:bg-gray-100"
-                            : "bg-blue-600 text-white hover:bg-blue-700"
+                            ? "bg-white text-sky-500 hover:bg-gray-100"
+                            : "bg-sky-500 text-white hover:bg-sky-600"
                           }
                       ${plan.tier === subscription.tier ? "opacity-70 cursor-not-allowed" : ""}`}
                         disabled={plan.tier === subscription.tier}
@@ -3560,7 +3548,7 @@ export default function Bookings() {
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <DialogPanel className="mx-auto max-w-md w-full bg-white rounded-2xl shadow-xl">
             <div className="p-6">
-              <DialogTitle className="text-xl font-semibold mb-4">Send Coupon to User</DialogTitle>
+              <DialogTitle className="text-xl font-medium mb-4 text-gray-700">Send Coupon to User</DialogTitle>
 
               {selectedCouponToSend && (
                 <div className="mb-6 p-4 bg-sky-50 rounded-lg">

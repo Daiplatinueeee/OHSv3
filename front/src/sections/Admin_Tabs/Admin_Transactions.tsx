@@ -686,19 +686,23 @@ function AdminTransactions() {
         {/* Transaction Overview */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-[#0A84FF] to-[#5AC8FA] rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-6 text-white">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold">Transaction Overview</h2>
-                  <p className="text-white/90 font-light">Monitor payment flows and commission earnings</p>
+            <div className="p-4 sm:p-6 text-white">
+              {/* Header Section */}
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 space-y-4 lg:space-y-0">
+                <div className="text-center sm:text-left">
+                  <h2 className="text-lg sm:text-xl font-semibold">Transaction Overview</h2>
+                  <p className="text-white/90 font-light text-sm sm:text-base">
+                    Monitor payment flows and commission earnings
+                  </p>
                 </div>
-                <div className="mt-4 md:mt-0 flex gap-2">
-                  <Button className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0">
+
+                <div className="flex flex-wrap justify-center lg:justify-end gap-2">
+                  <Button className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0 text-sm sm:text-base">
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Refresh
                   </Button>
                   <Button
-                    className="bg-white text-[#0A84FF] hover:bg-white/90 border-0"
+                    className="bg-white text-[#0A84FF] hover:bg-white/90 border-0 text-sm sm:text-base"
                     onClick={() => simulateConfirmations("3")}
                   >
                     <Activity className="mr-2 h-4 w-4" />
@@ -707,62 +711,74 @@ function AdminTransactions() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Card 1 */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
-                      <DollarSign className="h-5 w-5 text-white" />
+                      <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <span className="text-sm font-medium">Total Bookings Value</span>
+                    <span className="text-sm sm:text-base font-medium">Total Bookings Value</span>
                   </div>
                   <div
-                    className={`text-3xl font-medium transition-all duration-1000 ${isBalanceAnimating ? "text-[#30D158] scale-110" : ""}`}
+                    className={`text-2xl sm:text-3xl font-medium transition-all duration-1000 ${isBalanceAnimating ? "text-[#30D158] scale-110" : ""
+                      }`}
                   >
                     ₱{displayBalance.toLocaleString()}
                   </div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>+15% this month</span>
                   </div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                {/* Card 2 */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
-                      <Activity className="h-5 w-5 text-white" />
+                      <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <span className="text-sm font-medium">Transactions</span>
+                    <span className="text-sm sm:text-base font-medium">Transactions</span>
                   </div>
-                  <div className="text-3xl font-medium">{transactionMetrics.totalTransactions}</div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-2xl sm:text-3xl font-medium">
+                    {transactionMetrics.totalTransactions}
+                  </div>
+                  <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>+12% this month</span>
                   </div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                {/* Card 3 */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
-                      <CheckCircle className="h-5 w-5 text-white" />
+                      <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <span className="text-sm font-medium">Success Rate</span>
+                    <span className="text-sm sm:text-base font-medium">Success Rate</span>
                   </div>
-                  <div className="text-3xl font-medium">{transactionMetrics.successRate}%</div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-2xl sm:text-3xl font-medium">
+                    {transactionMetrics.successRate}%
+                  </div>
+                  <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>+2% this month</span>
                   </div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                {/* Card 4 */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 sm:p-5">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
-                      <TrendingUp className="h-5 w-5 text-white" />
+                      <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <span className="text-sm font-medium">Bookings Value</span>
+                    <span className="text-sm sm:text-base font-medium">Bookings Value</span>
                   </div>
-                  <div className="text-3xl font-medium">₱{transactionMetrics.totalBookingsValue.toLocaleString()}</div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-2xl sm:text-3xl font-medium">
+                    ₱{transactionMetrics.totalBookingsValue.toLocaleString()}
+                  </div>
+                  <div className="text-white/90 text-xs sm:text-sm mt-1 flex items-center font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>+18% this month</span>
                   </div>
@@ -771,6 +787,7 @@ function AdminTransactions() {
             </div>
           </div>
         </div>
+
 
         {/* Main Content - Split Layout */}
         <div className="grid lg:grid-cols-3 gap-8">

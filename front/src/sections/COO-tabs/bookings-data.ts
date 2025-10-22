@@ -66,7 +66,7 @@ export const subscriptionPlans = [
     maxServices: 15,
     price: 499,
     yearlyPrice: 5999,
-    color: "bg-blue-600",
+    color: "bg-sky-500",
     textColor: "text-white",
     features: [
       { text: "Create up to a maximum of 15 services", included: true },

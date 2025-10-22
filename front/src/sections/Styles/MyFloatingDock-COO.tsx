@@ -1,7 +1,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { Home, MessageCircleMore, PowerOff, Bell, Newspaper, Album, ChevronUp, Coffee, UsersRound, CircleUserRound } from "lucide-react"
+import { Home, MessageCircleMore, PowerOff, Bell, Album, ChevronUp, Coffee, UsersRound, CircleUserRound } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import NotificationPopup, { type NotificationItem } from "../Customer_Tabs/Notification"
 
@@ -380,12 +380,6 @@ const FloatingDock: React.FC = () => {
               )}
             </AnimatePresence>
           </div>
-          <DockItem
-            icon={<Newspaper size={20} strokeWidth={1.5} color="gray" />}
-            label="News"
-            to="/coo/news"
-            isActive={location.pathname === "/settings"}
-          />
           <DockItem
             icon={<UsersRound size={20} strokeWidth={1.5} color="gray" />}
             label="Employees"

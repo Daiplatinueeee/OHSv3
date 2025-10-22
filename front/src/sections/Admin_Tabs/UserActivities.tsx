@@ -124,86 +124,96 @@ function UserActivities() {
         </div>
 
         {/* Activity Overview */}
-        <div className="mb-8">
+        <div className="mb-8 w-full px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-r from-[#0A84FF] to-[#5AC8FA] rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 text-white">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold">Activity Overview</h2>
-                  <p className="text-white/90 font-light">Real-time user activity monitoring</p>
+
+              {/* Header Section */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 text-center md:text-left">
+                <div className="w-full md:w-auto">
+                  <h2 className="text-xl sm:text-2xl font-semibold">Activity Overview</h2>
+                  <p className="text-white/90 font-light text-sm sm:text-base">Real-time user activity monitoring</p>
                 </div>
-                <div className="mt-4 md:mt-0 flex gap-2">
-                  <Button className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0">
+
+                <div className="mt-4 md:mt-0 flex justify-center md:justify-end w-full md:w-auto gap-2 flex-wrap">
+                  <Button className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0 text-sm sm:text-base px-4 py-2">
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Refresh
                   </Button>
-                  <Button className="bg-white text-[#0A84FF] hover:bg-white/90 border-0">
+                  <Button className="bg-white text-[#0A84FF] hover:bg-white/90 border-0 text-sm sm:text-base px-4 py-2">
                     <Download className="mr-2 h-4 w-4" />
                     Export
                   </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Today's Activities */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <Activity className="h-5 w-5 text-white" />
                     </div>
                     <span className="text-sm font-medium">Today's Activities</span>
                   </div>
                   <div className="text-3xl font-medium">{activityMetrics.totalToday}</div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>12% increase</span>
                   </div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+                {/* Active Users */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <User className="h-5 w-5 text-white" />
                     </div>
                     <span className="text-sm font-medium">Active Users</span>
                   </div>
                   <div className="text-3xl font-medium">{activityMetrics.activeUsers}</div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>8% increase</span>
                   </div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+                {/* Success Rate */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <CheckCircle className="h-5 w-5 text-white" />
                     </div>
                     <span className="text-sm font-medium">Success Rate</span>
                   </div>
                   <div className="text-3xl font-medium">{activityMetrics.successRate}%</div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>2% increase</span>
                   </div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+                {/* Avg. Session */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <Clock className="h-5 w-5 text-white" />
                     </div>
                     <span className="text-sm font-medium">Avg. Session</span>
                   </div>
                   <div className="text-3xl font-medium">{activityMetrics.avgSessionTime}</div>
-                  <div className="text-white/90 text-sm mt-1 flex items-center font-light">
+                  <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
                     <span>5% increase</span>
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
+
 
         {/* Main Content - Split Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">

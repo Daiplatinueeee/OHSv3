@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import axios from "axios"
 import { Dialog, Transition } from "@headlessui/react"
 import {
@@ -17,13 +17,10 @@ import {
   Briefcase,
   ImageIcon,
   CalendarDays,
-  Lock,
-  Upload,
   AlertTriangle,
   XCircle,
-  Eye,
-  EyeOff,
   CheckCircle2,
+  BadgeCheck,
 } from "lucide-react"
 
 import MyFloatingDockCustomer from "../Styles/MyFloatingDock-Provider"
@@ -298,35 +295,31 @@ function MyProfile() {
     "idle",
   )
 
-  // NEW: States for ID documents and secret question/answer
   const [frontIdPreview, setFrontIdPreview] = useState<string | null>(null)
   const [backIdPreview, setBackIdPreview] = useState<string | null>(null)
   const [secretQuestion, setSecretQuestion] = useState("")
   const [secretAnswer, setSecretAnswer] = useState("")
   const [secretCode, setSecretCode] = useState<string | null>(null)
-  // State for toggling visibility of secret answer
-  const [showSecretAnswerInput, setShowSecretAnswerInput] = useState(false)
-  const [showSecretAnswerView, setShowSecretAnswerView] = useState(false)
-
-  // NEW: States for upload modals and image popup
   const [showWarningModal, setShowWarningModal] = useState(false)
   const [currentFileInputRef, setCurrentFileInputRef] = useState<HTMLInputElement | null>(null)
-  const [hasWarningBeenShownOnce, setHasWarningBeenShownOnce] = useState(false)
+  const [, setHasWarningBeenShownOnce] = useState(false)
   const [showFileExistsModal, setShowFileExistsModal] = useState(false)
   const [showGenericUploadErrorModal, setShowGenericUploadErrorModal] = useState(false)
-  const [genericUploadErrorMessage, setGenericUploadErrorMessage] = useState("")
-  const [popupImage, setPopupImage] = useState<string | null>(null)
+  const [genericUploadErrorMessage,] = useState("")
+  const [popupImage,] = useState<string | null>(null)
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false)
-  // NEW: State for account observation modal
   const [showObservationModal, setShowObservationModal] = useState(false)
-
-  // NEW: Refs for file inputs
-  const frontIdRef = useRef<HTMLInputElement>(null)
-  const backIdRef = useRef<HTMLInputElement>(null)
-
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo[]>([])
 
-  // Generate secret code based on question and answer
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  })
+
+  const [, setPasswordLoading] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" })
+
   useEffect(() => {
     const generateSecretCode = async () => {
       if (secretQuestion.trim() !== "" && secretAnswer.trim() !== "") {
@@ -614,120 +607,11 @@ function MyProfile() {
     setShowLocationModal(false)
   }
 
-  // NEW: Helper function to upload a file to the API using axios
-  const uploadFile = async (file: File) => {
-    const formData = new FormData()
-    formData.append("file", file)
-    const token = localStorage.getItem("token") // Assuming token is needed for upload
-
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/upload/image`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      return response.data.url
-    } catch (error: any) {
-      if (error.response && error.response.data && error.response.data.message) {
-        throw new Error(error.response.data.message)
-      }
-      throw new Error(`Failed to upload ${file.name}.`)
-    }
-  }
-
-  // NEW: Handle file selection, preview, and immediate upload for ID documents
-  const handleIdFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    previewSetter: React.Dispatch<React.SetStateAction<string | null>>,
-    idSide: "front" | "back",
-  ) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0]
-
-      // Reset error states before new upload attempt
-      setError("")
-      setShowFileExistsModal(false)
-      setShowGenericUploadErrorModal(false)
-
-      // Create local DataURL preview immediately for quick feedback
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        previewSetter(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-
-      // Attempt to upload the file immediately to the server
-      try {
-        const uploadedUrl = await uploadFile(file)
-        previewSetter(uploadedUrl) // Update preview to the actual uploaded URL from the server
-        setEditedDetails((prev) => ({
-          ...prev,
-          idDocuments: {
-            ...prev?.idDocuments,
-            [idSide]: uploadedUrl,
-          },
-        }))
-        // Removed setShowObservationModal(true) from here
-      } catch (error: any) {
-        console.error("Upload error:", error)
-        if (error.message.includes("File already exists")) {
-          setShowFileExistsModal(true)
-        } else {
-          setGenericUploadErrorMessage(error.message || "An unknown error occurred during file upload.")
-          setShowGenericUploadErrorModal(true)
-        }
-        previewSetter(null) // Clear the preview if upload fails
-        setEditedDetails((prev) => ({
-          ...prev,
-          idDocuments: {
-            ...prev?.idDocuments,
-            [idSide]: null,
-          },
-        }))
-        // Optionally, clear the file input value if the upload fails
-        if (e.target) {
-          e.target.value = ""
-        }
-      }
-    } else {
-      previewSetter(null) // Clear preview if no file is selected
-      setEditedDetails((prev) => ({
-        ...prev,
-        idDocuments: {
-          ...prev?.idDocuments,
-          [idSide]: null,
-        },
-      }))
-    }
-  }
-
-  // NEW: Function to trigger the warning modal or file input
-  const handleIdUploadClick = (element: HTMLInputElement | null) => {
-    if (!element) return // Ensure element exists
-
-    if (!hasWarningBeenShownOnce) {
-      setCurrentFileInputRef(element) // Store which element to trigger later
-      setShowWarningModal(true)
-      localStorage.setItem("v0_id_upload_warning_shown", "true")
-      setHasWarningBeenShownOnce(true) // Update state immediately
-    } else {
-      element.click() // Directly trigger the file input
-    }
-  }
-
   const handleConfirmUpload = () => {
     if (currentFileInputRef) {
       currentFileInputRef.click() // Trigger the hidden file input
       setShowWarningModal(false)
       setCurrentFileInputRef(null) // Clear the ref
-    }
-  }
-
-  const handleImageClick = (imageUrl: string | null) => {
-    if (imageUrl) {
-      setPopupImage(imageUrl)
-      setIsImagePopupOpen(true)
     }
   }
 
@@ -1027,6 +911,68 @@ function MyProfile() {
     }
   }
 
+  const handleChangePassword = async (e: any) => {
+    e.preventDefault()
+    setPasswordMessage({ type: "", text: "" })
+
+    // Validate form
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "All fields are required." })
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "New passwords do not match." })
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordMessage({ type: "error", text: "New password must be at least 6 characters long." })
+      return
+    }
+
+    try {
+      setPasswordLoading(true)
+      const token = localStorage.getItem("token")
+      const userString = localStorage.getItem("user")
+      const user = userString ? JSON.parse(userString) : null
+      const userId = user?._id
+
+      if (!userId) {
+        setPasswordMessage({ type: "error", text: "User ID not found. Please log in again." })
+        return
+      }
+
+      const API_BASE_URL = "http://localhost:3000"
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setPasswordMessage({ type: "error", text: data.message || "Failed to change password." })
+        return
+      }
+
+      setPasswordMessage({ type: "success", text: "Password changed successfully!" })
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" })
+    } catch (error) {
+      console.error("Error changing password:", error)
+      setPasswordMessage({ type: "error", text: "An error occurred while changing password." })
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
   // Determine border color class for email input
   const emailBorderClass =
     emailValidationStatus === "available"
@@ -1223,67 +1169,6 @@ function MyProfile() {
                     )}
                   </div>
 
-                  {/* Secret Question & Answer */}
-                  <div>
-                    <h4 className="text-lg font-medium text-gray-700 mb-4">Secret Question & Answer</h4>
-                    <div className="space-y-4">
-                      <div>
-                        <label htmlFor="secretQuestion" className="block text-sm font-medium text-gray-700 mb-1">
-                          Secret Question
-                        </label>
-                        <div className="relative">
-                          <Text className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type="text"
-                            id="secretQuestion"
-                            name="secretQuestion"
-                            value={secretQuestion}
-                            onChange={handleInputChange}
-                            className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-                            placeholder="e.g., What is your mother's maiden name?"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label htmlFor="secretAnswer" className="block text-sm font-medium text-gray-700 mb-1">
-                          Secret Answer
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type={showSecretAnswerInput ? "text" : "password"}
-                            id="secretAnswer"
-                            name="secretAnswer"
-                            value={secretAnswer}
-                            onChange={handleInputChange}
-                            className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-                            placeholder="Enter your secret answer"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowSecretAnswerInput((prev) => !prev)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          >
-                            {showSecretAnswerInput ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            <span className="sr-only">{showSecretAnswerInput ? "Hide answer" : "Show answer"}</span>
-                          </button>
-                        </div>
-                      </div>
-                      {secretCode && (
-                        <div className="mt-6 p-4 bg-sky-50 border border-sky-100 rounded-lg text-center">
-                          <h5 className="text-sm font-medium text-sky-800 mb-2">Your Secret Code:</h5>
-                          <p className="text-2xl font-bold text-sky-600 tracking-wider select-all">{secretCode}</p>
-                          <p className="mt-2 text-xs text-sky-700">
-                            Note: This code is generated from your question and answer. Keep it safe.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grouped ID Documents Upload and Secret Question & Answer */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-full">
                   {/* Email */}
                   <div>
                     <h4 className="text-lg font-medium mb-2 text-gray-700">Email Address</h4>
@@ -1326,104 +1211,10 @@ function MyProfile() {
                   </div>
                 </div>
 
-                {/* ID Documents Upload */}
-                <div>
-                  <h4 className="text-lg font-medium text-gray-700 mb-4">ID Documents</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Front ID */}
-                    <div>
-                      <label htmlFor="front-id" className="mb-2 block text-sm font-medium">
-                        Front of ID (optional)
-                      </label>
-                      <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${frontIdPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleIdUploadClick(frontIdRef.current)}
-                      >
-                        {frontIdPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(frontIdPreview)
-                            }}
-                          >
-                            <img
-                              src={frontIdPreview || "/placeholder.svg"}
-                              alt="ID Document Front Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-500">Upload front of your valid ID</p>
-                            <p className="text-xs text-gray-400 mt-1">JPG, PNG or PDF up to 5MB</p>
-                          </>
-                        )}
-                        <input
-                          id="front-id"
-                          type="file"
-                          ref={frontIdRef}
-                          className="hidden"
-                          accept=".jpg,.jpeg,.png,.pdf"
-                          onChange={(e) => handleIdFileChange(e, setFrontIdPreview, "front")}
-                        />
-                      </div>
-                    </div>
+                {/* Grouped ID Documents Upload and Secret Question & Answer */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-full">
 
-                    {/* Back ID */}
-                    <div>
-                      <label htmlFor="back-id" className="mb-2 block text-sm font-medium">
-                        Back of ID (optional)
-                      </label>
-                      <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${backIdPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleIdUploadClick(backIdRef.current)}
-                      >
-                        {backIdPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(backIdPreview)
-                            }}
-                          >
-                            <img
-                              src={backIdPreview || "/placeholder.svg"}
-                              alt="ID Document Back Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-500">Upload back of your valid ID</p>
-                            <p className="text-xs text-gray-400 mt-1">JPG, PNG or PDF up to 5MB</p>
-                          </>
-                        )}
-                        <input
-                          id="back-id"
-                          type="file"
-                          ref={backIdRef}
-                          className="hidden"
-                          accept=".jpg,.jpeg,.png,.pdf"
-                          onChange={(e) => handleIdFileChange(e, setBackIdPreview, "back")}
-                        />
-                      </div>
-                    </div>
-                  </div>
                 </div>
-
                 <div className="md:col-span-full flex justify-end gap-3 pt-4">
                   <button
                     type="button"
@@ -1457,13 +1248,13 @@ function MyProfile() {
                       setEmailError(null)
                       setEmailValidationStatus("idle")
                     }}
-                    className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
+                    className="rounded-full border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center justify-center rounded-lg bg-sky-500 px-4 py-2 text-white shadow-sm transition-all hover:bg-sky-600"
+                    className="flex items-center justify-center rounded-full bg-sky-500 px-4 py-2 text-white shadow-sm transition-all hover:bg-sky-600"
                     disabled={isSavingDetails || isCheckingEmail || emailValidationStatus === "unavailable"}
                   >
                     {isSavingDetails ? <Loader2 className="h-5 w-5 animate-spin" /> : "Save Changes"}
@@ -1520,96 +1311,7 @@ function MyProfile() {
                   </h4>
                   <p className="text-gray-900">{userDetails?.bio || "No bio provided"}</p>
                 </div>
-                {/* ID Documents */}
-                <div className="md:col-span-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <h4 className="mb-1 flex items-center text-sm font-medium text-gray-500">
-                    <ImageIcon className="mr-2 h-4 w-4" /> ID Documents
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                    <div>
-                      <p className="text-gray-700 text-sm mb-1">Front Side:</p>
-                      {userDetails?.idDocuments?.front ? (
-                        <div
-                          className="relative w-full h-32 cursor-pointer"
-                          onClick={() => handleImageClick(userDetails.idDocuments?.front || null)}
-                        >
-                          <img
-                            src={userDetails.idDocuments.front || "/placeholder.svg"}
-                            alt="ID Document Front"
-                            className="w-full h-32 object-cover rounded-md border border-gray-300 filter blur-sm hover:blur-[2px] transition-all"
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">Click to view</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="w-full h-32 flex items-center justify-center bg-gray-200 rounded-md text-gray-500 text-sm">
-                          No front ID provided
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-gray-700 text-sm mb-1">Back Side:</p>
-                      {userDetails?.idDocuments?.back ? (
-                        <div
-                          className="relative w-full h-32 cursor-pointer"
-                          onClick={() => handleImageClick(userDetails.idDocuments?.back || null)}
-                        >
-                          <img
-                            src={userDetails.idDocuments.back || "/placeholder.svg"}
-                            alt="ID Document Back"
-                            className="w-full h-32 object-cover rounded-md border border-gray-300 filter blur-sm hover:blur-[2px] transition-all"
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">Click to view</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="w-full h-32 flex items-center justify-center bg-gray-200 rounded-md text-gray-500 text-sm">
-                          No back ID provided
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
 
-                {/* Secret Question */}
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <h4 className="mb-1 flex items-center text-sm font-medium text-gray-500">
-                    <Text className="mr-2 h-4 w-4" /> Secret Question
-                  </h4>
-                  <p className="text-gray-900">
-                    {userDetails?.secretQuestion && userDetails.secretQuestion !== "not provided"
-                      ? userDetails.secretQuestion
-                      : "Not set"}
-                  </p>
-                </div>
-
-                {/* Secret Answer Status (not the answer itself) */}
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <h4 className="mb-1 flex items-center text-sm font-medium text-gray-500">
-                    <Lock className="mr-2 h-4 w-4" /> Secret Answer
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <p className="text-gray-900">
-                      {userDetails?.secretAnswer && userDetails.secretAnswer !== "not provided"
-                        ? showSecretAnswerView
-                          ? userDetails.secretAnswer
-                          : "••••••••"
-                        : "Not set"}
-                    </p>
-                    {userDetails?.secretAnswer && userDetails.secretAnswer !== "not provided" && (
-                      <button
-                        type="button"
-                        onClick={() => setShowSecretAnswerView((prev) => !prev)}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        {showSecretAnswerView ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        <span className="sr-only">{showSecretAnswerView ? "Hide answer" : "Show answer"}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
               </div>
             )}
           </div>
@@ -1621,7 +1323,7 @@ function MyProfile() {
       return (
         <div className="bg-white rounded-3xl p-6">
           <h3 className="text-xl font-medium text-gray-700 mb-6">Change Password</h3>
-          <form className="space-y-4 max-w-md">
+          <form className="space-y-4 max-w-md" onSubmit={handleChangePassword}>
             <div>
               <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 mb-1">
                 Current Password
@@ -1631,6 +1333,8 @@ function MyProfile() {
                 id="current-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Enter your current password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
               />
             </div>
             <div>
@@ -1642,6 +1346,8 @@ function MyProfile() {
                 id="new-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Enter your new password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
               />
             </div>
             <div>
@@ -1653,6 +1359,8 @@ function MyProfile() {
                 id="confirm-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Confirm your new password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
               />
             </div>
             <div className="pt-2">
@@ -1664,75 +1372,15 @@ function MyProfile() {
               </button>
             </div>
           </form>
-        </div>
-      )
-    }
-
-    if (activeTab === "delete") {
-      return (
-        <div className="bg-white rounded-3xl p-6">
-          <h3 className="text-xl font-medium mb-2 text-red-600">Delete Account</h3>
-          <p className="text-gray-600 mb-6">Once you delete your account, there is no going back. Please be certain.</p>
-
-          <div className="space-y-6">
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-              <h4 className="font-medium text-red-800 mb-2">Before you proceed, please understand:</h4>
-              <ul className="list-disc pl-5 space-y-2 text-red-700 text-sm">
-                <li>All your personal information will be permanently deleted</li>
-                <li>Your service listings will be removed from the platform</li>
-                <li>Your booking history will be anonymized</li>
-                <li>You will lose access to any pending payments</li>
-                <li>This action cannot be undone</li>
-              </ul>
+          {/* Display password message */}
+          {passwordMessage.text && (
+            <div
+              className={`mt-4 px-4 py-2 rounded-lg ${passwordMessage.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                }`}
+            >
+              {passwordMessage.text}
             </div>
-
-            <div className="border border-gray-200 rounded-xl p-4">
-              <h4 className="font-medium mb-3">Deletion Process:</h4>
-              <ol className="list-decimal pl-5 space-y-3 text-gray-700">
-                <li>
-                  <p className="font-medium">Request Account Deletion</p>
-                  <p className="text-sm text-gray-600">
-                    Submit your request by clicking the "Delete Account" button below.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Verification</p>
-                  <p className="text-sm text-gray-600">
-                    We'll send a verification code to your email address to confirm your identity.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Confirmation</p>
-                  <p className="text-sm text-gray-600">
-                    Enter the verification code and confirm your decision to delete your account.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Account Deletion</p>
-                  <p className="text-sm text-gray-600">
-                    Your account will be scheduled for deletion. This process may take up to 30 days to complete.
-                  </p>
-                </li>
-              </ol>
-            </div>
-
-            <div className="border-t border-gray-200 pt-6">
-              <p className="text-gray-700 mb-4">
-                To proceed with account deletion, please type <span className="font-medium">"DELETE MY ACCOUNT"</span>{" "}
-                in the field below:
-              </p>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Type DELETE MY ACCOUNT"
-                />
-              </div>
-              <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
-                Delete Account
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       )
     }
@@ -2005,7 +1653,7 @@ function MyProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Include animation keyframes */}
       <style>{keyframes}</style>
 
@@ -2051,8 +1699,8 @@ function MyProfile() {
                   className="w-full h-full object-cover"
                 />
                 {userDetails?.isVerified && (
-                  <div className="absolute -bottom-[-5px] -right-[-8px] flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-sky-500 text-white shadow-md">
-                    <Check className="h-5 w-5" strokeWidth={3} />
+                  <div className="absolute -bottom-[-5px] -right-[-8px] flex h-7 w-7 items-center justify-center rounded-full bg-sky-500 text-white shadow-md">
+                    <BadgeCheck className="h-10 w-10" strokeWidth={3} />
                   </div>
                 )}
               </div>
@@ -2104,7 +1752,16 @@ function MyProfile() {
                 )}
 
               </div>
-              <div>
+              <div className="flex gap-4">
+                {isEditingProfile && (
+                  <button
+                    onClick={handleResetImages}
+                    disabled={isResettingImages}
+                    className="flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
+                  >
+                    {isResettingImages ? <Loader2 className="h-5 w-5 animate-spin" /> : "Reset"}
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     if (!isEditingProfile) {
@@ -2113,7 +1770,7 @@ function MyProfile() {
                     }
                     setIsEditingProfile((prev) => !prev)
                   }}
-                  className="rounded-lg bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
+                  className="rounded-full bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
                 >
                   {isEditingProfile ? "Done Editing" : "Change Profile"}
                 </button>
@@ -2128,17 +1785,6 @@ function MyProfile() {
             <div className="flex items-center gap-2 mt-8 text-gray-600">
               <span>{userDetails?.bio}</span>
             </div>
-          </div>
-          <div className="flex gap-2">
-            {isEditingProfile && (
-              <button
-                onClick={handleResetImages}
-                disabled={isResettingImages}
-                className="flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
-              >
-                {isResettingImages ? <Loader2 className="h-5 w-5 animate-spin" /> : "Reset"}
-              </button>
-            )}
           </div>
         </div>
 
@@ -2195,33 +1841,6 @@ function MyProfile() {
                 </svg>
                 Security
               </button>
-              <button
-                onClick={() => setActiveTab("delete")}
-                className={`flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium ${activeTab === "delete"
-                  ? "border-sky-500 text-sky-500"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-trash-2"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  <line x1="10" x2="10" y1="11" y2="17" />
-                  <line x1="14" x2="14" y1="11" y2="17" />
-                </svg>
-                Delete Account
-              </button>
             </nav>
           </div>
         </div>
@@ -2272,7 +1891,7 @@ function MyProfile() {
                   setEmailError(null)
                   setEmailValidationStatus("idle")
                 }}
-                className="rounded-lg bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
+                className="rounded-full bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
               >
                 {isEditingDetails ? "Cancel Editing" : "Edit Details"}
               </button>
@@ -2513,7 +2132,7 @@ function MyProfile() {
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 rounded-lg bg-sky-500 px-4 py-2.5 text-white transition-colors hover:bg-sky-600"
+                        className="flex-1 rounded-full bg-sky-500 px-4 py-2.5 text-white transition-colors hover:bg-sky-600"
                       >
                         Save Changes
                       </button>

@@ -1831,3 +1831,191 @@ export const updateProviderReview = async (req, res) => {
     res.status(500).json({ message: "Failed to update provider review.", error: error.message })
   }
 }
+
+// Get all bookings by companyId
+export const getBookingsByCompany = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    if (!companyId) {
+      return res.status(400).json({ message: "Company ID is required" });
+    }
+
+    const bookings = await Booking.find({ companyId }).populate("userId providerId");
+    res.json({ bookings });
+  } catch (error) {
+    console.error("Error fetching company bookings:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+export const getRevenueByCoo = async (req, res) => {
+  try {
+    const { cooId } = req.params;
+
+    if (!cooId) {
+      return res.status(400).json({ message: "COO ID is required." });
+    }
+
+    // 🟢 Fetch all completed bookings belonging to this COO (via companyId or providerId)
+    const completedBookings = await Booking.find({
+      status: "completed",
+      $or: [
+        { companyId: cooId },
+        { providerId: cooId },
+      ],
+    });
+
+    if (!completedBookings.length) {
+      return res.json({
+        totalRevenue: 0,
+        monthlyRevenue: Array(12).fill(0),
+      });
+    }
+
+    // 🟢 Calculate total revenue from pricing.totalRate
+    const totalRevenue = completedBookings.reduce((sum, booking) => {
+      return sum + (booking.pricing?.totalRate || 0);
+    }, 0);
+
+    // 🟢 Group monthly revenue
+    const monthlyRevenue = Array(12).fill(0);
+    completedBookings.forEach((booking) => {
+      const date = new Date(booking.updatedAt || booking.createdAt);
+      const month = date.getMonth(); // 0 = January
+      monthlyRevenue[month] += booking.pricing?.totalRate || 0;
+    });
+
+    // ✅ Return results
+    res.json({
+      totalRevenue,
+      monthlyRevenue,
+    });
+  } catch (error) {
+    console.error("Error calculating revenue:", error);
+    res.status(500).json({ message: "Server error while calculating revenue." });
+  }
+}
+
+export const getMonthlyRevenueByCoo = async (req, res) => {
+  try {
+    const { cooId } = req.params;
+
+    console.log("[📊] Monthly Revenue Request received for COO/Company ID:", cooId);
+
+    if (!cooId) {
+      console.warn("[⚠️] Missing COO ID in request.");
+      return res.status(400).json({ message: "COO ID is required." });
+    }
+
+    // 🟢 Aggregate completed bookings per month
+    const results = await Booking.aggregate([
+      {
+        $match: {
+          status: "completed",
+          $or: [
+            { companyId: new mongoose.Types.ObjectId(cooId) },
+            { providerId: new mongoose.Types.ObjectId(cooId) },
+          ],
+        },
+      },
+      {
+        $project: {
+          month: { $month: "$updatedAt" },
+          totalRate: "$pricing.totalRate",
+        },
+      },
+      {
+        $group: {
+          _id: "$month",
+          total: { $sum: "$totalRate" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    console.log("[✅] Aggregation Results:", JSON.stringify(results, null, 2));
+
+    // 🧠 Build a 12-month array with zeros for missing months
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
+    ];
+
+    const monthlyRevenue = months.map((name, index) => {
+      const found = results.find((r) => r._id === index + 1);
+      return { name, total: found ? found.total : 0 };
+    });
+
+    console.log("[📅] Final Monthly Revenue Array:", monthlyRevenue);
+
+    return res.json({ monthlyRevenue });
+  } catch (error) {
+    console.error("[❌] Error calculating monthly revenue:", error);
+    return res.status(500).json({ message: "Server error while calculating monthly revenue." });
+  }
+}
+
+export const getPendingBookingsByProvider = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    if (!providerId) return res.status(400).json({ message: "Provider ID is required" });
+
+    const bookings = await Booking.find({ providerId, status: "pending" })
+      .populate("userId providerId")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ bookings });
+  } catch (error) {
+    console.error("Error fetching pending bookings by provider:", error);
+    res.status(500).json({ message: "Server error fetching pending bookings" });
+  }
+}
+
+export const getOngoingBookingsByProvider = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    if (!providerId) return res.status(400).json({ message: "Provider ID is required" });
+
+    const bookings = await Booking.find({ providerId, status: "ongoing" })
+      .populate("userId providerId")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ bookings });
+  } catch (error) {
+    console.error("Error fetching ongoing bookings by provider:", error);
+    res.status(500).json({ message: "Server error fetching ongoing bookings" });
+  }
+}
+
+export const getActiveBookingsByProvider = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    if (!providerId) return res.status(400).json({ message: "Provider ID is required" });
+
+    const bookings = await Booking.find({ providerId, status: "active" })
+      .populate("userId providerId")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ bookings });
+  } catch (error) {
+    console.error("Error fetching active bookings by provider:", error);
+    res.status(500).json({ message: "Server error fetching active bookings" });
+  }
+}
+
+export const getCompletedBookingsByProvider = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    if (!providerId) return res.status(400).json({ message: "Provider ID is required" });
+
+    const bookings = await Booking.find({ providerId, status: "completed" })
+      .populate("userId providerId")
+      .sort({ completedDate: -1, createdAt: -1 });
+
+    res.status(200).json({ bookings });
+  } catch (error) {
+    console.error("Error fetching completed bookings by provider:", error);
+    res.status(500).json({ message: "Server error fetching completed bookings" });
+  }
+}

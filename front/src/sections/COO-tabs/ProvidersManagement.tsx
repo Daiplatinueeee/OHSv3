@@ -71,11 +71,12 @@ interface Provider {
   email: string
   company: string
   location: string | Location
-  age: number | string
+  gender: string
   providerNumber: string
   status: string
   avatar: string
   isNew?: boolean
+  mobileNumber: string
 }
 
 // Excel row type definition - this would match whatever is in your Excel file
@@ -343,8 +344,15 @@ function ProvidersManagement() {
         email: getValueByPossibleKeys(["Email", "E-mail", "EmailAddress", "Email Address"]),
         company: businessName, // ✅ Dynamic from current user
         location: locationObject,
-        age: getValueByPossibleKeys(["Age"]),
+        gender: getValueByPossibleKeys(["Gender", "gender"]),
         providerNumber: getValueByPossibleKeys([
+          "Provider Number",
+          "ProviderNumber",
+          "Provider ID",
+          "ProviderID",
+          "ID",
+        ]),
+        mobileNumber: getValueByPossibleKeys([
           "Provider Number",
           "ProviderNumber",
           "Provider ID",
@@ -404,7 +412,8 @@ function ProvidersManagement() {
       if (res.data.success) {
         const fetchedProviders = res.data.providers.map((p: any) => ({
           id: p._id,
-          fullname: p.fullname,
+          firstName: p.firstName,
+          lastName: p.lastName,
           email: p.email,
           company: p.company,
           location: typeof p.location === "object" ? p.location.name || "" : p.location,
@@ -412,7 +421,7 @@ function ProvidersManagement() {
           providerNumber: p.providerNumber,
           status: p.status,
           avatar: p.avatar,
-          cooName: p.cooId?.fullname || "N/A",
+          cooName: p.cooId?.businessName || "N/A",
           cooEmail: p.cooId?.email || "N/A",
           dateRegistered: new Date(p.dateRegistered).toLocaleDateString(),
         }))
@@ -783,8 +792,8 @@ function ProvidersManagement() {
                               <span>ID: {provider.providerNumber}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="text-gray-400">Age:</span>
-                              <span>{provider.age}</span>
+                              <span className="text-gray-400">Gender:</span>
+                              <span>{provider.gender}</span>
                             </div>
                           </div>
                         </div>
@@ -852,6 +861,7 @@ function ProvidersManagement() {
                             </div>
                           </div>
 
+                          {/* When expanded */}
                           <div className="space-y-3">
                             <h4 className="font-medium text-sm text-gray-700">Provider Details</h4>
                             <div className="space-y-2">
@@ -859,19 +869,25 @@ function ProvidersManagement() {
                                 <div className="flex items-center gap-2">
                                   <span className="font-light">Company</span>
                                 </div>
-                                <span className="font-medium">{provider.company}</span>
+                                <span className="font-medium">{provider.company || "Not provided"}</span>
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                   <span className="font-light">Provider ID</span>
                                 </div>
-                                <span className="font-medium">{provider.providerNumber}</span>
+                                <span className="font-medium">{provider.providerNumber || "Not provided"}</span>
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-light">Age</span>
+                                  <span className="font-light">Gender</span>
                                 </div>
-                                <span className="font-medium">{provider.age}</span>
+                                <span className="font-medium">{provider.gender || "Not provided"}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-light">Mobile Number</span>
+                                </div>
+                                <span className="font-medium">{provider.mobileNumber || "Not provided"}</span>
                               </div>
                             </div>
                           </div>

@@ -20,6 +20,7 @@ import {
   verifySecretAnswer,
   verifySecretCode,
   resetPassword,
+  changePassword,
   getUserProfile,
   updateUserImage,
   updateUserProfile,
@@ -33,7 +34,8 @@ import {
   getUserProfileById,
   bulkAddProviders,
   fetchProviders,
-  updateUserVerification
+  updateUserVerification,
+  getProvidersByCoo
 } from "./controller/userController.js"
 import { createService, getServices, deleteService, getServicesByUserId, getServicesByCompanyId, getTotalServicesByCompany, updateServiceDetails } from "./controller/serviceController.js"
 import {
@@ -63,7 +65,14 @@ import {
   skipBookingReview,
   getOngoingBookings,
   releasePayment,
-  updateProviderReview
+  updateProviderReview,
+  getBookingsByCompany,
+  getRevenueByCoo,
+  getMonthlyRevenueByCoo,
+  getPendingBookingsByProvider,
+  getOngoingBookingsByProvider,
+  getActiveBookingsByProvider,
+  getCompletedBookingsByProvider
 } from "./controller/bookingController.js"
 
 import { Notification } from "./models/notification.js"
@@ -79,7 +88,8 @@ import {
   deleteCoupon,
   createCompensationCoupon,
   deleteExpiredCoupons,
-  sendCouponToUser
+  sendCouponToUser,
+  getCompanyCouponsDashboard
 } from "./controller/couponController.js"
 
 import { fetchUserActivities } from "./controller/userActivityController.js"
@@ -287,33 +297,43 @@ const typingUsers = new Map()
 
 const emailVerificationCodes = new Map()
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const { token, username, userId } = socket.handshake.auth
   console.log("Socket auth:", { username, userId })
 
-  if (!username) {
-    return next(new Error("Username is required"))
-  }
-
-  if (token) {
-    try {
-      const jwtSecret = process.env.JWT_KEY || process.env.JWT_SECRET
-      if (!jwtSecret) {
-        console.error("JWT_KEY or JWT_SECRET is not defined in environment variables.")
-        return next(new Error("Server configuration error: JWT secret missing."))
-      }
-      const decoded = jwt.verify(token, jwtSecret)
-
-      socket.user = { id: decoded.userId, username: username }
-      console.log("Authenticated socket user:", socket.user)
-    } catch (err) {
-      console.error("Token verification failed:", err)
-      return next(new Error("Authentication failed"))
-    }
-  } else {
+  if (!token) {
     return next(new Error("Authentication token is required"))
   }
-  next()
+
+  try {
+    const jwtSecret = process.env.JWT_KEY || process.env.JWT_SECRET
+    if (!jwtSecret) {
+      console.error("JWT_KEY or JWT_SECRET is not defined in environment variables.")
+      return next(new Error("Server configuration error: JWT secret missing."))
+    }
+
+    const decoded = jwt.verify(token, jwtSecret)
+    const user = await User.findById(userId).select("firstName middleName lastName businessName accountType")
+
+    let resolvedUsername =
+      username ||
+      (user
+        ? user.businessName ||
+        [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ")
+        : null)
+
+    if (!resolvedUsername) {
+      console.warn(`No username or businessName found for user ${userId}`)
+      return next(new Error("Username or business name is required"))
+    }
+
+    socket.user = { id: decoded.userId, username: resolvedUsername }
+    console.log("Authenticated socket user:", socket.user)
+    next()
+  } catch (err) {
+    console.error("Socket authentication error:", err)
+    next(new Error("Authentication failed"))
+  }
 })
 
 // Store connected provider clients
@@ -651,6 +671,7 @@ app.post("/api/users/forgot-password/fetch-details", fetchSecretDetails)
 app.post("/api/users/forgot-password/verify-answer", verifySecretAnswer)
 app.post("/api/users/forgot-password/verify-code", verifySecretCode)
 app.post("/api/users/forgot-password/reset-password", resetPassword)
+app.put("/api/users/:userId/change-password", authenticateToken, changePassword)
 app.get("/api/user/profile", authenticateToken, getUserProfile)
 
 app.post("/api/upload/image", upload.single("file"), async (req, res) => {
@@ -954,6 +975,14 @@ app.put("/api/bookings/:bookingId/review", authenticateToken, updateBookingRevie
 app.put("/api/bookings/:bookingId/skip-review", authenticateToken, skipBookingReview)
 app.patch("/api/bookings/:id/release-payment", authenticateToken, releasePayment)
 app.put("/api/bookings/:bookingId/provider-review", authenticateToken, updateProviderReview)
+app.get("/api/bookings/company/:companyId", authenticateToken, getBookingsByCompany)
+app.get("/api/bookings/revenue/:cooId", authenticateToken, getRevenueByCoo)
+app.get("/api/bookings/monthly-revenue/:cooId", authenticateToken, getMonthlyRevenueByCoo)
+app.get("/api/bookings/pending/:providerId", authenticateToken, getPendingBookingsByProvider)
+app.get("/api/bookings/ongoing/:providerId", authenticateToken, getOngoingBookingsByProvider)
+app.get("/api/bookings/active/:providerId", authenticateToken, getActiveBookingsByProvider)
+app.get("/api/bookings/completed/:providerId", authenticateToken, getCompletedBookingsByProvider)
+
 
 app.put("/api/admin/users/:id/status", authenticateToken, requireAdmin, async (req, res) => {
   try {
@@ -1077,6 +1106,7 @@ app.delete("/api/coupons/:couponId", authenticateToken, deleteCoupon)
 app.post("/api/coupons/compensation", authenticateToken, createCompensationCoupon)
 app.delete("/api/coupons/expired", authenticateToken, deleteExpiredCoupons)
 app.post("/api/coupons/send", authenticateToken, sendCouponToUser)
+app.get("/api/coupons/company/:companyId", authenticateToken, getCompanyCouponsDashboard)
 
 
 
@@ -1110,6 +1140,9 @@ app.get("/api/advertisements", authenticateToken, showAdvertisement)
 
 // Admin updating verification status
 app.put("/api/admin/users/:userId/verify", authenticateToken, updateUserVerification)
+
+// Getting the total providers
+app.get("/api/bookings/providers/:cooId", authenticateToken, getProvidersByCoo);
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

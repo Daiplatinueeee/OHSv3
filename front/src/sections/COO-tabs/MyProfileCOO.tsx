@@ -10,7 +10,6 @@ import {
   Mail,
   Phone,
   Calendar,
-  MoonIcon as Venus,
   Text,
   Building2,
   Briefcase,
@@ -91,7 +90,7 @@ const ProfileUpdateSuccessModal: React.FC<ProfileUpdateSuccessModalProps> = ({ i
             >
               {/* Redesigned modal panel */}
               <Dialog.Panel
-                className="mx-auto max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
+                className="mx-auto max-w-md w-full bg-white backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
                 style={{ animation: "fadeIn 0.5s ease-out" }}
               >
                 <div className="flex flex-col items-center text-center">
@@ -163,7 +162,7 @@ const AccountObservationModal: React.FC<ProfileUpdateSuccessModalProps> = ({ isO
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
-                className="mx-auto max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
+                className="mx-auto max-w-md w-full bg-white backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
                 style={{ animation: "fadeIn 0.5s ease-out" }}
               >
                 <div className="flex flex-col items-center text-center">
@@ -240,8 +239,6 @@ interface UserDetails {
   _id: string
   email: string
   mobileNumber: string
-  gender?: string
-  // Removed bio
   profilePicture?: string
   coverPhoto?: string
   location?: {
@@ -359,8 +356,15 @@ function MyProfile() {
   const [propertyDamagePreview, setPropertyDamagePreview] = useState<string | null>(null)
   const [businessInterruptionPreview, setBusinessInterruptionPreview] = useState<string | null>(null)
   const [bondingInsurancePreview, setBondingInsurancePreview] = useState<string | null>(null)
-
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo[]>([])
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  })
+
+  const [, setPasswordLoading] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" })
 
   // Generate secret code based on question and answer
   useEffect(() => {
@@ -419,7 +423,6 @@ function MyProfile() {
         // Removed firstName, lastName, middleName from mapping
         email: userData.email,
         mobileNumber: userData.mobileNumber,
-        gender: userData.gender,
         // Removed bio from mapping
         profilePicture: userData.profilePicture,
         coverPhoto: userData.coverPhoto,
@@ -459,7 +462,6 @@ function MyProfile() {
           // Removed firstName, lastName, middleName from editedDetails init
           email: mappedUserDetails.email,
           mobileNumber: mappedUserDetails.mobileNumber,
-          gender: mappedUserDetails.gender,
           // Removed bio from editedDetails init
           location: mappedUserDetails.location ? { ...mappedUserDetails.location } : undefined,
           // Removed idDocuments from editedDetails init
@@ -597,7 +599,6 @@ function MyProfile() {
       // Removed firstName, lastName, middleName from mapping
       email: userData.email,
       mobileNumber: userData.mobileNumber,
-      gender: userData.gender,
       // Removed bio from mapping
       profilePicture: userData.profilePicture,
       coverPhoto: userData.coverPhoto,
@@ -912,7 +913,6 @@ function MyProfile() {
         // Removed firstName, lastName, middleName from mapping
         email: userData.email,
         mobileNumber: userData.mobileNumber,
-        gender: userData.gender,
         // Removed bio from mapping
         profilePicture: userData.profilePicture,
         coverPhoto: userData.coverPhoto,
@@ -1012,7 +1012,6 @@ function MyProfile() {
         // Removed firstName, lastName, middleName from mapping
         email: userData.email,
         mobileNumber: userData.mobileNumber,
-        gender: userData.gender,
         // Removed bio from mapping
         profilePicture: userData.profilePicture,
         coverPhoto: userData.coverPhoto,
@@ -1104,7 +1103,6 @@ function MyProfile() {
         // Removed firstName, lastName, middleName from mapping
         email: profilePicUserData.email,
         mobileNumber: profilePicUserData.mobileNumber,
-        gender: profilePicUserData.gender,
         // Removed bio from mapping
         profilePicture: profilePicUserData.profilePicture,
         coverPhoto: profilePicUserData.coverPhoto,
@@ -1160,7 +1158,6 @@ function MyProfile() {
         // Removed firstName, lastName, middleName from mapping
         email: coverPhotoUserData.email,
         mobileNumber: coverPhotoUserData.mobileNumber,
-        gender: coverPhotoUserData.gender,
         // Removed bio from mapping
         profilePicture: coverPhotoUserData.profilePicture,
         coverPhoto: coverPhotoUserData.coverPhoto,
@@ -1207,6 +1204,68 @@ function MyProfile() {
       }
     } finally {
       setIsResettingImages(false)
+    }
+  }
+
+  const handleChangePassword = async (e: any) => {
+    e.preventDefault()
+    setPasswordMessage({ type: "", text: "" })
+
+    // Validate form
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "All fields are required." })
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordMessage({ type: "error", text: "New passwords do not match." })
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordMessage({ type: "error", text: "New password must be at least 6 characters long." })
+      return
+    }
+
+    try {
+      setPasswordLoading(true)
+      const token = localStorage.getItem("token")
+      const userString = localStorage.getItem("user")
+      const user = userString ? JSON.parse(userString) : null
+      const userId = user?._id
+
+      if (!userId) {
+        setPasswordMessage({ type: "error", text: "User ID not found. Please log in again." })
+        return
+      }
+
+      const API_BASE_URL = "http://localhost:3000"
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setPasswordMessage({ type: "error", text: data.message || "Failed to change password." })
+        return
+      }
+
+      setPasswordMessage({ type: "success", text: "Password changed successfully!" })
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" })
+    } catch (error) {
+      console.error("Error changing password:", error)
+      setPasswordMessage({ type: "error", text: "An error occurred while changing password." })
+    } finally {
+      setPasswordLoading(false)
     }
   }
 
@@ -1274,26 +1333,44 @@ function MyProfile() {
                       />
                     </div>
                   </div>
-                  {/* Gender */}
+
+                  {/* Email */}
                   <div>
-                    <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
-                      Gender
-                    </label>
-                    <div className="relative">
-                      <Venus className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <select
-                        id="gender"
-                        name="gender"
-                        value={editedDetails.gender || ""}
-                        onChange={handleInputChange}
-                        className="w-full appearance-none rounded-md border border-gray-300 py-2 pl-10 pr-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-                      >
-                        <option value="">Select gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                        <option value="prefer-not-to-say">Prefer not to say</option>
-                      </select>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                        Email
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          value={editedDetails.email || ""}
+                          onChange={handleInputChange}
+                          onBlur={handleEmailBlur} // NEW: Add onBlur handler
+                          className={`w-full rounded-md border py-2 pl-10 pr-3 shadow-sm focus:outline-none focus:ring-2 ${emailBorderClass}`} // NEW: Dynamic border class
+                          required
+                          disabled={isCheckingEmail || isSavingDetails} // NEW: Disable input during check/save
+                        />
+                      </div>
+                      {isCheckingEmail && ( // NEW: Loading indicator for email check
+                        <p className="mt-1 flex items-center text-sm text-gray-500">
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking availability...
+                        </p>
+                      )}
+                      {emailValidationStatus === "available" &&
+                        !isCheckingEmail && ( // NEW: Success message
+                          <p className="mt-1 flex items-center text-sm text-green-500">
+                            <BadgeCheck className="mr-2 h-4 w-4" /> Email is available!
+                          </p>
+                        )}
+                      {emailValidationStatus === "unavailable" &&
+                        emailError && ( // NEW: Error message
+                          <p className="mt-1 flex items-center text-sm text-red-500">
+                            <X className="mr-2 h-4 w-4" /> {emailError}
+                          </p>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -1428,46 +1505,7 @@ function MyProfile() {
                   </div>
                 </div>
 
-                {/* Email */}
-                <div>
-                  <h4 className="text-lg font-medium mb-2 text-gray-700">Email Address</h4>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={editedDetails.email || ""}
-                        onChange={handleInputChange}
-                        onBlur={handleEmailBlur} // NEW: Add onBlur handler
-                        className={`w-full rounded-md border py-2 pl-10 pr-3 shadow-sm focus:outline-none focus:ring-2 ${emailBorderClass}`} // NEW: Dynamic border class
-                        required
-                        disabled={isCheckingEmail || isSavingDetails} // NEW: Disable input during check/save
-                      />
-                    </div>
-                    {isCheckingEmail && ( // NEW: Loading indicator for email check
-                      <p className="mt-1 flex items-center text-sm text-gray-500">
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking availability...
-                      </p>
-                    )}
-                    {emailValidationStatus === "available" &&
-                      !isCheckingEmail && ( // NEW: Success message
-                        <p className="mt-1 flex items-center text-sm text-green-500">
-                          <BadgeCheck className="mr-2 h-4 w-4" /> Email is available!
-                        </p>
-                      )}
-                    {emailValidationStatus === "unavailable" &&
-                      emailError && ( // NEW: Error message
-                        <p className="mt-1 flex items-center text-sm text-red-500">
-                          <X className="mr-2 h-4 w-4" /> {emailError}
-                        </p>
-                      )}
-                  </div>
-                </div>
+
 
                 {/* COO-specific fields for editing */}
                 <div className="md:col-span-full">
@@ -1582,27 +1620,41 @@ function MyProfile() {
                         SEC Registration (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${secRegistrationPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(secRegistrationRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${secRegistrationPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() =>
+                          !userDetails?.isVerified && handleDocumentUploadClick(secRegistrationRef.current)
+                        }
                       >
                         {secRegistrationPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(secRegistrationPreview)
-                            }}
-                          >
-                            <img
-                              src={secRegistrationPreview || "/placeholder.svg"}
-                              alt="SEC Registration Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(secRegistrationPreview)
+                              }}
+                            >
+                              <img
+                                src={secRegistrationPreview || "/placeholder.svg"}
+                                alt="SEC Registration Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(secRegistrationRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change SEC Registration
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1618,6 +1670,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setSecRegistrationPreview, "secRegistration")}
+
                         />
                       </div>
                     </div>
@@ -1627,27 +1680,39 @@ function MyProfile() {
                         Business Permit (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${businessPermitPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(businessPermitRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${businessPermitPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() => !userDetails?.isVerified && handleDocumentUploadClick(businessPermitRef.current)}
                       >
                         {businessPermitPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(businessPermitPreview)
-                            }}
-                          >
-                            <img
-                              src={businessPermitPreview || "/placeholder.svg"}
-                              alt="Business Permit Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(businessPermitPreview)
+                              }}
+                            >
+                              <img
+                                src={businessPermitPreview || "/placeholder.svg"}
+                                alt="Business Permit Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(businessPermitRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change Business Permit
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1663,6 +1728,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setBusinessPermitPreview, "businessPermit")}
+
                         />
                       </div>
                     </div>
@@ -1672,27 +1738,41 @@ function MyProfile() {
                         BIR Registration (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${birRegistrationPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(birRegistrationRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${birRegistrationPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() =>
+                          !userDetails?.isVerified && handleDocumentUploadClick(birRegistrationRef.current)
+                        }
                       >
                         {birRegistrationPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(birRegistrationPreview)
-                            }}
-                          >
-                            <img
-                              src={birRegistrationPreview || "/placeholder.svg"}
-                              alt="BIR Registration Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(birRegistrationPreview)
+                              }}
+                            >
+                              <img
+                                src={birRegistrationPreview || "/placeholder.svg"}
+                                alt="BIR Registration Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(birRegistrationRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change BIR Registration
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1708,6 +1788,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setBirRegistrationPreview, "birRegistration")}
+
                         />
                       </div>
                     </div>
@@ -1717,27 +1798,39 @@ function MyProfile() {
                         ECC Certificate (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${eccCertificatePreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(eccCertificateRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${eccCertificatePreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() => !userDetails?.isVerified && handleDocumentUploadClick(eccCertificateRef.current)}
                       >
                         {eccCertificatePreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(eccCertificatePreview)
-                            }}
-                          >
-                            <img
-                              src={eccCertificatePreview || "/placeholder.svg"}
-                              alt="ECC Certificate Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(eccCertificatePreview)
+                              }}
+                            >
+                              <img
+                                src={eccCertificatePreview || "/placeholder.svg"}
+                                alt="ECC Certificate Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(eccCertificateRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change ECC Certificate
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1753,6 +1846,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setEccCertificatePreview, "eccCertificate")}
+
                         />
                       </div>
                     </div>
@@ -1762,27 +1856,41 @@ function MyProfile() {
                         General Liability (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${generalLiabilityPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(generalLiabilityRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${generalLiabilityPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() =>
+                          !userDetails?.isVerified && handleDocumentUploadClick(generalLiabilityRef.current)
+                        }
                       >
                         {generalLiabilityPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(generalLiabilityPreview)
-                            }}
-                          >
-                            <img
-                              src={generalLiabilityPreview || "/placeholder.svg"}
-                              alt="General Liability Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(generalLiabilityPreview)
+                              }}
+                            >
+                              <img
+                                src={generalLiabilityPreview || "/placeholder.svg"}
+                                alt="General Liability Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(generalLiabilityRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change General Liability
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1798,6 +1906,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setGeneralLiabilityPreview, "generalLiability")}
+
                         />
                       </div>
                     </div>
@@ -1807,27 +1916,39 @@ function MyProfile() {
                         Workers Comp (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${workersCompPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(workersCompRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${workersCompPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() => !userDetails?.isVerified && handleDocumentUploadClick(workersCompRef.current)}
                       >
                         {workersCompPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(workersCompPreview)
-                            }}
-                          >
-                            <img
-                              src={workersCompPreview || "/placeholder.svg"}
-                              alt="Workers Comp Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(workersCompPreview)
+                              }}
+                            >
+                              <img
+                                src={workersCompPreview || "/placeholder.svg"}
+                                alt="Workers Comp Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(workersCompRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change Workers Comp
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1843,6 +1964,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setWorkersCompPreview, "workersComp")}
+
                         />
                       </div>
                     </div>
@@ -1852,27 +1974,41 @@ function MyProfile() {
                         Professional Indemnity (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${professionalIndemnityPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(professionalIndemnityRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${professionalIndemnityPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() =>
+                          !userDetails?.isVerified && handleDocumentUploadClick(professionalIndemnityRef.current)
+                        }
                       >
                         {professionalIndemnityPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(professionalIndemnityPreview)
-                            }}
-                          >
-                            <img
-                              src={professionalIndemnityPreview || "/placeholder.svg"}
-                              alt="Professional Indemnity Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(professionalIndemnityPreview)
+                              }}
+                            >
+                              <img
+                                src={professionalIndemnityPreview || "/placeholder.svg"}
+                                alt="Professional Indemnity Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(professionalIndemnityRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change Professional Indemnity
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1890,6 +2026,7 @@ function MyProfile() {
                           onChange={(e) =>
                             handleDocumentFileChange(e, setProfessionalIndemnityPreview, "professionalIndemnity")
                           }
+
                         />
                       </div>
                     </div>
@@ -1899,27 +2036,39 @@ function MyProfile() {
                         Property Damage (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${propertyDamagePreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(propertyDamageRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${propertyDamagePreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() => !userDetails?.isVerified && handleDocumentUploadClick(propertyDamageRef.current)}
                       >
                         {propertyDamagePreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(propertyDamagePreview)
-                            }}
-                          >
-                            <img
-                              src={propertyDamagePreview || "/placeholder.svg"}
-                              alt="Property Damage Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(propertyDamagePreview)
+                              }}
+                            >
+                              <img
+                                src={propertyDamagePreview || "/placeholder.svg"}
+                                alt="Property Damage Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(propertyDamageRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change Property Damage
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1935,6 +2084,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setPropertyDamagePreview, "propertyDamage")}
+
                         />
                       </div>
                     </div>
@@ -1944,27 +2094,41 @@ function MyProfile() {
                         Business Interruption (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${businessInterruptionPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(businessInterruptionRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${businessInterruptionPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() =>
+                          !userDetails?.isVerified && handleDocumentUploadClick(businessInterruptionRef.current)
+                        }
                       >
                         {businessInterruptionPreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(businessInterruptionPreview)
-                            }}
-                          >
-                            <img
-                              src={businessInterruptionPreview || "/placeholder.svg"}
-                              alt="Business Interruption Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(businessInterruptionPreview)
+                              }}
+                            >
+                              <img
+                                src={businessInterruptionPreview || "/placeholder.svg"}
+                                alt="Business Interruption Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(businessInterruptionRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change Business Interruption
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -1982,6 +2146,7 @@ function MyProfile() {
                           onChange={(e) =>
                             handleDocumentFileChange(e, setBusinessInterruptionPreview, "businessInterruption")
                           }
+
                         />
                       </div>
                     </div>
@@ -1991,27 +2156,41 @@ function MyProfile() {
                         Bonding Insurance (optional)
                       </label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${bondingInsurancePreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
-                        onClick={() => handleDocumentUploadClick(bondingInsuranceRef.current)}
+                        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${bondingInsurancePreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"} ${userDetails?.isVerified ? "opacity-60 cursor-not-allowed" : ""}`}
+                        onClick={() =>
+                          !userDetails?.isVerified && handleDocumentUploadClick(bondingInsuranceRef.current)
+                        }
                       >
                         {bondingInsurancePreview ? (
-                          <div
-                            className="relative w-full h-40 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageClick(bondingInsurancePreview)
-                            }}
-                          >
-                            <img
-                              src={bondingInsurancePreview || "/placeholder.svg"}
-                              alt="Bonding Insurance Preview"
-                              className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                Click to view
-                              </span>
+                          <div className="w-full">
+                            <div
+                              className="relative w-full h-40 cursor-pointer mb-3"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageClick(bondingInsurancePreview)
+                              }}
+                            >
+                              <img
+                                src={bondingInsurancePreview || "/placeholder.svg"}
+                                alt="Bonding Insurance Preview"
+                                className="object-contain w-full h-full filter blur-sm hover:blur-[2px] transition-all"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                                  Click to view
+                                </span>
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDocumentUploadClick(bondingInsuranceRef.current)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:border-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            >
+                              Change Bonding Insurance
+                            </button>
                           </div>
                         ) : (
                           <>
@@ -2027,6 +2206,7 @@ function MyProfile() {
                           className="hidden"
                           accept=".jpg,.jpeg,.png,.pdf"
                           onChange={(e) => handleDocumentFileChange(e, setBondingInsurancePreview, "bondingInsurance")}
+
                         />
                       </div>
                     </div>
@@ -2044,7 +2224,6 @@ function MyProfile() {
                           // Removed firstName, lastName, middleName from reset
                           email: userDetails.email,
                           mobileNumber: userDetails.mobileNumber,
-                          gender: userDetails.gender,
                           // Removed bio from reset
                           location: userDetails.location ? { ...userDetails.location } : undefined,
                           // Removed idDocuments from reset
@@ -2092,13 +2271,13 @@ function MyProfile() {
                       setEmailError(null)
                       setEmailValidationStatus("idle")
                     }}
-                    className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
+                    className="rounded-full border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center justify-center rounded-lg bg-sky-500 px-4 py-2 text-white shadow-sm transition-all hover:bg-sky-600"
+                    className="flex items-center justify-center rounded-full bg-sky-500 px-4 py-2 text-white shadow-sm transition-all hover:bg-sky-600"
                     disabled={isSavingDetails || isCheckingEmail || emailValidationStatus === "unavailable"}
                   >
                     {isSavingDetails ? <Loader2 className="h-5 w-5 animate-spin" /> : "Save Changes"}
@@ -2126,6 +2305,7 @@ function MyProfile() {
                   </h4>
                   <p className="text-gray-900">{userDetails?.mobileNumber || "N/A"}</p>
                 </div>
+
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                   <h4 className="mb-1 flex items-center text-sm font-medium text-gray-500">
                     <MapPin className="mr-2 h-4 w-4" /> Location
@@ -2139,12 +2319,6 @@ function MyProfile() {
                   <p className="text-gray-900">
                     {userDetails?.createdAt ? new Date(userDetails.createdAt).toLocaleDateString() : "N/A"}
                   </p>
-                </div>
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <h4 className="mb-1 flex items-center text-sm font-medium text-gray-500">
-                    <Venus className="mr-2 h-4 w-4" /> Gender
-                  </h4>
-                  <p className="text-gray-900">{userDetails?.gender || "Not specified"}</p>
                 </div>
                 {/* About Company (replaces Bio) */}
                 <div className="md:col-span-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -2480,7 +2654,7 @@ function MyProfile() {
       return (
         <div className="bg-white rounded-3xl p-6">
           <h3 className="text-xl font-medium text-gray-700 mb-6">Change Password</h3>
-          <form className="space-y-4 max-w-md">
+          <form className="space-y-4 max-w-md" onSubmit={handleChangePassword}>
             <div>
               <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 mb-1">
                 Current Password
@@ -2490,6 +2664,8 @@ function MyProfile() {
                 id="current-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Enter your current password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
               />
             </div>
             <div>
@@ -2501,6 +2677,8 @@ function MyProfile() {
                 id="new-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Enter your new password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
               />
             </div>
             <div>
@@ -2512,6 +2690,8 @@ function MyProfile() {
                 id="confirm-password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 placeholder="Confirm your new password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
               />
             </div>
             <div className="pt-2">
@@ -2523,75 +2703,15 @@ function MyProfile() {
               </button>
             </div>
           </form>
-        </div>
-      )
-    }
-
-    if (activeTab === "delete") {
-      return (
-        <div className="bg-white rounded-3xl p-6">
-          <h3 className="text-xl font-medium mb-2 text-red-600">Delete Account</h3>
-          <p className="text-gray-600 mb-6">Once you delete your account, there is no going back. Please be certain.</p>
-
-          <div className="space-y-6">
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-              <h4 className="font-medium text-red-800 mb-2">Before you proceed, please understand:</h4>
-              <ul className="list-disc pl-5 space-y-2 text-red-700 text-sm">
-                <li>All your personal information will be permanently deleted</li>
-                <li>Your service listings will be removed from the platform</li>
-                <li>Your booking history will be anonymized</li>
-                <li>You will lose access to any pending payments</li>
-                <li>This action cannot be undone</li>
-              </ul>
+          {/* Display password message */}
+          {passwordMessage.text && (
+            <div
+              className={`mt-4 px-4 py-2 rounded-lg ${passwordMessage.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                }`}
+            >
+              {passwordMessage.text}
             </div>
-
-            <div className="border border-gray-200 rounded-xl p-4">
-              <h4 className="font-medium mb-3">Deletion Process:</h4>
-              <ol className="list-decimal pl-5 space-y-3 text-gray-700">
-                <li>
-                  <p className="font-medium">Request Account Deletion</p>
-                  <p className="text-sm text-gray-600">
-                    Submit your request by clicking the "Delete Account" button below.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Verification</p>
-                  <p className="text-sm text-gray-600">
-                    We'll send a verification code to your email address to confirm your identity.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Confirmation</p>
-                  <p className="text-sm text-gray-600">
-                    Enter the verification code and confirm your decision to delete your account.
-                  </p>
-                </li>
-                <li>
-                  <p className="font-medium">Account Deletion</p>
-                  <p className="text-sm text-gray-600">
-                    Your account will be scheduled for deletion. This process may take up to 30 days to complete.
-                  </p>
-                </li>
-              </ol>
-            </div>
-
-            <div className="border-t border-gray-200 pt-6">
-              <p className="text-gray-700 mb-4">
-                To proceed with account deletion, please type <span className="font-medium">"DELETE MY ACCOUNT"</span>{" "}
-                in the field below:
-              </p>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Type DELETE MY ACCOUNT"
-                />
-              </div>
-              <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
-                Delete Account
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       )
     }
@@ -2697,7 +2817,7 @@ function MyProfile() {
                       strokeLinejoin="round"
                       className="lucide lucide-alarm-clock-off"
                     >
-                      <path d="M6.87 6.87A8 8 0 1 0 21 12" />
+                      <path d="M6.87 6.87A8 8 0 0 0 21 12" />
                       <path d="M19.71 19.71a8 8 0 0 1-11.31-11.31" />
                       <path d="M22 6 L6 22" />
                       <path d="M10 4H4v6" />
@@ -2864,7 +2984,7 @@ function MyProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Include animation keyframes */}
       <style>{keyframes}</style>
 
@@ -2953,15 +3073,23 @@ function MyProfile() {
 
                 {userDetails?.isVerified !== undefined && (
                   <span
-                    className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                      userDetails.isVerified ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                    }`}
+                    className={`px-2 py-0.5 text-xs font-medium rounded-full ${userDetails.isVerified ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      }`}
                   >
                     {userDetails.isVerified ? "Verified" : "Unverified"}
                   </span>
                 )}
               </div>
-              <div>
+              <div className="flex gap-3">
+                {isEditingProfile && (
+                  <button
+                    onClick={handleResetImages}
+                    disabled={isResettingImages}
+                    className="flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
+                  >
+                    {isResettingImages ? <Loader2 className="h-5 w-5 animate-spin" /> : "Reset"}
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     if (!isEditingProfile) {
@@ -2970,7 +3098,7 @@ function MyProfile() {
                     }
                     setIsEditingProfile((prev) => !prev)
                   }}
-                  className="rounded-lg bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
+                  className="rounded-full bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
                 >
                   {isEditingProfile ? "Done Editing" : "Change Profile"}
                 </button>
@@ -2986,15 +3114,7 @@ function MyProfile() {
             </div>
           </div>
           <div className="flex gap-2">
-            {isEditingProfile && (
-              <button
-                onClick={handleResetImages}
-                disabled={isResettingImages}
-                className="flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
-              >
-                {isResettingImages ? <Loader2 className="h-5 w-5 animate-spin" /> : "Reset"}
-              </button>
-            )}
+
           </div>
         </div>
 
@@ -3004,11 +3124,10 @@ function MyProfile() {
             <nav className="flex -mb-px overflow-x-auto">
               <button
                 onClick={() => setActiveTab("personal")}
-                className={`flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium ${
-                  activeTab === "personal"
-                    ? "border-sky-500 text-sky-500"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                }`}
+                className={`flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium ${activeTab === "personal"
+                  ? "border-sky-500 text-sky-500"
+                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                  }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -3030,11 +3149,10 @@ function MyProfile() {
               </button>
               <button
                 onClick={() => setActiveTab("security")}
-                className={`flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium ${
-                  activeTab === "security"
-                    ? "border-sky-500 text-sky-500"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                }`}
+                className={`flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium ${activeTab === "security"
+                  ? "border-sky-500 text-sky-500"
+                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                  }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -3052,34 +3170,6 @@ function MyProfile() {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
                 Security
-              </button>
-              <button
-                onClick={() => setActiveTab("delete")}
-                className={`flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-6 text-sm font-medium ${
-                  activeTab === "delete"
-                    ? "border-sky-500 text-sky-500"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-trash-2"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  <line x1="10" x2="10" y1="11" y2="17" />
-                  <line x1="14" x2="14" y1="11" y2="17" />
-                </svg>
-                Delete Account
               </button>
             </nav>
           </div>
@@ -3109,7 +3199,6 @@ function MyProfile() {
                       // Removed firstName, lastName, middleName from reset
                       email: userDetails.email,
                       mobileNumber: userDetails.mobileNumber,
-                      gender: userDetails.gender,
                       // Removed bio from reset
                       location: userDetails.location ? { ...userDetails.location } : undefined,
                       // Removed idDocuments from reset
@@ -3157,7 +3246,7 @@ function MyProfile() {
                   setEmailError(null)
                   setEmailValidationStatus("idle")
                 }}
-                className="rounded-lg bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
+                className="rounded-full bg-sky-500 px-4 py-2 text-white transition-all hover:bg-sky-600"
               >
                 {isEditingDetails ? "Cancel Editing" : "Edit Details"}
               </button>
@@ -3392,13 +3481,13 @@ function MyProfile() {
                       <button
                         type="button"
                         onClick={() => setIsEditModalOpen(false)}
-                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700 transition-colors hover:bg-gray-50"
+                        className="flex-1 rounded-full border border-gray-300 px-4 py-2.5 text-gray-700 transition-colors hover:bg-gray-50"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 rounded-lg bg-sky-500 px-4 py-2.5 text-white transition-colors hover:bg-sky-600"
+                        className="flex-1 rounded-full bg-sky-500 px-4 py-2.5 text-white transition-colors hover:bg-sky-600"
                       >
                         Save Changes
                       </button>
@@ -3454,7 +3543,7 @@ function MyProfile() {
           style={{ animation: "fadeIn 0.3s ease-out" }}
         >
           <div
-            className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/20"
+            className="bg-white backdrop-blur-xl rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/20"
             style={{ animation: "slideInUp 0.4s ease-out" }}
           >
             <div className="flex justify-between items-start mb-4">
@@ -3521,7 +3610,7 @@ function MyProfile() {
           style={{ animation: "fadeIn 0.3s ease-out" }}
         >
           <div
-            className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/20"
+            className="bg-white backdrop-blur-xl rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/20"
             style={{ animation: "slideInUp 0.4s ease-out" }}
           >
             <div className="flex justify-between items-start mb-4">
@@ -3560,7 +3649,7 @@ function MyProfile() {
           style={{ animation: "fadeIn 0.3s ease-out" }}
         >
           <div
-            className="bg-white/90 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/20"
+            className="bg-white backdrop-blur-xl rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/20"
             style={{ animation: "slideInUp 0.4s ease-out" }}
           >
             <div className="flex justify-between items-start mb-4">

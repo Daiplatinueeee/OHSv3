@@ -320,17 +320,20 @@ function Reports() {
         </div>
 
         {/* Reports Overview */}
-        <div className="mb-8">
+        <div className="mb-8 w-full px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-r from-[#FF453A] to-[#FF9500] rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 text-white">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <div>
-                  <h2 className="text-xl font-medium">Reports Overview</h2>
-                  <p className="text-white/90 font-light">Track and manage all submitted reports</p>
+
+              {/* Header Section */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 text-center md:text-left">
+                <div className="w-full md:w-auto">
+                  <h2 className="text-xl sm:text-2xl font-medium">Reports Overview</h2>
+                  <p className="text-white/90 font-light text-sm sm:text-base">Track and manage all submitted reports</p>
                 </div>
-                <div className="mt-4 md:mt-0 flex gap-2">
+
+                <div className="mt-4 md:mt-0 flex justify-center md:justify-end w-full md:w-auto">
                   <Button
-                    className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0"
+                    className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0 text-sm sm:text-base px-4 py-2"
                     onClick={() => generateReportPDF(filteredReports)}
                   >
                     <Printer className="mr-2 h-4 w-4" />
@@ -339,9 +342,11 @@ function Reports() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Reports */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <Flag className="h-5 w-5 text-white" />
                     </div>
@@ -351,8 +356,9 @@ function Reports() {
                   <div className="text-white/90 text-sm mt-1 font-light">All submitted reports</div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+                {/* Pending */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <AlertCircle className="h-5 w-5 text-white" />
                     </div>
@@ -362,8 +368,9 @@ function Reports() {
                   <div className="text-white/90 text-sm mt-1 font-light">Awaiting review</div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+                {/* Under Review */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <Eye className="h-5 w-5 text-white" />
                     </div>
@@ -373,8 +380,9 @@ function Reports() {
                   <div className="text-white/90 text-sm mt-1 font-light">Being investigated</div>
                 </div>
 
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
+                {/* Resolved */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                     <div className="bg-white/20 rounded-full p-2">
                       <Check className="h-5 w-5 text-white" />
                     </div>
@@ -384,9 +392,11 @@ function Reports() {
                   <div className="text-white/90 text-sm mt-1 font-light">Completed actions</div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
+
 
         {/* Reports List */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -447,9 +457,8 @@ function Reports() {
                 {filteredReports.map((report) => (
                   <div
                     key={report._id}
-                    className={`bg-[#F2F2F7]/50 rounded-xl p-4 hover:bg-[#F2F2F7] transition-colors cursor-pointer ${
-                      selectedReport === report._id ? "ring-1 ring-[#FF453A]" : ""
-                    }`}
+                    className={`bg-[#F2F2F7]/50 rounded-xl p-4 hover:bg-[#F2F2F7] transition-colors cursor-pointer ${selectedReport === report._id ? "ring-1 ring-[#FF453A]" : ""
+                      }`}
                     onClick={() => setSelectedReport(selectedReport === report._id ? null : report._id)}
                   >
                     <div className="flex items-start gap-4">

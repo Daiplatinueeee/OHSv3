@@ -20,7 +20,7 @@ import {
   CheckCheckIcon,
   Trash2Icon,
 } from "lucide-react"
-import { SharedFilesSidebar } from "../Styles/SharedFilesSIdebar" 
+import { SharedFilesSidebar } from "../Styles/SharedFilesSIdebar"
 
 interface Message {
   id: string
@@ -40,7 +40,7 @@ interface User {
   firstName: string
   lastName: string
   middleName?: string
-  username: string 
+  username: string
   profilePicture?: string
   status?: "online" | "offline"
 }
@@ -56,14 +56,14 @@ function ChatRTC() {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
-  const [typingStatus, setTypingStatus] = useState<Record<string, boolean>>({}) 
+  const [typingStatus, setTypingStatus] = useState<Record<string, boolean>>({})
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]) 
-  const fileInputRef = useRef<HTMLInputElement>(null) 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false) 
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const emojiPickerRef = useRef<HTMLDivElement>(null)
 
   const emojis = [
@@ -166,15 +166,19 @@ function ChatRTC() {
       try {
         const user = JSON.parse(storedUser)
         // Construct username from first, middle, last names
-        const username = [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ")
+        const username =
+          user.businessName?.trim() ||
+          [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ").trim() ||
+          "Unknown User"
+
 
         setCurrentUser({
           id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          middleName: user.middleName,
-          username: username,
-          profilePicture: user.profilePicture, // Pass profile picture
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          middleName: user.middleName || "",
+          username,
+          profilePicture: user.profilePicture || "",
           status: "online",
         })
 
@@ -717,7 +721,7 @@ function ChatRTC() {
               </div>
             )}
             <div className="ml-4">
-              <p className="font-bold text-lg text-gray-900">{currentUser?.username}</p>
+              <p className="font-medium text-lg text-gray-900">{currentUser?.username}</p>
               <div className="flex items-center text-sm text-green-500">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
                 <span>online</span>
@@ -743,7 +747,7 @@ function ChatRTC() {
         {/* Online users / Last chats */}
         <div className="flex-1 overflow-y-auto">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
               recent chats ({onlineUsers.length})
             </h3>
             <div className="flex items-center space-x-2">
@@ -759,9 +763,8 @@ function ChatRTC() {
                 <button
                   key={user.id}
                   onClick={() => handleUserSelect(user)}
-                  className={`flex items-center w-full px-3 py-2 rounded-lg transition-colors ${
-                    selectedUser?.id === user.id ? "bg-blue-50 text-blue-600" : "hover:bg-gray-100"
-                  }`}
+                  className={`flex items-center w-full px-3 py-2 rounded-lg transition-colors ${selectedUser?.id === user.id ? "bg-blue-50 text-blue-600" : "hover:bg-gray-100"
+                    }`}
                 >
                   <div className="relative">
                     {user.profilePicture ? (
@@ -818,7 +821,7 @@ function ChatRTC() {
                   </div>
                 )}
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-800">{selectedUser.username}</h2>
+                  <h2 className="text-lg font-medium text-gray-800">{selectedUser.username}</h2>
                   {onlineUsers.some((u) => u.id === selectedUser.id) ? (
                     <div className="flex items-center text-sm text-green-500">
                       <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
@@ -871,13 +874,12 @@ function ChatRTC() {
                       !hasText &&
                       (message.attachmentUrls ?? []).every((url) => !isImageUrl(url)) // FIX: Use ?? []
 
-                    const bubbleClasses = `max-w-xs lg:max-w-md rounded-xl ${
-                      isCurrentUser
-                        ? isImageOnlyMessage || isFileOnlyMessage // Apply transparent style for image-only or file-only
-                          ? "bg-transparent p-0"
-                          : "bg-blue-500 text-white rounded-br-none px-4 py-2"
-                        : "bg-white text-gray-800 rounded-tl-none shadow-sm px-4 py-2"
-                    }`
+                    const bubbleClasses = `max-w-xs lg:max-w-md rounded-xl ${isCurrentUser
+                      ? isImageOnlyMessage || isFileOnlyMessage // Apply transparent style for image-only or file-only
+                        ? "bg-transparent p-0"
+                        : "bg-blue-500 text-white rounded-br-none px-4 py-2"
+                      : "bg-white text-gray-800 rounded-tl-none shadow-sm px-4 py-2"
+                      }`
 
                     // Don't render if message is deleted and has no text/attachments
                     if (message.deleted && !message.text && (message.attachmentUrls ?? []).length === 0) {
