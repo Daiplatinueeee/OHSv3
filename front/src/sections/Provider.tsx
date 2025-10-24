@@ -23,7 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { format } from "date-fns"
 
-import actorImage from "@/assets/Terms/7-removebg-preview.png"
+import actorImage from "@/assets/filipino10.png"
 
 interface Service {
   canAccept: boolean
@@ -842,7 +842,7 @@ function ProviderDashboard() {
       <main className="p-4 md:p-6 flex justify-center items-center lg:grid-cols-[2fr_1fr] gap-4 md:gap-6">
         <div className="space-y-4 md:space-y-6">
           <div>
-            <div className="p-4 bg-white border border-gray-400 rounded-lg h-60 mt-30">
+            <div className="p-4 bg-white border border-gray-400 rounded-lg h-60 mt-35">
               <div className="text-xl font-medium text-gray-700 mt-7 ml-15">
                 <h3>
                   {getGreeting(currentTime.getHours())},{" "}
@@ -858,7 +858,7 @@ function ProviderDashboard() {
               <img
                 src={actorImage}
                 alt="Bookings Overview"
-                className="w-full h-100 object-contain absolute bottom-96 right-0 left-60"
+                className="w-full h-100 object-contain absolute bottom-91 right-0 left-80 z-0"
               />
             </div>
             <div className="w-[80%]">

@@ -23,8 +23,6 @@ import {
   Eye,
   EyeOff,
   XCircle,
-  MessageCircle,
-  HelpCircle,
 } from "lucide-react"
 import LocationSelector from "./LocationSelectorAuth"
 import ImagePopup from "./ImagePopup"
@@ -996,32 +994,6 @@ to { transform: translateY(0); opacity: 1; }
                             </button>
                           </div>
                         </div>
-                      </div>
-
-                      {/* Messenger Link - Fourth row */}
-                      <div>
-                        <label htmlFor="messenger-link" className="block text-sm font-medium text-gray-700 mb-1">
-                          <span className="flex items-center">
-                            <MessageCircle className="h-4 w-4 mr-1 text-gray-500" />
-                            Messenger Link (optional)
-                            <button
-                              type="button"
-                              onClick={() => setShowVideoModal(true)}
-                              className="ml-2 text-sky-500 hover:text-sky-600 transition-colors"
-                              title="Watch reference video"
-                            >
-                              <HelpCircle className="h-4 w-4" />
-                            </button>
-                          </span>
-                        </label>
-                        <input
-                          id="messenger-link"
-                          type="url"
-                          value={messengerLink}
-                          onChange={(e) => setMessengerLink(e.target.value)}
-                          placeholder="https://m.me/yourbusiness"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
-                        />
                       </div>
 
                       {/* About Company - Full width at bottom */}

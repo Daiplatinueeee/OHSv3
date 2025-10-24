@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label"
 import { Clock } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
-import serviceLogo from "@/assets/2048px-Cloudbees-logo-black.png"
+import serviceLogo from "@/assets/Logo/12.png"
 
 const animationStyles = `
 @keyframes fadeIn {
@@ -1615,7 +1615,7 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
                       <img
                         src={serviceLogo || "/placeholder.svg"}
                         alt={serviceLogo}
-                        className="h-40 w-40 mb-[-10px] mt-[-30px] object-contain"
+                        className="h-40 w-120 mb-[-5px] mt-[-20px] object-contain"
                       />
                     </div>
                   )}

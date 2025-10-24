@@ -148,7 +148,7 @@ function CompanyPreview({ seller, isVisible, position, onMouseLeave }: CompanyPr
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        transform: "translate(-10%, -70%)",
+        transform: "translate(-10%, -60%)",
       }}
       data-company-preview="true"
       onMouseLeave={onMouseLeave}
@@ -191,17 +191,17 @@ function CompanyPreview({ seller, isVisible, position, onMouseLeave }: CompanyPr
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center">
-            <div className="font-semibold text-gray-900 mb-1">{seller.reviews}</div>
+            <div className="font-medium text-gray-900 mb-1">{seller.reviews}</div>
             <p className="text-xs text-gray-500">Reviews</p>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-gray-900 mb-1">{seller.badges}</div>
+            <div className="font-medium text-gray-900 mb-1">{seller.badges}</div>
             <p className="text-xs text-gray-500">Badge</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center mb-1">
               <Star className="h-4 w-4 text-yellow-500 mr-1" />
-              <span className="font-semibold text-gray-900">{seller.totalRating}</span>
+              <span className="font-medium text-gray-900">{seller.totalRating}</span>
             </div>
             <p className="text-xs text-gray-500">Rating</p>
           </div>

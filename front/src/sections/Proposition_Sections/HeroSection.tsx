@@ -1,12 +1,15 @@
-import React from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa"
 import { WindArrowDown } from "lucide-react"
 
 import handyVideo from "@/assets/Terms/worker4.mp4"
-// import handyVideo from "@/assets/Dark brown eye opening macro   Stock Video Footage.mp4"
 
 const HeroSection: React.FC = () => {
+    const sectionRef = useRef<HTMLElement | null>(null)
+    const [isVisible, setIsVisible] = useState(false)
+
+    // Scroll to next section
     const scrollToSection = () => {
         const section = document.querySelector(".second-section")
         if (section) {
@@ -14,22 +17,42 @@ const HeroSection: React.FC = () => {
         }
     }
 
-    return (
-        <section className="relative w-full h-screen overflow-hidden flex flex-col justify-center items-center bg-black text-white">
-            {/* Background Video */}
-            <video
-                src={handyVideo}
-                autoPlay
-                muted
-                loop
-                playsInline
-                onLoadedMetadata={(e) => {
-                    const video = e.currentTarget
-                    video.currentTime = 1 // ⏩ Skip first 1 second
-                }}
-                className="absolute inset-0 w-full h-full object-cover opacity-80"
-            />
+    // 🎯 Intersection Observer for mounting/unmounting video
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    setIsVisible(entry.isIntersecting)
+                })
+            },
+            { threshold: 0.3 } // 30% visibility
+        )
 
+        if (sectionRef.current) observer.observe(sectionRef.current)
+        return () => observer.disconnect()
+    }, [])
+
+    return (
+        <section
+            ref={sectionRef}
+            className="relative w-full h-screen overflow-hidden flex flex-col justify-center items-center bg-black text-white"
+        >
+            {/* Background Video (mounts only when visible) */}
+            {isVisible && (
+                <video
+                    key="hero-video"
+                    src={handyVideo}
+                    muted
+                    loop
+                    autoPlay
+                    playsInline
+                    onLoadedMetadata={(e) => {
+                        const video = e.currentTarget
+                        video.currentTime = 1 // ⏩ skip first second
+                    }}
+                    className="absolute inset-0 w-full h-full object-cover opacity-80 transition-opacity duration-700"
+                />
+            )}
 
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/40" />
@@ -51,7 +74,7 @@ const HeroSection: React.FC = () => {
                 <h1 className="text-3xl md:text-5xl font-medium text-white drop-shadow-md mb-3">
                     The Future of <span className="text-sky-400">Home Services</span>
                 </h1>
-                <p className="text-gray-300 text-sm md:text-muted mb-6 mt-2">
+                <p className="text-gray-300 text-sm md:text-base mb-6 mt-2">
                     Connecting You with Trusted Professionals, Anytime, Anywhere.
                 </p>
 
@@ -109,7 +132,7 @@ const HeroSection: React.FC = () => {
                 </div>
             </motion.div>
 
-            {/* ✅ Copyright Icon */}
+            {/* ✅ Copyright Tooltip */}
             <div className="absolute bottom-4 left-6 z-40 group">
                 <div className="absolute bottom-full mb-2 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="bg-white text-black text-xs font-medium px-3 py-2 rounded-lg shadow-md border border-gray-200 whitespace-nowrap">
@@ -121,8 +144,6 @@ const HeroSection: React.FC = () => {
                     <span className="text-lg font-bold">&copy;</span>
                 </div>
             </div>
-
-
         </section>
     )
 }

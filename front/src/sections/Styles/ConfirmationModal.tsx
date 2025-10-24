@@ -36,7 +36,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     >
       {!isWarningModalOpen ? (
         <div 
-          className="mx-auto max-w-4xl w-full bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
+          className="mx-auto max-w-4xl w-full bg-white backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
           style={{ animation: "fadeIn 0.5s ease-out" }}
         >
           <div className="flex flex-col items-center text-center mb-6">

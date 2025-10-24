@@ -446,11 +446,11 @@ function Home() {
 
       {/* Carousel */}
       <div
-        className="relative flex bg-white justify-center mt-10"
+        className="relative flex justify-center mt-10"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative flex justify-center items-center overflow-hidden w-[85rem] h-120 md:h-[calc(100vh-106px)] bg-white rounded-2xl dark:bg-neutral-800">
+        <div className="relative flex justify-center items-center overflow-hidden w-[85rem] max-w-full h-120 md:h-[calc(100vh-106px)] bg-white rounded-2xl dark:bg-neutral-800">
           <div
             className="flex transition-transform duration-700"
             style={{ transform: `translateX(-${current * 100}%)` }}
@@ -481,22 +481,22 @@ function Home() {
               </div>
             ))}
           </div>
+
+          {/* Arrows */}
+          <button
+            onClick={prevSlide}
+            className="absolute top-0 bottom-0 left-4 md:left-8 lg:left-[calc((100%-85rem)/2)] flex justify-center items-center w-12 h-full text-black hover:bg-white/20 rounded-s-2xl focus:outline-none"
+          >
+            <ChevronLeft />
+          </button>
+
+          <button
+            onClick={nextSlide}
+            className="absolute top-0 bottom-0 right-4 md:right-8 lg:right-[calc((100%-85rem)/2)] flex justify-center items-center w-12 h-full text-black hover:bg-white/20 rounded-e-2xl focus:outline-none"
+          >
+            <ChevronRight />
+          </button>
         </div>
-
-        {/* Arrows */}
-        <button
-          onClick={prevSlide}
-          className="absolute inset-y-0 start-10 flex justify-center items-center w-12 h-full text-black hover:bg-white/20 rounded-s-2xl focus:outline-none"
-        >
-          <ChevronLeft />
-        </button>
-
-        <button
-          onClick={nextSlide}
-          className="absolute inset-y-0 end-10 flex justify-center items-center w-12 h-full text-black hover:bg-white/20 rounded-e-2xl focus:outline-none"
-        >
-          <ChevronRight />
-        </button>
       </div>
 
       {/* Infinite Slider of Company Logos */}

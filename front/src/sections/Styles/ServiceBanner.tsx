@@ -6,12 +6,12 @@ export default function ServiceBanner() {
     <section className="relative w-full bg-white overflow-hidden rounded-2xl mt-20 mb-20">
       <div className="flex flex-col lg:flex-row items-center justify-between">
         {/* Left Text Section */}
-        <div className="w-full lg:w-1/2 px-8 lg:px-16 py-20 text-center lg:text-left space-y-6 ml-[100px]">
+        <div className="w-full lg:w-1/2 px-8 lg:px-16 py-16 lg:py-20 text-center lg:text-left lg:ml-20 space-y-6">
           <div className="inline-block px-4 py-1 bg-blue-50 text-blue-700 text-sm font-medium rounded-full">
             Trusted Home Services Platform
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-medium text-gray-900 leading-tight tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gray-900 leading-tight tracking-tight">
             Simplify Your <span className="text-sky-500">Home</span> Life With <span className="text-sky-500">HandyGo</span>
           </h1>
 
@@ -35,13 +35,12 @@ export default function ServiceBanner() {
         </div>
 
         {/* Right Image Section */}
-        <div className="w-full lg:w-1/2 relative lg:h-[600px]">
+        <div className="w-full lg:w-1/2 relative lg:h-[600px] hidden sm:block lg:mr-30">
           <img
             src={img1}
             alt="Home services"
-            className="w-[1300px] h-full object-cover ml-[-200px] rounded-t-2xl lg:rounded-none lg:rounded-r-2xl"
+            className="w-full h-full object-cover rounded-t-2xl lg:rounded-none lg:rounded-r-2xl"
           />
-
         </div>
       </div>
     </section>
