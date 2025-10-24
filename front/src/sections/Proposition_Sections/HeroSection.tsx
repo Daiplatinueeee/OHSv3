@@ -3,7 +3,8 @@ import { motion } from "framer-motion"
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa"
 import { WindArrowDown } from "lucide-react"
 
-import handyVideo from "@/assets/Dark brown eye opening macro   Stock Video Footage.mp4"
+import handyVideo from "@/assets/Terms/worker4.mp4"
+// import handyVideo from "@/assets/Dark brown eye opening macro   Stock Video Footage.mp4"
 
 const HeroSection: React.FC = () => {
     const scrollToSection = () => {
@@ -112,7 +113,7 @@ const HeroSection: React.FC = () => {
             <div className="absolute bottom-4 left-6 z-40 group">
                 <div className="absolute bottom-full mb-2 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="bg-white text-black text-xs font-medium px-3 py-2 rounded-lg shadow-md border border-gray-200 whitespace-nowrap">
-                        @kareemabdulah12, Link: https://www.youtube.com/watch?v=N_XcW6jmbIA
+                        Richarles Moral, Link: https://www.pexels.com/video/a-day-at-the-mall-1338598/
                         <div className="absolute top-full left-4 w-0 h-0 border-l-6 border-r-6 border-t-6 border-l-transparent border-r-transparent border-t-white"></div>
                     </div>
                 </div>

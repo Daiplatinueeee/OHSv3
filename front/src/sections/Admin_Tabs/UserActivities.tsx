@@ -1,7 +1,4 @@
-import {
-  useState,
-  useEffect,
-} from "react"
+import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react"
 import {
   Activity,
   Search,
@@ -14,7 +11,6 @@ import {
   PieChart,
   ArrowRight,
   ChevronRight,
-  Zap,
   Shield,
   MapPin,
   RefreshCw,
@@ -29,12 +25,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Footer from "../Styles/Footer"
 import axios from "axios"
 
-
 function UserActivities() {
   const [, setActiveTab] = useState("all")
   const [currentTime, setCurrentTime] = useState(new Date())
   const [activities, setActivities] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [analytics, setAnalytics] = useState<any>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(true)
+  const ACTIVITIES_PER_PAGE = 5
+  const [activityPage, setActivityPage] = useState(1)
+
+  const totalActivityPages = Math.ceil(activities.length / ACTIVITIES_PER_PAGE)
+  const paginatedActivities = activities.slice(
+    (activityPage - 1) * ACTIVITIES_PER_PAGE,
+    activityPage * ACTIVITIES_PER_PAGE,
+  )
 
   const fetchUserActivities = async () => {
     try {
@@ -46,7 +51,7 @@ function UserActivities() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       )
 
       if (res.data.success) {
@@ -59,14 +64,35 @@ function UserActivities() {
     }
   }
 
+  const fetchAnalytics = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const res = await axios.get("http://localhost:3000/api/analytics", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (res.data.success) {
+        setAnalytics(res.data.analytics)
+      }
+    } catch (error) {
+      console.error("Error fetching analytics:", error)
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchUserActivities()
+    fetchAnalytics()
   }, [])
 
   // Update time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       fetchUserActivities()
+      fetchAnalytics()
       setCurrentTime(new Date())
     }, 60000)
 
@@ -77,23 +103,27 @@ function UserActivities() {
   const timeString = currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   const dateString = currentTime.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })
 
-  // Activity metrics
-  const activityMetrics = {
-    totalToday: 842,
-    activeUsers: 186,
-    successRate: 94,
-    avgSessionTime: "18m",
+  const activityMetrics = analytics?.activityMetrics || {
+    totalToday: 0,
+    activeUsers: 0,
+    successRate: 0,
+    avgSessionTime: "0m",
   }
 
-  // Activity by type data
-  const activityByType = [
-    { type: "Authentication", count: 245, percentage: 28 },
-    { type: "Transaction", count: 312, percentage: 35 },
-    { type: "Account", count: 198, percentage: 22 },
-    { type: "Feedback", count: 134, percentage: 15 },
+  const activityByType = analytics?.activityByType || [
+    { type: "Authentication", count: 0, percentage: 0 },
+    { type: "Transaction", count: 0, percentage: 0 },
+    { type: "Account", count: 0, percentage: 0 },
+    { type: "Feedback", count: 0, percentage: 0 },
   ]
 
-  if (loading) {
+  const securityInsights = analytics?.securityInsights || {
+    failedLoginAttempts: 0,
+    unusualLocations: 0,
+    securityStatus: "normal",
+  }
+
+  if (loading || analyticsLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p className="text-gray-500 text-sm">Loading user activities...</p>
@@ -101,16 +131,14 @@ function UserActivities() {
     )
   }
 
-
   return (
-    <div className="min-h-screen bg-[#F5F5F7] pb-20 font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
+    <div className="min-h-screen bg-white pb-20 font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
       {/* Floating Dock */}
       <div className="sticky z-40 flex">
         <MyFloatingDock />
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-16">
-
         {/* Header with Time and Date */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -124,19 +152,24 @@ function UserActivities() {
         </div>
 
         {/* Activity Overview */}
-        <div className="mb-8 w-full px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 w-full">
           <div className="bg-gradient-to-r from-[#0A84FF] to-[#5AC8FA] rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 text-white">
-
               {/* Header Section */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 text-center md:text-left">
                 <div className="w-full md:w-auto">
-                  <h2 className="text-xl sm:text-2xl font-semibold">Activity Overview</h2>
+                  <h2 className="text-[20px] sm:text-[20px] font-medium">Activity Overview</h2>
                   <p className="text-white/90 font-light text-sm sm:text-base">Real-time user activity monitoring</p>
                 </div>
 
                 <div className="mt-4 md:mt-0 flex justify-center md:justify-end w-full md:w-auto gap-2 flex-wrap">
-                  <Button className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0 text-sm sm:text-base px-4 py-2">
+                  <Button
+                    className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0 text-sm sm:text-base px-4 py-2"
+                    onClick={() => {
+                      fetchUserActivities()
+                      fetchAnalytics()
+                    }}
+                  >
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Refresh
                   </Button>
@@ -160,7 +193,7 @@ function UserActivities() {
                   <div className="text-3xl font-medium">{activityMetrics.totalToday}</div>
                   <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
-                    <span>12% increase</span>
+                    <span>Updated in real-time</span>
                   </div>
                 </div>
 
@@ -175,7 +208,7 @@ function UserActivities() {
                   <div className="text-3xl font-medium">{activityMetrics.activeUsers}</div>
                   <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
-                    <span>8% increase</span>
+                    <span>Updated in real-time</span>
                   </div>
                 </div>
 
@@ -190,7 +223,7 @@ function UserActivities() {
                   <div className="text-3xl font-medium">{activityMetrics.successRate}%</div>
                   <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
-                    <span>2% increase</span>
+                    <span>Updated in real-time</span>
                   </div>
                 </div>
 
@@ -205,21 +238,19 @@ function UserActivities() {
                   <div className="text-3xl font-medium">{activityMetrics.avgSessionTime}</div>
                   <div className="text-white/90 text-sm mt-1 flex items-center justify-center sm:justify-start font-light">
                     <ArrowRight className="h-3 w-3 mr-1" />
-                    <span>5% increase</span>
+                    <span>Updated in real-time</span>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
-
 
         {/* Main Content - Split Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Activity Timeline - Left Side */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white overflow-hidden">
               <div className="p-6 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-5">
@@ -262,7 +293,7 @@ function UserActivities() {
                     {activities.length === 0 ? (
                       <div className="text-center text-gray-500 text-sm">No user activities found.</div>
                     ) : (
-                      activities.map((activity: any) => (
+                      paginatedActivities.map((activity: any) => (
                         <div key={activity._id} className="relative pl-12">
                           {/* Timeline dot */}
                           <div className="absolute left-0 top-0 w-8 h-8 flex items-center justify-center">
@@ -274,12 +305,13 @@ function UserActivities() {
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-gray-800">{activity.action}</span>
                                 <Badge
-                                  className={`${activity.status === "success"
-                                    ? "bg-[#E8F8EF] text-[#30D158]"
-                                    : activity.status === "failed"
-                                      ? "bg-[#FFE5E7] text-[#FF453A]"
-                                      : "bg-[#FFF8E6] text-[#FF9500]"
-                                    }`}
+                                  className={`${
+                                    activity.status === "success"
+                                      ? "bg-[#E8F8EF] text-[#30D158]"
+                                      : activity.status === "failed"
+                                        ? "bg-[#FFE5E7] text-[#FF453A]"
+                                        : "bg-[#FFF8E6] text-[#FF9500]"
+                                  }`}
                                 >
                                   {activity.status}
                                 </Badge>
@@ -292,18 +324,15 @@ function UserActivities() {
                             <div className="text-sm text-gray-600 mb-2">{activity.description}</div>
 
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs text-gray-600 font-light">
-                              <div>Category: <span className="capitalize">{activity.category}</span></div>
-                              {activity.relatedEntityType && (
-                                <div>Entity: {activity.relatedEntityType}</div>
-                              )}
+                              <div>
+                                Category: <span className="capitalize">{activity.category}</span>
+                              </div>
+                              {activity.relatedEntityType && <div>Entity: {activity.relatedEntityType}</div>}
                             </div>
 
                             {activity.link && (
                               <div className="mt-3 pt-3 border-t border-gray-200 flex justify-end">
-                                <a
-                                  href={activity.link}
-                                  className="text-[#0A84FF] text-xs hover:underline"
-                                >
+                                <a href={activity.link} className="text-[#0A84FF] text-xs hover:underline">
                                   View Related
                                 </a>
                               </div>
@@ -314,6 +343,38 @@ function UserActivities() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-100 flex items-center justify-between">
+              <div className="text-sm text-gray-500 font-light">
+                Showing <span className="font-medium">{paginatedActivities.length}</span> of{" "}
+                <span className="font-medium">{activities.length}</span> activities
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-white border-gray-200 text-gray-700 rounded-full"
+                  disabled={activityPage === 1}
+                  onClick={() => setActivityPage((prev) => Math.max(1, prev - 1))}
+                >
+                  Previous
+                </Button>
+
+                <span className="text-sm text-gray-600 font-light">
+                  Page {activityPage} of {totalActivityPages}
+                </span>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-white border-gray-200 text-gray-700 rounded-full"
+                  disabled={activityPage === totalActivityPages}
+                  onClick={() => setActivityPage((prev) => Math.min(totalActivityPages, prev + 1))}
+                >
+                  Next
+                </Button>
               </div>
             </div>
           </div>
@@ -355,19 +416,20 @@ function UserActivities() {
                 </div>
                 <CardContent className="p-4">
                   <div className="space-y-4">
-                    {activityByType.map((item, index) => (
+                    {activityByType.map((item: { type: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; count: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; percentage: any }, index: Key | null | undefined) => (
                       <div key={index} className="space-y-2">
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
                             <div
-                              className={`w-3 h-3 rounded-full ${index === 0
-                                ? "bg-[#0A84FF]"
-                                : index === 1
-                                  ? "bg-[#30D158]"
-                                  : index === 2
-                                    ? "bg-[#5E5CE6]"
-                                    : "bg-[#FF9500]"
-                                }`}
+                              className={`w-3 h-3 rounded-full ${
+                                index === 0
+                                  ? "bg-[#0A84FF]"
+                                  : index === 1
+                                    ? "bg-[#30D158]"
+                                    : index === 2
+                                      ? "bg-[#5E5CE6]"
+                                      : "bg-[#FF9500]"
+                              }`}
                             ></div>
                             <span className="text-sm text-gray-700 font-light">{item.type}</span>
                           </div>
@@ -375,14 +437,15 @@ function UserActivities() {
                         </div>
                         <div className="h-1.5 bg-[#F2F2F7] rounded-full">
                           <div
-                            className={`h-full rounded-full ${index === 0
-                              ? "bg-[#0A84FF]"
-                              : index === 1
-                                ? "bg-[#30D158]"
-                                : index === 2
-                                  ? "bg-[#5E5CE6]"
-                                  : "bg-[#FF9500]"
-                              }`}
+                            className={`h-full rounded-full ${
+                              index === 0
+                                ? "bg-[#0A84FF]"
+                                : index === 1
+                                  ? "bg-[#30D158]"
+                                  : index === 2
+                                    ? "bg-[#5E5CE6]"
+                                    : "bg-[#FF9500]"
+                            }`}
                             style={{ width: `${item.percentage}%` }}
                           ></div>
                         </div>
@@ -408,7 +471,9 @@ function UserActivities() {
                       </div>
                       <div>
                         <div className="text-sm font-medium">Failed Login Attempts</div>
-                        <div className="text-xs text-gray-500 font-light">12 attempts in the last 24 hours</div>
+                        <div className="text-xs text-gray-500 font-light">
+                          {securityInsights.failedLoginAttempts} attempts in the last 24 hours
+                        </div>
                       </div>
                     </div>
 
@@ -418,7 +483,9 @@ function UserActivities() {
                       </div>
                       <div>
                         <div className="text-sm font-medium">Unusual Locations</div>
-                        <div className="text-xs text-gray-500 font-light">3 logins from new locations</div>
+                        <div className="text-xs text-gray-500 font-light">
+                          {securityInsights.unusualLocations} logins from new locations
+                        </div>
                       </div>
                     </div>
 
@@ -428,7 +495,11 @@ function UserActivities() {
                       </div>
                       <div>
                         <div className="text-sm font-medium">Security Status</div>
-                        <div className="text-xs text-gray-500 font-light">All systems operating normally</div>
+                        <div className="text-xs text-gray-500 font-light">
+                          {securityInsights.securityStatus === "normal"
+                            ? "All systems operating normally"
+                            : "Warning: Unusual activity detected"}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -436,66 +507,6 @@ function UserActivities() {
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <Button variant="ghost" className="text-[#FF453A] text-xs w-full font-medium">
                       View Security Report
-                      <ChevronRight className="ml-1 h-3 w-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Performance Metrics */}
-              <Card className="border-none rounded-2xl shadow-sm overflow-hidden">
-                <div className="bg-gradient-to-r from-[#E9F6FF] to-[#F2EBFF] p-4 border-b border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-800">Performance Metrics</h3>
-                    <Zap className="h-5 w-5 text-[#0A84FF]" />
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-gray-600 font-light">Response Time</span>
-                        <span className="text-sm font-medium">245ms</span>
-                      </div>
-                      <div className="h-2 bg-[#F2F2F7] rounded-full">
-                        <div className="h-full bg-[#0A84FF] rounded-full" style={{ width: "15%" }}></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-gray-600 font-light">Server Load</span>
-                        <span className="text-sm font-medium">42%</span>
-                      </div>
-                      <div className="h-2 bg-[#F2F2F7] rounded-full">
-                        <div className="h-full bg-[#0A84FF] rounded-full" style={{ width: "42%" }}></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-gray-600 font-light">Memory Usage</span>
-                        <span className="text-sm font-medium">68%</span>
-                      </div>
-                      <div className="h-2 bg-[#F2F2F7] rounded-full">
-                        <div className="h-full bg-[#0A84FF] rounded-full" style={{ width: "68%" }}></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-gray-600 font-light">API Requests</span>
-                        <span className="text-sm font-medium">1,245/hr</span>
-                      </div>
-                      <div className="h-2 bg-[#F2F2F7] rounded-full">
-                        <div className="h-full bg-[#0A84FF] rounded-full" style={{ width: "85%" }}></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <Button variant="ghost" className="text-[#0A84FF] text-xs w-full font-medium">
-                      View Performance Dashboard
                       <ChevronRight className="ml-1 h-3 w-3" />
                     </Button>
                   </div>

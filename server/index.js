@@ -35,7 +35,8 @@ import {
   bulkAddProviders,
   fetchProviders,
   updateUserVerification,
-  getProvidersByCoo
+  getProvidersByCoo,
+  getAdminAnalytics
 } from "./controller/userController.js"
 import { createService, getServices, deleteService, getServicesByUserId, getServicesByCompanyId, getTotalServicesByCompany, updateServiceDetails } from "./controller/serviceController.js"
 import {
@@ -72,7 +73,8 @@ import {
   getPendingBookingsByProvider,
   getOngoingBookingsByProvider,
   getActiveBookingsByProvider,
-  getCompletedBookingsByProvider
+  getCompletedBookingsByProvider,
+  getAllCompletedBookings
 } from "./controller/bookingController.js"
 
 import { Notification } from "./models/notification.js"
@@ -92,7 +94,7 @@ import {
   getCompanyCouponsDashboard
 } from "./controller/couponController.js"
 
-import { fetchUserActivities } from "./controller/userActivityController.js"
+import { fetchUserActivities, getActivityAnalytics } from "./controller/userActivityController.js"
 import { createReport, getAllReports, updateReportStatus } from "./controller/reportsController.js"
 import { saveSubscription, getSubscription } from "./controller/subscriptionController.js"
 import { saveAdvertisement, showAdvertisement } from "./controller/advertiseController.js"
@@ -531,6 +533,97 @@ io.on("connection", async (socket) => {
     } catch (error) {
       console.error("Error unsending message:", error)
       callback({ success: false, error: "Failed to unsend message" })
+    }
+  })
+
+  socket.on("get_recent_chats", async (callback) => {
+    try {
+      const currentUserId = socket.user.id
+      if (!currentUserId) {
+        return callback({
+          success: false,
+          error: "User ID not found",
+        })
+      }
+
+      const { Message } = await import("./models/message.js")
+
+      const messages = await Message.find({
+        $or: [{ sender_id: currentUserId }, { receiver_id: currentUserId }],
+      })
+        .sort({ timestamp: -1 })
+        .lean()
+
+      const conversationMap = new Map()
+
+      messages.forEach((message) => {
+        // Determine the other user's ID based on who the current user is
+        let otherUserId
+        if (message.sender_id.toString() === currentUserId) {
+          // Current user is the sender, so get receiver_id
+          otherUserId = message.receiver_id.toString()
+        } else {
+          // Current user is the receiver, so get sender_id
+          otherUserId = message.sender_id.toString()
+        }
+
+        // Create a conversation key (sorted to ensure consistency)
+        const conversationKey = [currentUserId, otherUserId].sort().join("_")
+
+        // If this conversation hasn't been added yet, add it
+        if (!conversationMap.has(conversationKey)) {
+          conversationMap.set(conversationKey, {
+            otherUserId,
+            lastMessage: message.text || "[Attachment]",
+            lastMessageTime: message.timestamp,
+            messageId: message.id,
+          })
+        }
+      })
+
+      const recentChats = Array.from(conversationMap.values())
+
+      // Fetch user details for all other users in conversations
+      const userIds = [...new Set(recentChats.map((chat) => chat.otherUserId))]
+      const users = await User.find({ _id: { $in: userIds } })
+        .select("_id firstName lastName middleName businessName profilePicture")
+        .lean()
+
+      // Create a user map for quick lookup
+      const userMap = new Map()
+      users.forEach((user) => {
+        userMap.set(user._id.toString(), user)
+      })
+
+      const enrichedChats = recentChats.map((chat) => {
+        const user = userMap.get(chat.otherUserId)
+        const username = user
+          ? user.businessName || [user.firstName, user.middleName, user.lastName].filter(Boolean).join(" ")
+          : "Unknown User"
+
+        return {
+          userId: chat.otherUserId,
+          username,
+          profilePicture: user?.profilePicture || null,
+          lastMessage: chat.lastMessage,
+          lastMessageTime: chat.lastMessageTime,
+        }
+      })
+
+      // Sort by last message time (most recent first)
+      enrichedChats.sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime))
+
+      callback({
+        success: true,
+        recentChats: enrichedChats,
+        count: enrichedChats.length,
+      })
+    } catch (error) {
+      console.error("Error fetching recent chats:", error)
+      callback({
+        success: false,
+        error: "Failed to fetch recent chats",
+      })
     }
   })
 
@@ -982,6 +1075,7 @@ app.get("/api/bookings/pending/:providerId", authenticateToken, getPendingBookin
 app.get("/api/bookings/ongoing/:providerId", authenticateToken, getOngoingBookingsByProvider)
 app.get("/api/bookings/active/:providerId", authenticateToken, getActiveBookingsByProvider)
 app.get("/api/bookings/completed/:providerId", authenticateToken, getCompletedBookingsByProvider)
+app.get("/api/bookings/status/completed", authenticateToken, getAllCompletedBookings)
 
 
 app.put("/api/admin/users/:id/status", authenticateToken, requireAdmin, async (req, res) => {
@@ -1121,6 +1215,7 @@ app.get("/api/fetchProviders", authenticateToken, fetchProviders)
 
 // Fetch user activities
 app.post("/api/allUserActivities", authenticateToken, fetchUserActivities)
+app.get("/api/analytics", authenticateToken, getActivityAnalytics)
 
 // Get user profile by id (sa reports ni)
 app.get("/api/user/profile", authenticateToken, getUserProfileById)
@@ -1142,7 +1237,41 @@ app.get("/api/advertisements", authenticateToken, showAdvertisement)
 app.put("/api/admin/users/:userId/verify", authenticateToken, updateUserVerification)
 
 // Getting the total providers
-app.get("/api/bookings/providers/:cooId", authenticateToken, getProvidersByCoo);
+app.get("/api/bookings/providers/:cooId", authenticateToken, getProvidersByCoo)
+app.get("/api/admin/analytics", authenticateToken, requireAdmin, getAdminAnalytics)
+
+// Fetch all users chat
+app.get("/api/users/all", authenticateToken, async (req, res) => {
+  try {
+    const users = await User.find({ accountType: { $in: ["customer", "provider", "coo"] } })
+      .select("firstName lastName middleName businessName email profilePicture accountType status")
+      .sort({ createdAt: -1 })
+      .lean()
+
+    const formattedUsers = users.map((user) => ({
+      id: user._id.toString(),
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      businessName: user.businessName || "",
+      email: user.email || "",
+      profile: user.profilePicture || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+    }))
+
+    res.status(200).json({
+      success: true,
+      count: formattedUsers.length,
+      users: formattedUsers,
+    })
+  } catch (error) {
+    console.error("Error fetching all users:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch users.",
+      error: error.message,
+    })
+  }
+})
+
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

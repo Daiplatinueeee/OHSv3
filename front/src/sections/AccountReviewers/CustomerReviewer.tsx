@@ -21,7 +21,7 @@ import { toast } from "sonner"
 import placeholder from "@/assets/Pending/noPhotos3.webp"
 
 interface Account {
-  id: number | string // Allow both number and string for MongoDB ObjectId compatibility
+  id: number | string
   name: string
   email: string
   role: string
@@ -34,7 +34,6 @@ interface Account {
   rating: number
   paymentMethod: string
   verificationStatus: string
-  // Customer specific fields
   gender?: string
   bio?: string
   frontIdPreview?: string | null
@@ -48,10 +47,8 @@ interface Account {
     distance: number
     zipCode?: string
   } | null
-  // Customer anomaly status fields
   frontIdAnomaly?: boolean
   backIdAnomaly?: boolean
-  // Service Provider specific fields (for type compatibility, though not used here)
   secRegistrationPreview?: string | null
   businessPermitPreview?: string | null
   birRegistrationPreview?: string | null
@@ -78,7 +75,7 @@ interface CustomerReviewerProps {
   account: Account
   onClose: () => void
   onAccountAction: (
-    accountId: number | string, // Allow both number and string for MongoDB ObjectId compatibility
+    accountId: number | string,
     newStatus: string,
     newVerificationStatus: string,
     updatedAnomalies: { [key: string]: boolean },
@@ -125,6 +122,45 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
     frontIdAnomaly: account.frontIdAnomaly || false,
     backIdAnomaly: account.backIdAnomaly || false,
   })
+
+  // Debugging visibility and image fetch status
+  React.useEffect(() => {
+    // Log document preview values
+    console.group("[v0] COOReviewer document previews check")
+    console.log("secRegistrationPreview:", account.secRegistrationPreview)
+    console.log("businessPermitPreview:", account.businessPermitPreview)
+    console.log("birRegistrationPreview:", account.birRegistrationPreview)
+    console.log("eccCertificatePreview:", account.eccCertificatePreview)
+    console.log("generalLiabilityPreview:", account.generalLiabilityPreview)
+    console.log("workersCompPreview:", account.workersCompPreview)
+    console.log("professionalIndemnityPreview:", account.professionalIndemnityPreview)
+    console.log("propertyDamagePreview:", account.propertyDamagePreview)
+    console.log("businessInterruptionPreview:", account.businessInterruptionPreview)
+    console.log("bondingInsurancePreview:", account.bondingInsurancePreview)
+    console.log("frontIdPreview:", account.frontIdPreview)
+    console.log("backIdPreview:", account.backIdPreview)
+    console.groupEnd()
+
+    // Intersection Observer for section visibility
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            console.log(`[v0] Section visible: ${entry.target.id}`)
+          }
+        })
+      },
+      { threshold: 0.3 }
+    )
+
+    const permitsSection = document.getElementById("permits-documents-section")
+    const insuranceSection = document.getElementById("insurance-coverage-section")
+
+    if (permitsSection) observer.observe(permitsSection)
+    if (insuranceSection) observer.observe(insuranceSection)
+
+    return () => observer.disconnect()
+  }, [account])
 
   const handleImageClick = (imageUrl: string | null) => {
     if (imageUrl) {
@@ -556,9 +592,6 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                   ) : (
                     <div className="w-full h-full bg-gradient-to-r from-sky-400 to-blue-500"></div>
                   )}
-                  <div className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full">
-                    <Camera className="h-5 w-5" />
-                  </div>
                 </div>
 
                 {/* Profile Info */}
@@ -589,9 +622,6 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                             <Camera className="h-8 w-8 text-gray-400" />
                           </div>
                         )}
-                      </div>
-                      <div className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md">
-                        <Camera className="h-4 w-4 text-gray-600" />
                       </div>
                     </div>
                   </div>
@@ -803,7 +833,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
 
             {/* Navigation and Action buttons */}
             <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8">
-              <Button variant="outline" onClick={onClose} className="flex items-center justify-center gap-2 bg-transparent w-full sm:w-auto">
+              <Button variant="outline" onClick={onClose} className="flex items-center justify-center gap-2 bg-transparent rounded-full hover:bg-gray-50 w-full sm:w-auto">
                 <ChevronLeft className="h-4 w-4" />
                 Close
               </Button>
@@ -811,18 +841,16 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                 <>
                   <Button
                     onClick={handleDeclineApplicationClick}
-                    className="group relative flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-2xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-red-400/20 w-full sm:w-auto"
+                    className="group relative flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-transparent text-red-500 font-medium rounded-2xl hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-red-500 hover:bg-red-50 w-full sm:w-auto"
                   >
                     <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                    <X className="h-4 w-4 relative z-10" />
                     <span className="relative z-10">Decline</span>
                   </Button>
                   <Button
                     onClick={handleAcceptApplication}
-                    className="group relative flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-b from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-2xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-green-400/20 w-full sm:w-auto"
+                    className="group relative flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-transparent text-green-500 font-medium rounded-2xl hover:shadow-xl active:scale-[0.98] transition-all duration-200 border border-green-500 w-full sm:w-auto"
                   >
                     <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                    <CheckCircle className="h-4 w-4 relative z-10" />
                     <span className="relative z-10">Accept</span>
                   </Button>
                 </>
@@ -891,8 +919,8 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                 {modalMode === "status"
                   ? `Select the new status for ${account.name}'s account`
                   : modalMode === "role"
-                  ? `Select the new role for ${account.name}'s account`
-                  : `Update verification status for ${account.name}'s account`}
+                    ? `Select the new role for ${account.name}'s account`
+                    : `Update verification status for ${account.name}'s account`}
               </p>
 
               <div className="w-full mb-4" style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}>

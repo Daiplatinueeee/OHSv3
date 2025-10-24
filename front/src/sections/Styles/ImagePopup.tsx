@@ -1,6 +1,6 @@
 import type React from "react"
 
-import { X, FolderOpen } from "lucide-react"
+import { X } from "lucide-react"
 import { useEffect, useRef } from "react"
 
 interface ImagePopupProps {
@@ -40,10 +40,6 @@ export default function ImagePopup({ imageUrl, isOpen, onClose, onImageChange }:
     }
   }
 
-  const handleChangeImage = () => {
-    fileInputRef.current?.click()
-  }
-
   if (!isOpen || !imageUrl) {
     return null
   }
@@ -54,18 +50,7 @@ export default function ImagePopup({ imageUrl, isOpen, onClose, onImageChange }:
       onClick={onClose}
     >
       <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
-        <div className="absolute top-4 sm:top-21 right-2 sm:right-6 z-10 flex gap-2">
-          {/* Change image button */}
-          {onImageChange && (
-            <button
-              onClick={handleChangeImage}
-              className="p-2 bg-gray-500 hover:bg-gray-600 backdrop-blur-sm text-white rounded-full transition-all duration-200 hover:scale-110"
-              title="Change image"
-            >
-              <FolderOpen className="h-6 w-6" />
-            </button>
-          )}
-
+        <div className="flex mr-[-50px] mb-140 z-50">
           {/* Close button */}
           <button
             onClick={onClose}

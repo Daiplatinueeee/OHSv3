@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
@@ -148,6 +146,9 @@ function Reports() {
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
   const [popupImage, setPopupImage] = useState<string | null>(null)
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false)
+
+  const REPORTS_PER_PAGE = 6
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -299,8 +300,15 @@ function Reports() {
     }
   }
 
+  const totalPages = Math.ceil(filteredReports.length / REPORTS_PER_PAGE)
+  const paginatedReports = filteredReports.slice(
+    (currentPage - 1) * REPORTS_PER_PAGE,
+    currentPage * REPORTS_PER_PAGE
+  )
+
+
   return (
-    <div className="min-h-screen bg-[#F5F5F7] font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
+    <div className="min-h-screen bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
       {/* Floating Dock */}
       <div className="sticky top-0 z-40 flex">
         <MyFloatingDockCeo />
@@ -320,14 +328,14 @@ function Reports() {
         </div>
 
         {/* Reports Overview */}
-        <div className="mb-8 w-full px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 w-full">
           <div className="bg-gradient-to-r from-[#FF453A] to-[#FF9500] rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 text-white">
 
               {/* Header Section */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 text-center md:text-left">
                 <div className="w-full md:w-auto">
-                  <h2 className="text-xl sm:text-2xl font-medium">Reports Overview</h2>
+                  <h2 className="text-[20px] sm:text-[20px] font-medium">Reports Overview</h2>
                   <p className="text-white/90 font-light text-sm sm:text-base">Track and manage all submitted reports</p>
                 </div>
 
@@ -399,7 +407,7 @@ function Reports() {
 
 
         {/* Reports List */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-hidden">
           <div className="p-6 border-b border-gray-100">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
               <h2 className="text-lg font-medium text-gray-800">Reports List</h2>
@@ -454,7 +462,7 @@ function Reports() {
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredReports.map((report) => (
+                {paginatedReports.map((report) => (
                   <div
                     key={report._id}
                     className={`bg-[#F2F2F7]/50 rounded-xl p-4 hover:bg-[#F2F2F7] transition-colors cursor-pointer ${selectedReport === report._id ? "ring-1 ring-[#FF453A]" : ""
@@ -620,16 +628,41 @@ function Reports() {
             )}
           </div>
 
-          <div className="p-4 border-t border-gray-100 flex items-center justify-between">
+          <div className="p-4 border-t border-gray-100 flex items-center justify-between align-center">
             <div className="text-sm text-gray-500 font-light">
-              Showing <span className="font-medium">{filteredReports.length}</span> of{" "}
-              <span className="font-medium">{reports.length}</span> reports
+              Showing{" "}
+              <span className="font-medium">
+                {paginatedReports.length}
+              </span>{" "}
+              of{" "}
+              <span className="font-medium">
+                {filteredReports.length}
+              </span>{" "}
+              reports
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="bg-white border-gray-200 text-gray-700">
+
+            <div className="flex gap-2 items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white border-gray-200 text-gray-700 rounded-full"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              >
                 Previous
               </Button>
-              <Button variant="outline" size="sm" className="bg-white border-gray-200 text-gray-700">
+
+              <span className="text-sm text-gray-600 font-light">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white border-gray-200 text-gray-700 rounded-full"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              >
                 Next
               </Button>
             </div>

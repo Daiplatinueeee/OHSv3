@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
 interface Account {
-  id: number | string // Allow both number and string for MongoDB ObjectId compatibility
+  id: number | string
   name: string
   email: string
   role: string
@@ -385,7 +385,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
   }
 
   return (
-    <div className="py-4 px-2 min-h-screen bg-[#F5F5F7] font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] mt-10">
+    <div className="py-4 px-2 min-h-screen bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] mt-10">
       <style>{keyframes}</style>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -490,7 +490,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                           onClick={() => setIsDeleteModalOpen(true)}
                           variant="outline"
                           size="sm"
-                          className="flex items-center gap-2 text-red-600 hover:text-red-700 bg-transparent"
+                          className="flex items-center gap-2 text-red-600 hover:text-red-700 bg-transparent rounded-full"
                         >
                           <Trash2 className="h-4 w-4" />
                           Delete
@@ -522,7 +522,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                       onClick={() => setIsChangeStatusModalOpen(true)}
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-2 bg-transparent"
+                      className="flex items-center gap-2 bg-transparent rounded-full"
                     >
                       <Settings className="h-4 w-4" />
                       Change Status
@@ -533,7 +533,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                           onClick={handleCancelEdit}
                           variant="outline"
                           size="sm"
-                          className="flex items-center gap-2 bg-transparent"
+                          className="flex items-center gap-2 bg-transparent rounded-full"
                         >
                           <X className="h-4 w-4" />
                           Cancel
@@ -552,7 +552,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
                         onClick={handleEditMode}
                         variant="outline"
                         size="sm"
-                        className="flex items-center gap-2 bg-transparent"
+                        className="flex items-center gap-2 bg-transparent rounded-full"
                       >
                         <Edit className="h-4 w-4" />
                         Edit Information
@@ -664,7 +664,7 @@ export default function CustomerReviewer({ account, onClose, onAccountAction }: 
 
             {/* Navigation and Action buttons */}
             <div className="flex justify-end gap-3 mt-8">
-              <Button variant="outline" onClick={onClose} className="flex items-center gap-2 bg-transparent">
+              <Button variant="outline" onClick={onClose} className="flex items-center gap-2 bg-transparent rounded-full">
                 <ChevronLeft className="h-4 w-4" />
                 Close
               </Button>

@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs"
 import nodemailer from "nodemailer"
 import jwt from "jsonwebtoken"
 import UserActivity from "../models/userActivity.js"
+import { Booking } from "../models/bookings.js"
+import { Service } from "../models/service.js"
 
 // Helper function for password validation
 const validatePassword = (password) => {
@@ -1671,7 +1673,6 @@ export const updateUserVerification = async (req, res) => {
   }
 }
 
-// ✅ Fetch all providers under a specific COO
 export const getProvidersByCoo = async (req, res) => {
   try {
     const { cooId } = req.params;
@@ -1693,5 +1694,284 @@ export const getProvidersByCoo = async (req, res) => {
   } catch (error) {
     console.error("[❌] Error fetching providers by COO:", error);
     return res.status(500).json({ message: "Server error while fetching providers." });
+  }
+}
+
+export const getAdminAnalytics = async (req, res) => {
+  try {
+    console.log(`[CONTROLLER] getAdminAnalytics function started`)
+
+    console.log(`[CONTROLLER] Fetching all bookings...`)
+    const allBookings = await Booking.find()
+    console.log(`[CONTROLLER] Total bookings found:`, allBookings.length)
+
+    console.log(`[CONTROLLER] Fetching completed bookings...`)
+    const completedBookings = await Booking.find({ status: "completed" })
+    console.log(`[CONTROLLER] Completed bookings found:`, completedBookings.length)
+
+    console.log(`[CONTROLLER] Fetching active bookings...`)
+    const activeBookings = await Booking.find({ status: "active" })
+    console.log(`[CONTROLLER] Active bookings found:`, activeBookings.length)
+
+    console.log(`[CONTROLLER] Fetching pending bookings...`)
+    const pendingBookings = await Booking.find({ status: "pending" })
+    console.log(`[CONTROLLER] Pending bookings found:`, pendingBookings.length)
+
+    console.log(`[CONTROLLER] Fetching ongoing bookings...`)
+    const ongoingBookings = await Booking.find({ status: "ongoing" })
+    console.log(`[CONTROLLER] Ongoing bookings found:`, ongoingBookings.length)
+
+    // Calculate booking metrics
+    const totalBookings = allBookings.length
+    const completedCount = completedBookings.length
+    const activeCount = activeBookings.length
+    const pendingCount = pendingBookings.length
+    const ongoingCount = ongoingBookings.length
+
+    console.log(`[CONTROLLER] Booking metrics calculated:`, {
+      totalBookings,
+      completedCount,
+      activeCount,
+      pendingCount,
+      ongoingCount,
+    })
+
+    // Calculate revenue metrics
+    console.log(`[CONTROLLER] Calculating revenue metrics...`)
+    const totalRevenue = completedBookings.reduce((sum, booking) => {
+      return sum + (booking.pricing?.totalRate || 0)
+    }, 0)
+
+    const averageTransactionValue = totalBookings > 0 ? totalRevenue / totalBookings : 0
+
+    console.log(`[CONTROLLER] Revenue metrics:`, {
+      totalRevenue,
+      averageTransactionValue,
+    })
+
+    // Calculate transaction completion rate
+    const completionRate = totalBookings > 0 ? Math.round((completedCount / totalBookings) * 100) : 0
+
+    // Count new transactions this month
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const newTransactionsThisMonth = allBookings.filter((booking) => {
+      const bookingDate = new Date(booking.createdAt)
+      return bookingDate >= monthStart
+    }).length
+
+    console.log(`[CONTROLLER] Transaction metrics:`, {
+      completionRate,
+      newTransactionsThisMonth,
+    })
+
+    // Calculate positive feedback percentage (ratings >= 4)
+    console.log(`[CONTROLLER] Calculating feedback metrics...`)
+    const bookingsWithRatings = completedBookings.filter((b) => b.rating)
+    const positiveRatings = bookingsWithRatings.filter((b) => b.rating >= 4)
+    const positiveFeedbackPercentage =
+      bookingsWithRatings.length > 0 ? Math.round((positiveRatings.length / bookingsWithRatings.length) * 100) : 0
+
+    // Calculate average rating
+    const totalRatingPoints = bookingsWithRatings.reduce((sum, b) => sum + (b.rating || 0), 0)
+    const averageRating =
+      bookingsWithRatings.length > 0 ? (totalRatingPoints / bookingsWithRatings.length).toFixed(1) : 0
+
+    console.log(`[CONTROLLER] Feedback metrics:`, {
+      bookingsWithRatings: bookingsWithRatings.length,
+      positiveFeedbackPercentage,
+      averageRating,
+    })
+
+    // Count users by type
+    console.log(`[CONTROLLER] Counting users by type...`)
+    const totalCustomers = await User.countDocuments({ accountType: "customer" })
+    const totalProviders = await User.countDocuments({ accountType: "provider" })
+    const totalCOOs = await User.countDocuments({ accountType: "coo" })
+    const totalUsers = totalCustomers + totalProviders + totalCOOs
+
+    console.log(`[CONTROLLER] User counts:`, {
+      totalCustomers,
+      totalProviders,
+      totalCOOs,
+      totalUsers,
+    })
+
+    // Count services
+    console.log(`[CONTROLLER] Counting services...`)
+    const totalServices = await Service.countDocuments()
+    console.log(`[CONTROLLER] Total services:`, totalServices)
+
+    // Get monthly booking data for chart
+    console.log(`[CONTROLLER] Calculating monthly booking data...`)
+    const monthlyBookings = Array(12).fill(0)
+    allBookings.forEach((booking) => {
+      const date = new Date(booking.createdAt)
+      const month = date.getMonth()
+      monthlyBookings[month] += 1
+    })
+    console.log(`[CONTROLLER] Monthly bookings:`, monthlyBookings)
+
+    // Get service performance data
+    console.log(`[CONTROLLER] Aggregating service performance...`)
+    const servicePerformance = await Booking.aggregate([
+      { $match: { status: "completed" } },
+      {
+        $group: {
+          _id: "$productName",
+          count: { $sum: 1 },
+          totalRevenue: { $sum: "$pricing.totalRate" },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: 5 },
+    ])
+    console.log(`[CONTROLLER] Service performance data:`, servicePerformance)
+
+    // Get service breakdown by category
+    console.log(`[CONTROLLER] Fetching services for category breakdown...`)
+    const services = await Service.find()
+    const serviceCategories = {}
+    services.forEach((service) => {
+      const category = service.mainCategory || "Other"
+      serviceCategories[category] = (serviceCategories[category] || 0) + 1
+    })
+    console.log(`[CONTROLLER] Service categories:`, serviceCategories)
+
+    // Get customer feedback data
+    console.log(`[CONTROLLER] Fetching customer feedback from User ratings...`)
+    const usersWithRatings = await User.find({ "ratings.0": { $exists: true } })
+      .select("ratings")
+      .limit(100)
+
+    const customerFeedback = []
+    usersWithRatings.forEach((user) => {
+      if (user.ratings && user.ratings.length > 0) {
+        user.ratings.slice(0, 4).forEach((rating) => {
+          customerFeedback.push({
+            type: rating.serviceType || "Service",
+            customer: rating.customerName || "Anonymous",
+            time: new Date(rating.reviewDate).toLocaleDateString(),
+            rating: rating.rating || 0,
+          })
+        })
+      }
+    })
+    console.log(`[CONTROLLER] Customer feedback items fetched:`, customerFeedback.length)
+
+    // Get all services created
+    console.log(`[CONTROLLER] Fetching all services created...`)
+    const allServices = await Service.find()
+      .populate({
+        path: "cooId",
+        select: "firstName lastName middleName businessName profilePicture location.name accountType",
+      })
+      .limit(10)
+      .sort({ createdAt: -1 })
+
+    console.log(`[CONTROLLER] Total services fetched:`, allServices.length)
+
+    const servicesData = allServices.map((service, index) => {
+      let createdBy = "Unknown"
+
+      console.log(`[CONTROLLER] Processing service #${index + 1}:`, {
+        serviceId: service._id,
+        serviceName: service.name,
+        cooIdExists: !!service.cooId,
+        cooIdValue: service.cooId,
+      })
+
+      if (service.cooId) {
+        if (service.cooId.accountType === "coo" && service.cooId.businessName) {
+          createdBy = service.cooId.businessName
+          console.log(`[CONTROLLER] Service "${service.name}" created by COO:`, {
+            businessName: createdBy,
+          })
+        } else {
+          const firstName = service.cooId.firstName || ""
+          const lastName = service.cooId.lastName || ""
+          const middleName = service.cooId.middleName || ""
+
+          createdBy = `${firstName} ${middleName} ${lastName}`.trim()
+
+          if (!createdBy || createdBy === "") {
+            createdBy = "Unknown"
+          }
+
+          console.log(`[CONTROLLER] Service "${service.name}" created by:`, {
+            firstName,
+            lastName,
+            middleName,
+            fullName: createdBy,
+          })
+        }
+      } else {
+        console.log(
+          `[CONTROLLER] Service "${service.name}" (ID: ${service._id}) has no cooId populated - this may indicate a data issue`,
+        )
+      }
+
+      return {
+        id: service._id.toString(),
+        name: service.name,
+        category: service.mainCategory || "General",
+        createdBy: createdBy,
+        price: service.price,
+        description: service.description,
+      }
+    })
+    console.log(`[CONTROLLER] Services data prepared:`, servicesData.length, servicesData)
+
+    console.log(`[CONTROLLER] All analytics data compiled successfully`)
+
+    res.status(200).json({
+      success: true,
+      analytics: {
+        // Booking metrics
+        totalBookings,
+        completedBookings: completedCount,
+        activeBookings: activeCount,
+        pendingBookings: pendingCount,
+        ongoingBookings: ongoingCount,
+
+        // Revenue metrics
+        totalRevenue: Math.round(totalRevenue),
+        averageTransactionValue: Math.round(averageTransactionValue),
+        newTransactionsThisMonth,
+
+        // Quality metrics
+        completionRate,
+        positiveFeedbackPercentage,
+        averageRating,
+
+        // User metrics
+        totalUsers,
+        totalCustomers,
+        totalProviders,
+        totalCOOs,
+
+        // Service metrics
+        totalServices,
+
+        // Chart data
+        monthlyBookings,
+        servicePerformance,
+        serviceCategories,
+
+        // Feedback and services
+        customerFeedback,
+        allServices: servicesData,
+      },
+    })
+  } catch (error) {
+    console.error(`[CONTROLLER] Error in getAdminAnalytics:`, error)
+    console.error(`[CONTROLLER] Error message:`, error.message)
+    console.error(`[CONTROLLER] Error stack:`, error.stack)
+
+    res.status(500).json({
+      message: "Failed to calculate admin analytics.",
+      error: error.message,
+      stack: process.env.NODE_ENV !== "production" ? error.stack : undefined,
+    })
   }
 }

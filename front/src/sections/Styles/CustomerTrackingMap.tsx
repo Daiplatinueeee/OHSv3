@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useRef, useState } from "react"
 import { X, Check, User, MapPin, Clock, Navigation, Layers, RouteIcon } from "lucide-react"
 import "ol/ol.css"
@@ -1631,7 +1629,7 @@ export default function ProviderSimulation({
         },
         body: JSON.stringify({
           providerConfirmation: true,
-          destinationArrived: true,
+          // destinationArrived: true,
         }),
       })
 

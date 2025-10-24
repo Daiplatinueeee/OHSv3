@@ -3,56 +3,60 @@ import { Github, Instagram, Twitter, Youtube } from "lucide-react"
 function Footer() {
     return (
         <>
-        
+
             <footer className="bg-white text-black pt-16 pb-8">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-12 border-b border-gray-300">
-                        <div>
-                            <h4 className="font-extralight mb-4 text-lg text-gray-900">Services</h4>
-                            <ul className="space-y-3 text-sm text-gray-700">
-                                <li><a href="#" className="hover:underline">Plumbling</a></li>
-                                <li><a href="#" className="hover:underline">Handyman</a></li>
-                                <li><a href="#" className="hover:underline">Home Cleaning</a></li>
-                                <li><a href="#" className="hover:underline">Pest Control</a></li>
-                                <li><a href="#" className="hover:underline">Smart Home Installation</a></li>
-                                <li><a href="#" className="hover:underline">Roofing & Gutter</a></li>
-                                <li><a href="#" className="hover:underline">Landscaping & Gardening</a></li>
-                                <li><a href="#" className="hover:underline">Other Services</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-extralight mb-4 text-lg text-gray-900">Sponsors</h4>
-                            <ul className="space-y-3 text-sm text-gray-700">
-                                <li><a href="#" className="hover:underline">Pueblo de Oro</a></li>
-                                <li><a href="#" className="hover:underline">DMCI Homes</a></li>
-                                <li><a href="#" className="hover:underline">Flores Builders</a></li>
-                                <li><a href="#" className="hover:underline">Vistaland</a></li>
-                                <li><a href="#" className="hover:underline">APEC Homes</a></li>
-                                <li><a href="#" className="hover:underline">Camella Homes</a></li>
-                                <li><a href="#" className="hover:underline">Lumina Homes</a></li>
-                                <li><a href="#" className="hover:underline">Bria Homes</a></li>
-                                <li><a href="#" className="hover:underline">Breighton Land</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-extralight mb-4 text-lg text-gray-900">Team Members</h4>
-                            <ul className="space-y-3 text-sm text-gray-700">
-                                <li><a href="#" className="hover:underline">Kimberly Cañon <span className="text-gray-400">| Project Manager</span></a></li>
-                                <li><a href="#" className="hover:underline">Kathleen Repunte <span className="text-gray-400">| Assist Documentor</span></a></li>
-                                <li><a href="#" className="hover:underline">Vince Edward Mañacap <span className="text-gray-400">| Developer</span></a></li>
-                                <li><a href="#" className="hover:underline">Kyle Sellote <span className="text-gray-400">| Analyst</span></a></li>
-                                <li><a href="#" className="hover:underline">Bart Juarez <span className="text-gray-400">| Client Liason</span></a></li>
-                                <li><a href="#" className="hover:underline">Josh Vincent Almendras <span className="text-gray-400">| Lead Documentor</span></a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-extralight mb-4 text-lg text-gray-900">Special Thanks</h4>
-                            <ul className="space-y-3 text-sm text-gray-700">
-                                <li><a href="#" className="hover:underline">Jonathan Reyes</a></li>
-                                <li><a href="#" className="hover:underline">Michael Cruz</a></li>
-                                <li><a href="#" className="hover:underline">Chris Mendoza</a></li>
-                                <li><a href="#" className="hover:underline">Jake Villanueva</a></li>
-                            </ul>
+
+                    <div className="flex flex-col  items-center">
+                        <div className="h-[1.2px] w-[93.1%] bg-gray-200 mb-15"></div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-12 border-b border-gray-300">
+                            <div>
+                                <h4 className="font-extralight mb-4 text-lg text-gray-900">Services</h4>
+                                <ul className="space-y-3 text-sm text-gray-700">
+                                    <li><a href="#" className="hover:underline">Plumbling</a></li>
+                                    <li><a href="#" className="hover:underline">Handyman</a></li>
+                                    <li><a href="#" className="hover:underline">Home Cleaning</a></li>
+                                    <li><a href="#" className="hover:underline">Pest Control</a></li>
+                                    <li><a href="#" className="hover:underline">Smart Home Installation</a></li>
+                                    <li><a href="#" className="hover:underline">Roofing & Gutter</a></li>
+                                    <li><a href="#" className="hover:underline">Landscaping & Gardening</a></li>
+                                    <li><a href="#" className="hover:underline">Other Services</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-extralight mb-4 text-lg text-gray-900">Sponsors</h4>
+                                <ul className="space-y-3 text-sm text-gray-700">
+                                    <li><a href="#" className="hover:underline">Pueblo de Oro</a></li>
+                                    <li><a href="#" className="hover:underline">DMCI Homes</a></li>
+                                    <li><a href="#" className="hover:underline">Flores Builders</a></li>
+                                    <li><a href="#" className="hover:underline">Vistaland</a></li>
+                                    <li><a href="#" className="hover:underline">APEC Homes</a></li>
+                                    <li><a href="#" className="hover:underline">Camella Homes</a></li>
+                                    <li><a href="#" className="hover:underline">Lumina Homes</a></li>
+                                    <li><a href="#" className="hover:underline">Bria Homes</a></li>
+                                    <li><a href="#" className="hover:underline">Breighton Land</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-extralight mb-4 text-lg text-gray-900">Team Members</h4>
+                                <ul className="space-y-3 text-sm text-gray-700">
+                                    <li><a href="#" className="hover:underline">Kimberly Cañon <span className="text-gray-400">| Project Manager</span></a></li>
+                                    <li><a href="#" className="hover:underline">Kathleen Repunte <span className="text-gray-400">| Assist Documentor</span></a></li>
+                                    <li><a href="#" className="hover:underline">Vince Edward Mañacap <span className="text-gray-400">| Developer</span></a></li>
+                                    <li><a href="#" className="hover:underline">Kyle Sellote <span className="text-gray-400">| Analyst</span></a></li>
+                                    <li><a href="#" className="hover:underline">Bart Juarez <span className="text-gray-400">| Client Liason</span></a></li>
+                                    <li><a href="#" className="hover:underline">Josh Vincent Almendras <span className="text-gray-400">| Lead Documentor</span></a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-extralight mb-4 text-lg text-gray-900">Special Thanks</h4>
+                                <ul className="space-y-3 text-sm text-gray-700">
+                                    <li><a href="#" className="hover:underline">Jonathan Reyes</a></li>
+                                    <li><a href="#" className="hover:underline">Michael Cruz</a></li>
+                                    <li><a href="#" className="hover:underline">Chris Mendoza</a></li>
+                                    <li><a href="#" className="hover:underline">Jake Villanueva</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 

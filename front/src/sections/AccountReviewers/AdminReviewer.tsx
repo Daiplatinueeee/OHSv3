@@ -1,5 +1,5 @@
 import React from "react"
-import { ChevronLeft, MapPin, AlertTriangle, CheckCircle, Camera, User, X, Settings } from "lucide-react"
+import { ChevronLeft, MapPin, AlertTriangle, CheckCircle, User, X, Settings } from "lucide-react"
 import ImagePopup from "../Styles/ImagePopup"
 import DeclineModal from "../Styles/DeclineModal"
 import DeleteConfirmationModal from "../Styles/DeleteConfirmationModal"
@@ -62,12 +62,12 @@ export default function AccountReviewer({ account, onClose, onAccountAction }: A
   }, [keyframes])
 
   // State for ImagePopup
-  const [popupImage, ] = React.useState<string | null>(null)
+  const [popupImage,] = React.useState<string | null>(null)
   const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(false)
   // State for decline modal visibility
   const [isDeclineModalOpen, setIsDeclineModalOpen] = React.useState(false)
   // State for edit mode and status change
-  const [isEditMode, ] = React.useState(false)
+  const [isEditMode,] = React.useState(false)
   const [isChangeStatusModalOpen, setIsChangeStatusModalOpen] = React.useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false)
   const [selectedStatus, setSelectedStatus] = React.useState(account.status)
@@ -119,20 +119,36 @@ export default function AccountReviewer({ account, onClose, onAccountAction }: A
   }
 
   const businessName = account.name
-  const foundedDate = account.joinDate // Using joinDate as a proxy
+  const foundedDate = account.joinDate
   const aboutCompany =
-    "This service provider offers high-quality services with a commitment to customer satisfaction. They are dedicated to delivering excellent results and building long-term relationships with their clients."
+    "This is an admin account"
   const profilePicturePreview = account.avatar
-  const coverPhotoPreview = account.coverPhoto || "/placeholder.svg?height=200&width=800" // Use account.coverPhoto
+  const coverPhotoPreview = account.coverPhoto || "/placeholder.svg?height=200&width=800"
 
   return (
-    <div className="py-4 px-2 min-h-screen bg-[#F5F5F7] font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] mt-10">
+    <div className="py-4 px-2 min-h-screen bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] mt-10">
       <style>{keyframes}</style>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-medium mb-1 text-gray-700">Account Details</h1>
           <h2 className="text-3xl font-medium text-sky-500">Admin Profile Review</h2>
+        </div>
+
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+          <div className="flex items-start">
+            <div className="flex-shrink-0 mt-0.5">
+              <AlertTriangle className="h-5 w-5 text-blue-500" />
+            </div>
+            <div className="ml-3">
+              <h5 className="text-sm font-medium text-blue-800">Account Status</h5>
+              <p className="mt-1 text-sm text-blue-700">
+                This account is currently <span className="font-medium">{account.status.toLowerCase()}</span> with
+                a verification status of{" "}
+                <span className="font-medium">{account.verificationStatus.toLowerCase()}</span>.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Form content */}
@@ -152,9 +168,6 @@ export default function AccountReviewer({ account, onClose, onAccountAction }: A
                   ) : (
                     <div className="w-full h-full bg-gradient-to-r from-sky-400 to-blue-500"></div>
                   )}
-                  <div className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full">
-                    <Camera className="h-5 w-5" />
-                  </div>
                 </div>
 
                 {/* Profile Info */}
@@ -162,20 +175,11 @@ export default function AccountReviewer({ account, onClose, onAccountAction }: A
                   <div className="absolute -top-16 left-6">
                     <div className="relative">
                       <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white">
-                        {profilePicturePreview ? (
-                          <img
-                            src={profilePicturePreview || "/placeholder.svg"}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <Camera className="h-8 w-8 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md">
-                        <Camera className="h-4 w-4 text-gray-600" />
+                        <img
+                          src={profilePicturePreview || "/placeholder.svg"}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     </div>
                   </div>
@@ -296,27 +300,11 @@ export default function AccountReviewer({ account, onClose, onAccountAction }: A
                   <p className="text-gray-900">{aboutCompany}</p>
                 </div>
               </div>
-
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 mt-0.5">
-                    <AlertTriangle className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div className="ml-3">
-                    <h5 className="text-sm font-medium text-blue-800">Account Status</h5>
-                    <p className="mt-1 text-sm text-blue-700">
-                      This account is currently <span className="font-medium">{account.status.toLowerCase()}</span> with
-                      a verification status of{" "}
-                      <span className="font-medium">{account.verificationStatus.toLowerCase()}</span>.
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Navigation and Action buttons */}
             <div className="flex justify-end gap-3 mt-8">
-              <Button variant="outline" onClick={onClose} className="flex items-center gap-2 bg-transparent">
+              <Button variant="outline" onClick={onClose} className="flex items-center gap-2 bg-transparent rounded-full">
                 <ChevronLeft className="h-4 w-4" />
                 Close
               </Button>

@@ -1,13 +1,41 @@
 import { useState, useEffect } from "react"
-import { Home, Users, DollarSign, Clock, Droplet, Wrench, Zap, Brush, Star, AlignLeft, BadgeAlert } from "lucide-react"
+import type { ReactNode } from "react"
+import { Droplet, Wrench, Zap, Brush, Star, AlignLeft, BadgeAlert } from "lucide-react"
 import type { ApexOptions } from "apexcharts"
 import ReactApexChart from "react-apexcharts"
 import MyFloatingDock from "./Styles/MyFloatingDock"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Footer from "./Styles/Footer"
+import { Button } from "@headlessui/react"
+interface AnalyticsData {
+  totalBookings: number
+  completedBookings: number
+  activeBookings: number
+  pendingBookings: number
+  totalRevenue: number
+  averageTransactionValue: number
+  newTransactionsThisMonth: number
+  completionRate: number
+  positiveFeedbackPercentage: number
+  averageRating: number
+  totalUsers: number
+  totalServices: number
+  monthlyBookings: number[]
+  servicePerformance: Array<{ _id: string; count: number; totalRevenue: number }>
+  serviceCategories: Record<string, number>
+  customerFeedback: Array<{ type: string; customer: string; time: string; rating: number; icon?: ReactNode }>
+  allServices: Array<{ name: string; category: string; createdBy: string }>
+}
 
 function Admin() {
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const FEEDBACKS_PER_PAGE = 4
+  const [feedbackPage, setFeedbackPage] = useState(1)
+
   // Get current time for greeting and user data
   const currentHour = new Date().getHours()
   let greeting = "Good Morning"
@@ -23,6 +51,48 @@ function Admin() {
     lastname: "",
     middleName: "",
   })
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true)
+        const token = localStorage.getItem("token")
+
+        console.log(`[FRONTEND] Starting analytics fetch...`)
+        console.log(`[FRONTEND] Token available:`, !!token)
+
+        const response = await fetch("http://localhost:3000/api/admin/analytics", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        console.log(`[FRONTEND] Response status:`, response.status)
+        console.log(`[FRONTEND] Response ok:`, response.ok)
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.log(`[FRONTEND] Error response body:`, errorText)
+          throw new Error(`Failed to fetch analytics - Status: ${response.status}`)
+        }
+
+        const data = await response.json()
+        console.log(`[FRONTEND] Analytics data received:`, data)
+        console.log(`[FRONTEND] Analytics object:`, data.analytics)
+
+        setAnalyticsData(data.analytics)
+        setError(null)
+      } catch (err) {
+        console.error(`[FRONTEND] Error fetching analytics:`, err)
+        console.error(`[FRONTEND] Error message:`, err instanceof Error ? err.message : String(err))
+        setError(err instanceof Error ? err.message : "Failed to load analytics")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAnalytics()
+  }, [])
 
   // Fetch user data on component mount
   useEffect(() => {
@@ -42,38 +112,6 @@ function Admin() {
   // State for tab management
   const [activeTab, setActiveTab] = useState(0)
 
-  // Metrics data with improved formatting
-  const metrics = [
-    {
-      icon: <Home className="h-4 w-4 text-[#0A84FF]" />,
-      label: "Services",
-      value: "421",
-      trend: "+8%",
-      trendUp: true,
-    },
-    {
-      icon: <DollarSign className="h-4 w-4 text-[#30D158]" />,
-      label: "Revenue",
-      value: "$8.2k",
-      trend: "+12%",
-      trendUp: true,
-    },
-    {
-      icon: <Users className="h-4 w-4 text-[#5E5CE6]" />,
-      label: "Customers",
-      value: "325",
-      trend: "+5%",
-      trendUp: true,
-    },
-    {
-      icon: <Clock className="h-4 w-4 text-[#FF9F0A]" />,
-      label: "Pending",
-      value: "18",
-      trend: "-2%",
-      trendUp: false,
-    },
-  ]
-
   // Service categories
   const serviceCategories = [
     { icon: <AlignLeft className="h-5 w-5" />, label: "Overview", active: true },
@@ -82,7 +120,6 @@ function Admin() {
     { icon: <BadgeAlert className="h-5 w-5" />, label: "TBA", active: false },
   ]
 
-  // Sales chart options
   const salesChartOptions: ApexOptions = {
     chart: {
       type: "area",
@@ -121,7 +158,7 @@ function Admin() {
       },
     },
     xaxis: {
-      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
       labels: {
         style: {
           colors: "#64748b",
@@ -165,11 +202,10 @@ function Admin() {
   const salesChartSeries = [
     {
       name: "Bookings",
-      data: [45, 52, 38, 65, 73, 80],
+      data: analyticsData?.monthlyBookings || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     },
   ]
 
-  // Service performance chart options
   const serviceChartOptions: ApexOptions = {
     chart: {
       type: "bar",
@@ -189,7 +225,13 @@ function Admin() {
       enabled: false,
     },
     xaxis: {
-      categories: ["Plumbing", "Repair", "Electrical", "Cleaning", "Painting"],
+      categories: analyticsData?.servicePerformance?.slice(0, 5).map((s) => s._id) || [
+        "Plumbing",
+        "Repair",
+        "Electrical",
+        "Cleaning",
+        "Painting",
+      ],
       labels: {
         style: {
           colors: "#64748b",
@@ -233,20 +275,11 @@ function Admin() {
   const serviceChartSeries = [
     {
       name: "Services Completed",
-      data: [89, 65, 72, 53, 42],
+      data: analyticsData?.servicePerformance?.slice(0, 5).map((s) => s.count) || [89, 65, 72, 53, 42],
     },
   ]
 
-  // Recent service requests data
-  const recentRequests = [
-    { id: "SR-6514", service: "Plumbing", location: "Downtown", status: "Pending" },
-    { id: "SR-5248", service: "Electrical", location: "Westside", status: "Completed" },
-    { id: "SR-6548", service: "Cleaning", location: "Northside", status: "In Progress" },
-    { id: "SR-7591", service: "Repair", location: "Eastside", status: "Completed" },
-  ]
-
-  // Customer feedback data
-  const customerFeedback = [
+  const customerFeedback = analyticsData?.customerFeedback || [
     {
       type: "Plumbing Service",
       customer: "John Smith",
@@ -277,8 +310,64 @@ function Admin() {
     },
   ]
 
+  const allServices = analyticsData?.allServices || [
+    {
+      name: "Plumbing Installation",
+      category: "Plumbing",
+      createdBy: "John Doe",
+    },
+    {
+      name: "Electrical Wiring",
+      category: "Electrical",
+      createdBy: "Jane Smith",
+    },
+    {
+      name: "Aircon Cleaning",
+      category: "Cleaning",
+      createdBy: "Mark Johnson",
+    },
+    {
+      name: "Roof Repair",
+      category: "Repair",
+      createdBy: "Sarah Lee",
+    },
+  ]
+
+  const totalFeedbackPages = Math.ceil(customerFeedback.length / FEEDBACKS_PER_PAGE)
+  const paginatedFeedback = customerFeedback.slice(
+    (feedbackPage - 1) * FEEDBACKS_PER_PAGE,
+    feedbackPage * FEEDBACKS_PER_PAGE
+  )
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0A84FF] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading analytics...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen w-full bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-[#0A84FF] text-white rounded-lg hover:bg-[#0A6FCC]"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F7] font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
+    <div className="min-h-screen w-full bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
       {/* Floating Dock */}
       <div className="sticky z-40 flex">
         <MyFloatingDock />
@@ -302,45 +391,11 @@ function Admin() {
                   <h1 className="text-2xl sm:text-3xl font-medium text-white tracking-tight">
                     {greeting} {fullName}
                   </h1>
-                  <p className="text-white/80 font-light mt-1 text-sm sm:text-base tracking-wide">
-                    Your service business at a glance
+                  <p className="text-white/80 font-light mt-1 mb-[-5px] text-sm sm:text-base tracking-wide">
+                    Good to see you again! Here's what's happening across your platform today.
                   </p>
                 </div>
-
-                {/* Metrics cards */}
-                <div className="flex flex-wrap justify-center md:justify-end gap-3 w-full md:w-auto">
-                  {metrics.map((metric, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:bg-white/15 cursor-default transition-all duration-200 w-full sm:w-auto sm:min-w-[160px] md:min-w-[180px]"
-                    >
-                      <div className="flex items-center p-3 sm:p-4 w-full">
-                        {/* Icon */}
-                        <div className="rounded-full bg-white/90 p-2 mr-3 shadow-sm flex-shrink-0">
-                          {metric.icon}
-                        </div>
-
-                        {/* Metric content */}
-                        <div className="flex flex-col w-full">
-                          <div className="flex items-baseline justify-center sm:justify-start">
-                            <span className="text-white font-medium text-lg sm:text-xl tracking-tight">{metric.value}</span>
-                            <span
-                              className={`ml-1.5 text-xs font-medium ${metric.trendUp ? "text-[#30D158]" : "text-[#FF453A]"
-                                }`}
-                            >
-                              {metric.trend}
-                            </span>
-                          </div>
-                          <span className="text-white/70 text-xs sm:text-sm font-light tracking-wide text-center sm:text-left">
-                            {metric.label}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
-
 
               {/* Service Categories Navigation */}
               <div className="mt-8">
@@ -353,7 +408,8 @@ function Admin() {
                         }`}
                     >
                       <div
-                        className={`${activeTab === index ? "text-[#0A84FF]" : "text-white group-hover:scale-110"} transition-all duration-300`}
+                        className={`${activeTab === index ? "text-[#0A84FF]" : "text-white group-hover:scale-110"
+                          } transition-all duration-300`}
                       >
                         {category.icon}
                       </div>
@@ -372,7 +428,7 @@ function Admin() {
           {/* Dashboard Content */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {/* Booking Trends */}
-            <Card className="border-none rounded-2xl shadow-sm overflow-hidden">
+            <Card className="border-none rounded-2xl overflow-hidden">
               <CardContent className="p-5">
                 <h3 className="text-lg font-medium mb-3 text-gray-800">Booking Trends</h3>
                 <div className="h-[200px]">
@@ -381,46 +437,62 @@ function Admin() {
               </CardContent>
             </Card>
 
-            {/* Monthly Target */}
-            <Card className="border-none rounded-2xl shadow-sm overflow-hidden">
+            {/* Transactions Between Provider and Customer */}
+            <Card className="border-none rounded-2xl overflow-hidden">
               <CardContent className="p-5">
-                <h3 className="text-lg font-medium mb-3 text-gray-800">Monthly Target</h3>
+                <h3 className="text-lg font-medium mb-3 text-gray-800">Transactions Between Provider and Customer</h3>
+
+                {/* Transaction Summary */}
                 <div className="flex justify-between mb-2">
-                  <span className="text-gray-700 text-sm font-light">75.5%</span>
-                  <span className="text-gray-700 text-sm font-light">24.5%</span>
+                  <span className="text-gray-700 text-sm font-light">
+                    Completed: {analyticsData?.completionRate || 0}%
+                  </span>
+                  <span className="text-gray-700 text-sm font-light">
+                    Pending: {100 - (analyticsData?.completionRate || 0)}%
+                  </span>
                 </div>
                 <div className="flex gap-2 mb-4">
                   <div className="h-1.5 bg-[#F2F2F7] rounded-full flex-grow">
-                    <div className="h-full bg-[#0A84FF] rounded-full" style={{ width: "75.5%" }}></div>
+                    <div
+                      className="h-full bg-[#0A84FF] rounded-full"
+                      style={{ width: `${analyticsData?.completionRate || 0}%` }}
+                    ></div>
                   </div>
-                  <div className="h-1.5 bg-[#F2F2F7] rounded-full w-1/4"></div>
+                  <div className="h-1.5 bg-[#F2F2F7] rounded-full w-1/3"></div>
                 </div>
 
                 <div className="flex justify-between text-xs text-gray-500 mb-4 font-light">
-                  <span>320 services</span>
-                  <span>425 target</span>
+                  <span>{analyticsData?.completedBookings || 0} completed</span>
+                  <span>{analyticsData?.totalBookings || 0} total</span>
                 </div>
                 <div className="text-xs text-gray-500 mb-4 font-light">This Month</div>
 
+                {/* Transaction Stats */}
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="text-xl font-medium text-gray-800">$8.2k</div>
+                    <div className="text-xl font-medium text-gray-800">
+                      ₱{(analyticsData?.totalRevenue || 0).toLocaleString()}
+                    </div>
                     <div className="text-xs text-gray-500 flex items-center font-light">
-                      Revenue
+                      Total Payments
                       <span className="text-[#30D158] ml-1">↑</span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-xl font-medium text-gray-800">128</div>
+                    <div className="text-xl font-medium text-gray-800">
+                      {analyticsData?.newTransactionsThisMonth || 0}
+                    </div>
                     <div className="text-xs text-gray-500 flex items-center font-light">
-                      New Bookings
+                      New Transactions
                       <span className="text-[#30D158] ml-1">↑</span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-xl font-medium text-gray-800">96%</div>
+                    <div className="text-xl font-medium text-gray-800">
+                      {analyticsData?.positiveFeedbackPercentage || 0}%
+                    </div>
                     <div className="text-xs text-gray-500 flex items-center font-light">
-                      Satisfaction
+                      Positive Feedback
                       <span className="text-[#30D158] ml-1">↑</span>
                     </div>
                   </div>
@@ -429,7 +501,7 @@ function Admin() {
             </Card>
 
             {/* Service Performance */}
-            <Card className="border-none rounded-2xl shadow-sm overflow-hidden">
+            <Card className="border-none rounded-2xl overflow-hidden">
               <CardContent className="p-5">
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="text-lg font-medium text-gray-800">Service Performance</h3>
@@ -456,37 +528,25 @@ function Admin() {
 
           {/* Tables Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Recent Service Requests */}
-            <Card className="border-none rounded-2xl shadow-sm overflow-hidden">
+            {/* All Services Created */}
+            <Card className="border-none rounded-2xl overflow-hidden">
               <CardContent className="p-5">
-                <h3 className="text-lg font-medium mb-4 text-gray-800">Recent Service Requests</h3>
+                <h3 className="text-lg font-medium mb-4 text-gray-800">All Services Created</h3>
                 <table className="w-full">
                   <thead>
                     <tr className="text-gray-500 text-xs font-light">
-                      <th className="text-left pb-2">Request ID</th>
-                      <th className="text-left pb-2">Service</th>
-                      <th className="text-left pb-2">Location</th>
+                      <th className="text-left pb-2">Service Name</th>
+                      <th className="text-left pb-2">Category</th>
+                      <th className="text-left pb-2">Created By</th>
                       <th className="text-left pb-2">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {recentRequests.map((request, index) => (
+                    {allServices.map((service, index) => (
                       <tr key={index} className="border-t border-gray-100">
-                        <td className="py-3 text-sm font-medium">{request.id}</td>
-                        <td className="py-3 text-sm font-light">{request.service}</td>
-                        <td className="py-3 text-sm font-light">{request.location}</td>
-                        <td className="py-3 text-sm">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-xs font-light ${request.status === "Pending"
-                                ? "bg-[#FFF8E6] text-[#FF9500]"
-                                : request.status === "In Progress"
-                                  ? "bg-[#E9F6FF] text-[#0A84FF]"
-                                  : "bg-[#E8F8EF] text-[#30D158]"
-                              }`}
-                          >
-                            {request.status}
-                          </span>
-                        </td>
+                        <td className="py-3 text-sm font-light">{service.name}</td>
+                        <td className="py-3 text-sm font-light">{service.category}</td>
+                        <td className="py-3 text-sm font-light">{service.createdBy}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -495,16 +555,17 @@ function Admin() {
             </Card>
 
             {/* Customer Feedback */}
-            <Card className="border-none rounded-2xl shadow-sm overflow-hidden">
+            <Card className="border-none rounded-2xl overflow-hidden">
               <CardContent className="p-5">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-gray-800">Customer Feedback</h3>
-                  <span className="text-xs text-[#0A84FF] font-medium">View all</span>
                 </div>
                 <div className="space-y-4">
-                  {customerFeedback.map((feedback, index) => (
+                  {paginatedFeedback.map((feedback, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className="rounded-full bg-[#0A84FF] p-2 mt-1">{feedback.icon}</div>
+                      <div className="rounded-full bg-[#0A84FF] p-2 mt-1">
+                        {feedback.icon || <Droplet className="h-5 w-5 text-white" />}
+                      </div>
                       <div className="flex-1">
                         <h4 className="font-medium text-sm text-gray-800">{feedback.type}</h4>
                         <p className="text-xs text-gray-500 font-light">Customer: {feedback.customer}</p>
@@ -520,12 +581,53 @@ function Admin() {
                       <div className="text-xs text-gray-500 font-light">{feedback.time}</div>
                     </div>
                   ))}
+                  {totalFeedbackPages > 1 && (
+                    <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                      <div className="text-xs text-gray-500 font-light">
+                        Showing{" "}
+                        <span className="font-medium">{paginatedFeedback.length}</span>{" "}
+                        of{" "}
+                        <span className="font-medium">{customerFeedback.length}</span>{" "}
+                        feedbacks
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          className="bg-white border-gray-200 text-gray-700 text-[13px]"
+                          disabled={feedbackPage === 1}
+                          onClick={() => setFeedbackPage((prev) => Math.max(1, prev - 1))}
+                        >
+                          Previous
+                        </Button>
+
+                        <div className="text-gray-400">
+                          |
+                        </div>
+
+                        <span className="text-xs text-gray-600 font-light">
+                          Page {feedbackPage} of {totalFeedbackPages}
+                        </span>
+
+                        <div className="text-gray-400">
+                          |
+                        </div>
+
+                        <Button
+                          className="bg-white border-gray-200 text-gray-700 text-[13px]"
+                          disabled={feedbackPage === totalFeedbackPages}
+                          onClick={() => setFeedbackPage((prev) => Math.min(totalFeedbackPages, prev + 1))}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Service Analytics */}
-            <Card className="border-none rounded-2xl shadow-sm overflow-hidden">
+            <Card className="border-none rounded-2xl overflow-hidden">
               <CardContent className="p-5">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-gray-800">Service Analytics</h3>
@@ -537,7 +639,9 @@ function Admin() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-32 h-32 rounded-full bg-[#F2F2F7] flex items-center justify-center">
                         <div className="w-24 h-24 rounded-full bg-white flex flex-col items-center justify-center">
-                          <span className="text-2xl font-medium text-gray-800">320</span>
+                          <span className="text-2xl font-medium text-gray-800">
+                            {analyticsData?.totalServices || 0}
+                          </span>
                           <span className="text-xs text-gray-500 font-light">Services</span>
                         </div>
                       </div>
@@ -548,34 +652,26 @@ function Admin() {
                   </div>
                 </div>
                 <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[#0A84FF] mr-2"></div>
-                      <span className="text-sm text-gray-700 font-light">Plumbing</span>
-                    </div>
-                    <span className="text-sm font-medium">32%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[#5AC8FA] mr-2"></div>
-                      <span className="text-sm text-gray-700 font-light">Electrical</span>
-                    </div>
-                    <span className="text-sm font-medium">28%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[#64D2FF] mr-2"></div>
-                      <span className="text-sm text-gray-700 font-light">Cleaning</span>
-                    </div>
-                    <span className="text-sm font-medium">24%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[#8E8E93] mr-2"></div>
-                      <span className="text-sm text-gray-700 font-light">Others</span>
-                    </div>
-                    <span className="text-sm font-medium">16%</span>
-                  </div>
+                  {Object.entries(analyticsData?.serviceCategories || {})
+                    .slice(0, 4)
+                    .map(([category, count], index) => {
+                      const colors = ["#0A84FF", "#5AC8FA", "#64D2FF", "#8E8E93"]
+                      const total = Object.values(analyticsData?.serviceCategories || {}).reduce(
+                        (a, b) => (a as number) + (b as number),
+                        0,
+                      )
+                      const percentage = total > 0 ? Math.round(((count as number) / (total as number)) * 100) : 0
+
+                      return (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: colors[index] }}></div>
+                            <span className="text-sm text-gray-700 font-light">{category}</span>
+                          </div>
+                          <span className="text-sm font-medium">{percentage}%</span>
+                        </div>
+                      )
+                    })}
                 </div>
               </CardContent>
             </Card>

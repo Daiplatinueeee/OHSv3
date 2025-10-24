@@ -1735,7 +1735,7 @@ function Transaction() {
           style={{ animation: "fadeIn 0.3s ease-out" }}
         >
           <div
-            className="mx-auto max-w-md w-full bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
+            className="mx-auto max-w-md w-full bg-white backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl transform transition-all border border-white/20 p-6"
             style={{ animation: "fadeIn 0.5s ease-out 0.2s both" }}
           >
             <div className="flex flex-col items-center text-center">

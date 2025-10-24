@@ -4,13 +4,8 @@ import {
   Search,
   Filter,
   UserPlus,
-  MoreHorizontal,
   ChevronDown,
   CheckCircle,
-  XCircle,
-  Trash2,
-  Edit,
-  Eye,
   Shield,
   ChevronRight,
   BarChart3,
@@ -30,19 +25,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import AccountReviewer from "../AccountReviewers/COOReviewer"
 import CustomerReviewer from "../AccountReviewers/CustomerReviewer"
@@ -105,6 +93,14 @@ interface Account {
   // New fields for Customer document anomaly status
   frontIdAnomaly?: boolean
   backIdAnomaly?: boolean
+}
+
+interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalUsers: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
 const transformBackendUserToAccount = (backendUser: any): Account => {
@@ -207,6 +203,11 @@ function AccountsTab() {
   const [showAdminReviewer, setShowAdminReviewer] = useState(false)
   const [adminToReview, setAdminToReview] = useState<Account | null>(null)
 
+  const [page, setPage] = useState(1);
+  const limit = 7;
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+
+
   const checkAdminPrivileges = () => {
     const token = localStorage.getItem("token")
     if (!token) {
@@ -276,7 +277,8 @@ function AccountsTab() {
       }
 
       // Fetch from API
-      const response = await fetch("http://localhost:3000/api/accounts/users", {
+      const response = await fetch(`http://localhost:3000/api/accounts/users?page=${page}&limit=${limit}`, {
+
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -289,6 +291,7 @@ function AccountsTab() {
       }
 
       const data = await response.json()
+      setPagination(data.pagination)
 
       if (!data.users || !Array.isArray(data.users)) {
         throw new Error("Invalid response format: users array not found")
@@ -340,16 +343,16 @@ function AccountsTab() {
         coverPhoto: user.coverPhoto || undefined,
         selectedLocation: user.location || undefined,
         // COO specific fields
-        secRegistrationPreview: user.documents?.secRegistration || undefined,
-        businessPermitPreview: user.documents?.businessPermit || undefined,
-        birRegistrationPreview: user.documents?.birRegistration || undefined,
-        eccCertificatePreview: user.documents?.eccCertificate || undefined,
-        generalLiabilityPreview: user.documents?.generalLiability || undefined,
-        workersCompPreview: user.documents?.workersCompPreview || undefined,
-        professionalIndemnityPreview: user.documents?.professionalIndemnityPreview || undefined,
-        propertyDamagePreview: user.documents?.propertyDamage || undefined,
-        businessInterruptionPreview: user.documents?.businessInterruptionPreview || undefined,
-        bondingInsurancePreview: user.documents?.bondingInsurance || undefined,
+        secRegistrationPreview: user.secRegistration || undefined,
+        businessPermitPreview: user.businessPermit || undefined,
+        birRegistrationPreview: user.birRegistration || undefined,
+        eccCertificatePreview: user.eccCertificate || undefined,
+        generalLiabilityPreview: user.generalLiability || undefined,
+        workersCompPreview: user.workersComp || undefined,
+        professionalIndemnityPreview: user.professionalIndemnity || undefined,
+        propertyDamagePreview: user.propertyDamage || undefined,
+        businessInterruptionPreview: user.businessInterruption || undefined,
+        bondingInsurancePreview: user.bondingInsurance || undefined,
         // Anomaly flags
         frontIdAnomaly: user.anomalies?.frontId || false,
         backIdAnomaly: user.anomalies?.backId || false,
@@ -424,7 +427,7 @@ function AccountsTab() {
     socket.on("connect", () => {
       console.log("AccountsTab.tsx: Connected to Socket.IO server for account updates. Socket ID:", socket.id)
       // Initial fetch when the component mounts or reconnects
-      fetchAccounts()
+      fetchAccounts(true)
     })
 
     socket.on("disconnect", (reason) => {
@@ -457,8 +460,8 @@ function AccountsTab() {
   }
 
   useEffect(() => {
-    fetchAccounts()
-  }, [])
+    fetchAccounts(true)
+  }, [page])
 
   // Animation keyframes
   const keyframes = `
@@ -1018,11 +1021,40 @@ function AccountsTab() {
       )}
 
       {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="flex items-center gap-3">
-            <RefreshCw className="h-6 w-6 animate-spin text-blue-600" />
-            <span className="text-gray-600">Loading accounts...</span>
+        <div className="p-6 space-y-6">
+          <Skeleton className="h-6 w-1/3" />
+          <Skeleton className="h-4 w-1/2" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-xl" />
+            ))}
           </div>
+        </div>
+      )}
+
+
+      {isLoading && (
+        <div className="space-y-4 p-6">
+          {/* Simulate 7 skeleton cards (same count as visible accounts) */}
+          {[...Array(7)].map((_, index) => (
+            <div
+              key={index}
+              className="flex items-start gap-4 bg-[#F2F2F7]/50 p-4 rounded-xl animate-pulse"
+            >
+              {/* Avatar placeholder */}
+              <Skeleton className="h-12 w-12 rounded-full" />
+
+              {/* Info section */}
+              <div className="flex-1 space-y-3">
+                <Skeleton className="h-4 w-1/3 rounded" />
+                <Skeleton className="h-3 w-1/2 rounded" />
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  <Skeleton className="h-3 w-full rounded" />
+                  <Skeleton className="h-3 w-full rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -1227,7 +1259,7 @@ function AccountsTab() {
 
                       {/* Accounts */}
                       <div className="space-y-3">
-                        {filteredAccounts.map((account) => (
+                        {filteredAccounts.slice(0, 7).map((account) => (
                           <div
                             key={account.id}
                             className={`bg-[#F2F2F7]/50 rounded-xl p-4 hover:bg-[#F2F2F7] transition-colors cursor-pointer ${selectedAccount?.id === account.id ? "ring-1 ring-[#0A84FF]" : ""
@@ -1275,46 +1307,6 @@ function AccountsTab() {
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-
-                              {/* Actions Menu */}
-                              <div className="flex sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                      <MoreHorizontal className="h-4 w-4" />
-                                      <span className="sr-only">Open menu</span>
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => handleViewFullDetails(account)}>
-                                      <Eye className="mr-2 h-4 w-4" />
-                                      View Details
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <Edit className="mr-2 h-4 w-4" />
-                                      Edit Account
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    {account.status === "Active" ? (
-                                      <DropdownMenuItem>
-                                        <XCircle className="mr-2 h-4 w-4" />
-                                        Deactivate
-                                      </DropdownMenuItem>
-                                    ) : (
-                                      <DropdownMenuItem>
-                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                        Activate
-                                      </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-[#FF453A]">
-                                      <Trash2 className="mr-2 h-4 w-4" />
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
                               </div>
                             </div>
 
@@ -1377,6 +1369,7 @@ function AccountsTab() {
                           </div>
                         ))}
                       </div>
+
                     </Tabs>
                   </div>
 
@@ -1387,12 +1380,20 @@ function AccountsTab() {
                       <span className="font-medium">{accounts.length}</span> accounts
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="bg-white border-gray-200 text-gray-700">
+                      <button
+                        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={!pagination?.hasPrevPage}
+                        className="px-4 py-2 bg-gray-200 rounded-full disabled:opacity-50"
+                      >
                         Previous
-                      </Button>
-                      <Button variant="outline" size="sm" className="bg-white border-gray-200 text-gray-700">
+                      </button>
+                      <button
+                        onClick={() => setPage((prev) => prev + 1)}
+                        disabled={!pagination?.hasNextPage}
+                        className="px-4 py-2 bg-gray-200 disabled:opacity-50 rounded-full"
+                      >
                         Next
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1547,7 +1548,7 @@ function AccountsTab() {
 
             {/* Add Account Modal */}
             <Dialog open={isAddAccountModalOpen} onOpenChange={setIsAddAccountModalOpen}>
-              <DialogContent className="w-[95%] sm:max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border-none shadow-lg bg-white/90 backdrop-blur-xl p-0">
+              <DialogContent className="w-[95%] sm:max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border-none shadow-lg bg-white backdrop-blur-xl p-0">
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   {/* Left side - Form */}
                   <div className="p-6">
@@ -1656,7 +1657,7 @@ function AccountsTab() {
                         <Button
                           variant="outline"
                           onClick={() => setIsAddAccountModalOpen(false)}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto rounded-full"
                         >
                           Cancel
                         </Button>
@@ -1664,7 +1665,7 @@ function AccountsTab() {
                           variant="default"
                           onClick={handleAddAccount}
                           disabled={isSubmitting}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto rounded-full"
                         >
                           {isSubmitting ? "Creating..." : "Create"}
                         </Button>
@@ -1684,7 +1685,7 @@ function AccountsTab() {
                           different permissions. <span className="text-red-500">*</span> indicates required fields.
                         </p>
                       </div>
-
+                        
                       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
                         <h4 className="text-sm font-medium text-gray-700 mb-3">Account Types</h4>
                         <div className="space-y-3">

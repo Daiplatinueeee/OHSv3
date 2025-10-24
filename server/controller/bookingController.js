@@ -2019,3 +2019,93 @@ export const getCompletedBookingsByProvider = async (req, res) => {
     res.status(500).json({ message: "Server error fetching completed bookings" });
   }
 }
+
+export const getAllCompletedBookings = async (req, res) => {
+  console.log("[BACKEND] getAllCompletedBookings called");
+
+  try {
+    console.log("[BACKEND] Fetching completed bookings from MongoDB...");
+    const completedBookings = await Booking.find({ status: "completed" })
+      .populate("userId", "firstName lastName middleName email mobileNumber profilePicture")
+      .populate("providerId", "firstName lastName middleName businessName email mobileNumber profilePicture")
+      .sort({ createdAt: -1 });
+
+    console.log(`[BACKEND] Found ${completedBookings.length} completed bookings`);
+
+    const transformedBookings = completedBookings.map((booking, index) => {
+      const b = booking.toObject();
+
+      // ✅ Handle arrays or single populated documents
+      const user = Array.isArray(b.userId) ? b.userId[0] : b.userId;
+      const provider = Array.isArray(b.providerId) ? b.providerId[0] : b.providerId;
+
+      // ✅ Construct customer full name
+      const customerName = user
+        ? `${user.firstName || ""} ${user.middleName ? user.middleName + " " : ""}${user.lastName || ""}`.trim()
+        : b.firstname || "Unknown Customer";
+
+      // ✅ Construct provider name (handle businessName)
+      const providerName = provider
+        ? provider.businessName?.trim() ||
+          `${provider.firstName || ""} ${provider.middleName ? provider.middleName + " " : ""}${provider.lastName || ""}`.trim()
+        : b.providerName || "Unknown Provider";
+
+      return {
+        id: b._id,
+        serviceName: b.productName,
+        paymentMethod: b.paymentMethod || "Unknown",
+        confirmation: b.providerConfirmation && b.customerConfirmation,
+        serviceComplete: b.serviceComplete,
+        total: b.pricing?.totalRate || 0,
+        totalBalance: b.pricing?.totalRate || 0,
+        createdAt: b.createdAt,
+        updatedAt: b.updatedAt,
+
+        customerName,
+        providerName,
+
+        serviceProvider: {
+          id: provider?._id || null,
+          name: providerName,
+          avatar: provider?.profilePicture || "/placeholder.svg",
+          initials: providerName
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase(),
+          status: b.status,
+          email: provider?.email || "N/A",
+          phone: provider?.mobileNumber || "N/A",
+        },
+
+        customer: {
+          id: user?._id || null,
+          name: customerName,
+          avatar: user?.profilePicture || "/placeholder.svg",
+          initials: customerName
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase(),
+          status: b.status,
+          email: user?.email || "N/A",
+          phone: user?.mobileNumber || "N/A",
+        },
+
+        userDetails: user,
+        providerDetails: provider,
+        pricing: b.pricing,
+        location: b.location?.name || "Location not available",
+      };
+    });
+
+    console.log("[BACKEND] Completed transformation. Sending data to frontend...");
+    res.status(200).json(transformedBookings);
+  } catch (error) {
+    console.error("[BACKEND] Error fetching all completed bookings:", error);
+    res.status(500).json({
+      message: "Failed to fetch completed bookings.",
+      error: error.message,
+    });
+  }
+}
