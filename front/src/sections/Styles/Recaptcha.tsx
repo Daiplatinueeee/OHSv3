@@ -1,4 +1,3 @@
-"use client"
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 
 interface ReCAPTCHAProps {
