@@ -52,8 +52,6 @@ import types29 from "../assets/services/Aviation Maintenance Worker.jpeg"
 import types30 from "../assets/services/Vintage Car in Flowers.jpeg"
 import types31 from "../assets/services/Mechanical Component Close-Up.jpeg"
 
-import types32 from "../assets/services/Collaborative Brainstorming.jpeg"
-
 export const serviceSubcategories = {
   "Plumbing Services": [
     {
@@ -1460,13 +1458,5 @@ export const products = [
     image: types29,
     description:
       "Reliable automotive repair and maintenance services for all types of vehicles, right at your doorstep.",
-  },
-  {
-    id: 11,
-    name: "Suggest a Service",
-    price: 0,
-    category: "Community",
-    image: types32,
-    description: "Can't find what you're looking for? Suggest a new service and help us grow our offerings!",
   },
 ]

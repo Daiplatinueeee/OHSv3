@@ -174,6 +174,10 @@ function AccountsTab() {
   const [newAccountFirstName, setNewAccountFirstName] = useState("")
   const [newAccountLastName, setNewAccountLastName] = useState("")
   const [newAccountGender, setNewAccountGender] = useState("")
+  const [newAccountBusinessName, setNewAccountBusinessName] = useState("")
+  const [newAccountFoundedDate, setNewAccountFoundedDate] = useState("")
+  const [newAccountTeamSize, setNewAccountTeamSize] = useState("")
+  const [newAccountTinNumber, setNewAccountTinNumber] = useState("")
 
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false)
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
@@ -677,6 +681,9 @@ function AccountsTab() {
         gender?: string
         minimalMode: boolean
         businessName?: string
+        foundedDate?: string
+        teamSize?: string
+        tinNumber?: string
       } = {
         email: newAccountEmail,
         password: newAccountPassword,
@@ -687,9 +694,19 @@ function AccountsTab() {
         minimalMode: true,
       }
 
-      // Add account type specific fields
       if (newAccountType === "coo") {
         requestBody.businessName = `${newAccountFirstName || "Business"} ${newAccountLastName || "Name"}`.trim()
+
+        // Only include COO fields if they have actual values (not empty strings)
+        if (newAccountFoundedDate) {
+          requestBody.foundedDate = newAccountFoundedDate
+        }
+        if (newAccountTeamSize) {
+          requestBody.teamSize = newAccountTeamSize
+        }
+        if (newAccountTinNumber) {
+          requestBody.tinNumber = newAccountTinNumber
+        }
       }
 
       console.log("[v0] Making API call to:", `http://localhost:3000${endpoint}`)
@@ -750,14 +767,16 @@ function AccountsTab() {
 
       console.log("[v0] Account creation successful:", data)
 
+      let newAccountRole: string
       if (data.user) {
         const newAccount = transformBackendUserToAccount(data.user)
         setAccounts((prevAccounts) => [...prevAccounts, newAccount])
         setNewAccountData(newAccount)
+        newAccountRole = newAccount.role
       } else {
         // Fallback if backend doesn't return user data
         const newId = Math.max(...accounts.map((a) => a.id)) + 1
-        const newAccountRole =
+        newAccountRole =
           newAccountType === "coo"
             ? "COO"
             : newAccountType === "provider"
@@ -833,15 +852,10 @@ function AccountsTab() {
       setNewAccountFirstName("")
       setNewAccountLastName("")
       setNewAccountGender("")
-
-      const newAccountRole =
-        newAccountType === "coo"
-          ? "COO"
-          : newAccountType === "provider"
-            ? "Provider"
-            : newAccountType === "admin"
-              ? "Admin"
-              : "Customer"
+      setNewAccountBusinessName("")
+      setNewAccountFoundedDate("")
+      setNewAccountTeamSize("")
+      setNewAccountTinNumber("")
 
       toast(
         <div>
@@ -1240,6 +1254,9 @@ function AccountsTab() {
                         <TabsTrigger value="all" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           All
                         </TabsTrigger>
+                        <TabsTrigger value="coos" className="text-xs sm:text-sm data-[state=active]:bg-white">
+                          COOs
+                        </TabsTrigger>
                         <TabsTrigger value="customers" className="text-xs sm:text-sm data-[state=active]:bg-white">
                           Customers
                         </TabsTrigger>
@@ -1557,7 +1574,7 @@ function AccountsTab() {
                       Create a new user account with the specified role.
                     </DialogDescription>
 
-                    <div className="grid gap-4 animate-slideInUp">
+                    <div className="grid gap-4 animate-slideInUp overflow-y-auto max-h-[calc(90vh-200px)]">
                       {/* First Name */}
                       <div className="grid gap-2">
                         <Label htmlFor="firstName" className="text-gray-700">
@@ -1652,6 +1669,86 @@ function AccountsTab() {
                         </div>
                       </div>
 
+                      {newAccountType === "coo" && (
+                        <>
+                          <div className="border-t border-gray-200 pt-4 mt-2">
+                            <h3 className="text-sm font-semibold text-gray-700 mb-4">Business Information</h3>
+                          </div>
+
+                          {/* Business Name */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="businessName" className="text-gray-700">
+                              Business Name <span className="text-gray-400 text-sm">(Optional)</span>
+                            </Label>
+                            <Input
+                              id="businessName"
+                              value={newAccountBusinessName}
+                              onChange={(e) => setNewAccountBusinessName(e.target.value)}
+                              className="bg-gray-100 border-gray-200 focus:ring-2 focus:ring-[#0A84FF] transition-all duration-200"
+                              placeholder="Enter business name"
+                            />
+                          </div>
+
+                          {/* Founded Date */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="foundedDate" className="text-gray-700">
+                              Founded Date <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="foundedDate"
+                              type="date"
+                              value={newAccountFoundedDate}
+                              onChange={(e) => setNewAccountFoundedDate(e.target.value)}
+                              className="bg-gray-100 border-gray-200 focus:ring-2 focus:ring-[#0A84FF] transition-all duration-200"
+                            />
+                          </div>
+
+                          {/* Team Size */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="teamSize" className="text-gray-700">
+                              Team Size <span className="text-red-500">*</span>
+                            </Label>
+                            <Select value={newAccountTeamSize} onValueChange={setNewAccountTeamSize}>
+                              <SelectTrigger className="bg-gray-100 border-gray-200 focus:ring-2 focus:ring-[#0A84FF] transition-all duration-200">
+                                <SelectValue placeholder="Select team size" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="1-10">1-10 employees</SelectItem>
+                                <SelectItem value="11-50">11-50 employees</SelectItem>
+                                <SelectItem value="51-100">51-100 employees</SelectItem>
+                                <SelectItem value="101-500">101-500 employees</SelectItem>
+                                <SelectItem value="500+">500+ employees</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* TIN Number */}
+                          <div className="grid gap-2">
+                            <Label htmlFor="tinNumber" className="text-gray-700">
+                              TIN Number <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="tinNumber"
+                              value={newAccountTinNumber}
+                              onChange={(e) => {
+                                let value = e.target.value.replace(/\D/g, "")
+                                if (value.length > 9) value = value.slice(0, 9)
+                                if (value.length >= 6) {
+                                  value = value.slice(0, 3) + "-" + value.slice(3, 6) + "-" + value.slice(6)
+                                } else if (value.length >= 3) {
+                                  value = value.slice(0, 3) + "-" + value.slice(3)
+                                }
+                                setNewAccountTinNumber(value)
+                              }}
+                              className="bg-gray-100 border-gray-200 focus:ring-2 focus:ring-[#0A84FF] transition-all duration-200"
+                              placeholder="XXX-XXX-XXX"
+                              maxLength={11}
+                            />
+                            <p className="text-xs text-gray-500">Format: XXX-XXX-XXX (e.g., 123-456-789)</p>
+                          </div>
+                        </>
+                      )}
+
                       {/* Action Buttons */}
                       <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
                         <Button
@@ -1685,15 +1782,39 @@ function AccountsTab() {
                           different permissions. <span className="text-red-500">*</span> indicates required fields.
                         </p>
                       </div>
-                        
+
                       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
                         <h4 className="text-sm font-medium text-gray-700 mb-3">Account Types</h4>
                         <div className="space-y-3">
                           {[
-                            { icon: Shield, color: "#0A84FF", bg: "#E9F6FF", title: "Admin", desc: "Full system access and management capabilities" },
-                            { icon: Users, color: "#5E5CE6", bg: "#F2EBFF", title: "COO", desc: "Can manage services and respond to customer requests" },
-                            { icon: User, color: "#007AFF", bg: "#E6F7FF", title: "Provider", desc: "Internal staff with specific operational roles" },
-                            { icon: User, color: "#30D158", bg: "#E8F8EF", title: "Customer", desc: "Can browse services and make requests" },
+                            {
+                              icon: Shield,
+                              color: "#0A84FF",
+                              bg: "#E9F6FF",
+                              title: "Admin",
+                              desc: "Full system access and management capabilities",
+                            },
+                            {
+                              icon: Users,
+                              color: "#5E5CE6",
+                              bg: "#F2EBFF",
+                              title: "COO",
+                              desc: "Can manage services and respond to customer requests",
+                            },
+                            {
+                              icon: User,
+                              color: "#007AFF",
+                              bg: "#E6F7FF",
+                              title: "Provider",
+                              desc: "Internal staff with specific operational roles",
+                            },
+                            {
+                              icon: User,
+                              color: "#30D158",
+                              bg: "#E8F8EF",
+                              title: "Customer",
+                              desc: "Can browse services and make requests",
+                            },
                           ].map(({ icon: Icon, color, bg, title, desc }, index) => (
                             <div key={index} className="flex items-start gap-3">
                               <div className={`mt-0.5 p-1.5 rounded-full`} style={{ backgroundColor: bg }}>

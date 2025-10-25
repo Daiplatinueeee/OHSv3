@@ -8,18 +8,18 @@ import HeroSection from "../sections/Proposition_Sections/HeroSection"
 import SecondSection from "../sections/Proposition_Sections/SecondSection"
 import ThirdSection from "../sections/Proposition_Sections/ThirdSection"
 import FourthSection from "../sections/Proposition_Sections/FourthSection"
-import SixthSection from "../sections/Proposition_Sections/SixthSection"
+// import SixthSection from "../sections/Proposition_Sections/SixthSection"
 import SeventhSection from "../sections/Proposition_Sections/SeventhSection"
 import EighthSection from "../sections/Proposition_Sections/EightSection"
 import NinthSection from "../sections/Proposition_Sections/NinethSection"
 import TenthSection from "../sections/Proposition_Sections/TenthSection"
 
-import img1 from "../assets/proposition/team photo/kc.jpg"
-import img2 from "../assets/proposition/team photo/kath.jpg"
-import img3 from "../assets/proposition/team photo/bens.jfif"
-import img4 from "../assets/proposition/team photo/kyle.jpg"
-import img5 from "../assets/proposition/team photo/waris.jpg"
-import img6 from "../assets/proposition/team photo/jv.jpg"
+import img1 from "../assets/proposition/team photo/6.png"
+import img2 from "../assets/proposition/team photo/5.png"
+import img3 from "../assets/proposition/team photo/1.png"
+import img4 from "../assets/proposition/team photo/2.png"
+import img5 from "../assets/proposition/team photo/3.png"
+import img6 from "../assets/proposition/team photo/4.png"
 import { motion } from "framer-motion"
 
 function Proposition() {
@@ -54,7 +54,7 @@ function Proposition() {
     "KATHLEEN REPUNTE AS DOCUMTENTOR": img2,
     "VINCE EDWARD CAÑEDO MAÑACAP AS DEVELOPER": img3,
     "KYLE SELLOTE AS DEVELOPER": img4,
-    "BART JUAREZ AS SYSTEM ANALYST": img5,
+    "BART JUAREZ AS SUPPORT SYSTEM ANALYST": img5,
     "JOSH VINCENT S. ALMENDRAS AS DOCUMENTOR": img6,
   }
 
@@ -691,9 +691,9 @@ function Proposition() {
         </section>
 
         {/* Sixth Section - Sponsors */}
-        <div data-section="sponsors">
+        {/* <div data-section="sponsors">
           <SixthSection />
-        </div>
+        </div> */}
 
         {/* Seventh Section - System Features */}
         <div data-section="features">

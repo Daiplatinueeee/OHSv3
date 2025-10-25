@@ -93,7 +93,7 @@ const TenthSection: React.FC<TenthSectionProps> = ({ navigateToLogin }) => {
               Get Started
             </button>
 
-            <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-gray-100 hover:bg-gray-200 text-sky-500 text-base sm:text-lg font-medium rounded-2xl transition-colors duration-200">
+            <button onClick={navigateToLogin} className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-4 bg-gray-100 hover:bg-gray-200 text-sky-500 text-base sm:text-lg font-medium rounded-2xl transition-colors duration-200">
               Browse Services
             </button>
           </div>

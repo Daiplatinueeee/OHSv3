@@ -136,13 +136,13 @@ function SecondSection({
                     <span
                       className="cursor-pointer hover:text-sky-600 transition-colors duration-300 text-sky-500"
                       {...(isMobile
-                        ? { onClick: () => handleMobileClick("BART JUAREZ AS SYSTEM ANALYST") }
+                        ? { onClick: () => handleMobileClick("BART JUAREZ AS SUPPORT SYSTEM ANALYST") }
                         : {
-                            onMouseEnter: () => handleTeamMemberHover("BART JUAREZ AS SYSTEM ANALYST"),
+                            onMouseEnter: () => handleTeamMemberHover("BART JUAREZ AS SUPPORT SYSTEM ANALYST"),
                             onMouseLeave: handleTeamMemberLeave,
                           })}
                     >
-                      BART JUAREZ AS SYSTEM TESTER
+                      BART JUAREZ AS SUPPORT SYSTEM ANALYST
                     </span>
                     , AND{" "}
                     <span

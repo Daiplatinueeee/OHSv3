@@ -179,8 +179,8 @@ export default function COORequirements({ accountType }: COORequirementsProps) {
 
   // Company location (for location selector)
   const defaultCompanyLocation = {
-    lat: 10.3125,
-    lng: 123.8924,
+    lat: 10.243302,
+    lng: 123.788994,
   }
 
   // Animation keyframes
@@ -824,7 +824,7 @@ to { transform: translateY(0); opacity: 1; }
                           <label htmlFor="business-name" className="block text-sm font-medium text-gray-700 mb-1">
                             <span className="flex items-center">
                               <Building className="h-4 w-4 mr-1 text-gray-500" />
-                              Business Name (optional)
+                              Business Name 
                             </span>
                           </label>
                           <input
@@ -841,7 +841,7 @@ to { transform: translateY(0); opacity: 1; }
                           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                             <span className="flex items-center">
                               <Mail className="h-4 w-4 mr-1 text-gray-500" />
-                              Email (optional)
+                              Email 
                             </span>
                           </label>
                           <input
@@ -859,7 +859,7 @@ to { transform: translateY(0); opacity: 1; }
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                            Password (optional)
+                            Password 
                           </label>
                           <div className="relative">
                             <input
@@ -881,7 +881,7 @@ to { transform: translateY(0); opacity: 1; }
                         </div>
                         <div>
                           <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">
-                            Confirm Password (optional)
+                            Confirm Password 
                           </label>
                           <div className="relative">
                             <input
@@ -912,7 +912,7 @@ to { transform: translateY(0); opacity: 1; }
                           <label htmlFor="team-size" className="block text-sm font-medium text-gray-700 mb-1">
                             <span className="flex items-center">
                               <Users className="h-4 w-4 mr-1 text-gray-500" />
-                              Team Size (optional)
+                              Team Size 
                             </span>
                           </label>
                           <select
@@ -936,7 +936,7 @@ to { transform: translateY(0); opacity: 1; }
                           <label htmlFor="company-number" className="block text-sm font-medium text-gray-700 mb-1">
                             <span className="flex items-center">
                               <Phone className="h-4 w-4 mr-1 text-gray-500" />
-                              Company Contact Number (optional)
+                              Company Contact Number 
                             </span>
                           </label>
                           <input
@@ -956,7 +956,7 @@ to { transform: translateY(0); opacity: 1; }
                           <label htmlFor="founded-date" className="block text-sm font-medium text-gray-700 mb-1">
                             <span className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                              Founded Date (optional)
+                              Founded Date 
                             </span>
                           </label>
                           <input
@@ -972,7 +972,7 @@ to { transform: translateY(0); opacity: 1; }
                           <label htmlFor="tin-number" className="block text-sm font-medium text-gray-700 mb-1">
                             <span className="flex items-center">
                               <FileText className="h-4 w-4 mr-1 text-gray-500" />
-                              TIN Number (optional)
+                              TIN Number 
                             </span>
                           </label>
                           <div className="relative">
@@ -999,7 +999,7 @@ to { transform: translateY(0); opacity: 1; }
                       {/* About Company - Full width at bottom */}
                       <div>
                         <label htmlFor="about-company" className="block text-sm font-medium text-gray-700 mb-1">
-                          About the Company (optional)
+                          About the Company 
                         </label>
                         <textarea
                           id="about-company"
@@ -1026,7 +1026,7 @@ to { transform: translateY(0); opacity: 1; }
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             <span className="flex items-center">
                               <MapPin className="h-4 w-4 mr-1 text-gray-500" />
-                              Company Location (optional)
+                              Company Location 
                             </span>
                           </label>
                           <button
@@ -1062,7 +1062,7 @@ to { transform: translateY(0); opacity: 1; }
                       <div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            City Coverage Area (optional)
+                            City Coverage Area 
                           </label>
                           <div className="flex mb-2">
                             <input
@@ -1128,7 +1128,7 @@ to { transform: translateY(0); opacity: 1; }
                       <div className="space-y-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            SEC Registration (optional)
+                            SEC Registration 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${secRegistration ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"
@@ -1174,7 +1174,7 @@ to { transform: translateY(0); opacity: 1; }
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Mayor's Permit / Business Permit (optional)
+                            Mayor's Permit / Business Permit 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${businessPermit ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"
@@ -1225,7 +1225,7 @@ to { transform: translateY(0); opacity: 1; }
                       <div className="space-y-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            BIR Registration (optional)
+                            BIR Registration 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${birRegistration ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"
@@ -1273,7 +1273,7 @@ to { transform: translateY(0); opacity: 1; }
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Environmental Compliance Certificate (ECC) (optional)
+                            Environmental Compliance Certificate (ECC) 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${eccCertificate ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"
@@ -1302,7 +1302,7 @@ to { transform: translateY(0); opacity: 1; }
                             ) : (
                               <>
                                 <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                                <p className="text-sm text-gray-500">Upload ECC (Optional)</p>
+                                <p className="text-sm text-gray-500">Upload ECC </p>
                                 <p className="text-xs text-gray-400 mt-1">
                                   For services that may affect the environment
                                 </p>
@@ -1351,7 +1351,7 @@ to { transform: translateY(0); opacity: 1; }
                           <div className="flex items-center mb-2">
                             <Shield className="h-4 w-4 mr-1 text-sky-500" />
                             <label className="block text-sm font-medium text-gray-700">
-                              General Liability Insurance (optional)
+                              General Liability Insurance 
                             </label>
                           </div>
                           <p className="text-xs text-gray-500 mb-3">
@@ -1406,7 +1406,7 @@ to { transform: translateY(0); opacity: 1; }
                           <div className="flex items-center mb-2">
                             <HardHat className="h-4 w-4 mr-1 text-sky-500" />
                             <label className="block text-sm font-medium text-gray-700">
-                              Worker's Compensation Insurance (optional)
+                              Worker's Compensation Insurance 
                             </label>
                           </div>
                           <p className="text-xs text-gray-500 mb-3">Covers employees in case of injury while on duty</p>
@@ -1459,7 +1459,7 @@ to { transform: translateY(0); opacity: 1; }
                           <div className="flex items-center mb-2">
                             <Briefcase className="h-4 w-4 mr-1 text-sky-500" />
                             <label className="block text-sm font-medium text-gray-700">
-                              Professional Indemnity Insurance (optional)
+                              Professional Indemnity Insurance 
                             </label>
                           </div>
                           <p className="text-xs text-gray-500 mb-3">
@@ -1495,7 +1495,7 @@ to { transform: translateY(0); opacity: 1; }
                             ) : (
                               <>
                                 <Upload className="h-6 w-6 text-gray-400 mb-2" />
-                                <p className="text-sm text-gray-500">Upload Insurance Certificate (Optional)</p>
+                                <p className="text-sm text-gray-500">Upload Insurance Certificate </p>
                               </>
                             )}
                             <input
@@ -1519,7 +1519,7 @@ to { transform: translateY(0); opacity: 1; }
                           <div className="flex items-center mb-2">
                             <Home className="h-4 w-4 mr-1 text-sky-500" />
                             <label className="block text-sm font-medium text-gray-700">
-                              Property Damage Insurance (optional)
+                              Property Damage Insurance 
                             </label>
                           </div>
                           <p className="text-xs text-gray-500 mb-3">
@@ -1555,7 +1555,7 @@ to { transform: translateY(0); opacity: 1; }
                             ) : (
                               <>
                                 <Upload className="h-6 w-6 text-gray-400 mb-2" />
-                                <p className="text-sm text-gray-500">Upload Insurance Certificate (Optional)</p>
+                                <p className="text-sm text-gray-500">Upload Insurance Certificate </p>
                               </>
                             )}
                             <input
@@ -1574,7 +1574,7 @@ to { transform: translateY(0); opacity: 1; }
                           <div className="flex items-center mb-2">
                             <PauseCircle className="h-4 w-4 mr-1 text-sky-500" />
                             <label className="block text-sm font-medium text-gray-700">
-                              Business Interruption Insurance (optional)
+                              Business Interruption Insurance 
                             </label>
                           </div>
                           <p className="text-xs text-gray-500 mb-3">
@@ -1610,7 +1610,7 @@ to { transform: translateY(0); opacity: 1; }
                             ) : (
                               <>
                                 <Upload className="h-6 w-6 text-gray-400 mb-2" />
-                                <p className="text-sm text-gray-500">Upload Insurance Certificate (Optional)</p>
+                                <p className="text-sm text-gray-500">Upload Insurance Certificate </p>
                               </>
                             )}
                             <input
@@ -1631,7 +1631,7 @@ to { transform: translateY(0); opacity: 1; }
                           <div className="flex items-center mb-2">
                             <CheckSquare className="h-4 w-4 mr-1 text-sky-500" />
                             <label className="block text-sm font-medium text-gray-700">
-                              Bonding Insurance (optional)
+                              Bonding Insurance 
                             </label>
                           </div>
                           <p className="text-xs text-gray-500 mb-3">
@@ -1667,7 +1667,7 @@ to { transform: translateY(0); opacity: 1; }
                             ) : (
                               <>
                                 <Upload className="h-6 w-6 text-gray-400 mb-2" />
-                                <p className="text-sm text-gray-500">Upload Insurance Certificate (Optional)</p>
+                                <p className="text-sm text-gray-500">Upload Insurance Certificate </p>
                               </>
                             )}
                             <input
@@ -1711,7 +1711,7 @@ to { transform: translateY(0); opacity: 1; }
                         {/* Cover Photo */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Company Cover Photo (optional)
+                            Company Cover Photo 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors h-40 ${coverPhoto ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"
@@ -1750,7 +1750,7 @@ to { transform: translateY(0); opacity: 1; }
                         {/* Profile Picture */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Company Logo (optional)
+                            Company Logo 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${profilePicture ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"
@@ -1790,7 +1790,7 @@ to { transform: translateY(0); opacity: 1; }
                       <div className="space-y-6">
                         <div>
                           <h4 className="text-lg font-medium mb-4 text-gray-700">
-                            Secret Question & Answer (optional)
+                            Secret Question & Answer 
                           </h4>
                           <div className="bg-white border rounded-lg p-6 space-y-4">
                             <div>

@@ -131,18 +131,7 @@ const mockCompanies: CooUser[] = [
     totalReviews: 712,
     accountType: "coo",
     services: Array(12).fill(null),
-  },
-  {
-    _id: "10",
-    businessName: "FitHome Services",
-    email: "contact@fithome.com",
-    profilePicture: null,
-    location: { name: "Seattle", lat: 47.6062, lng: -122.3321, distance: 0, zipCode: "98101" },
-    averageRating: 4.0,
-    totalReviews: 634,
-    accountType: "coo",
-    services: Array(18).fill(null),
-  },
+  }
 ]
 
 export default function Popular() {
@@ -245,7 +234,7 @@ export default function Popular() {
     if (companies.length > 0) fetchTotals()
   }, [companies.length])
 
-  const handleExpand = () => setDisplayCount(10)
+  const handleExpand = () => setDisplayCount(9)
   const handleCollapse = () => setDisplayCount(5)
   const rowHeight = 68
   const currentMaxHeight = displayCount * rowHeight
@@ -315,7 +304,7 @@ export default function Popular() {
   const top1 = getCompanyData(1)
   const top2 = getCompanyData(2)
   const top3 = getCompanyData(3)
-  const leaderboardCompanies = Array.from({ length: 7 }, (_, i) => ({ ...getCompanyData(i + 4), rank: i + 4 }))
+  const leaderboardCompanies = Array.from({ length: 6 }, (_, i) => ({ ...getCompanyData(i + 4), rank: i + 4 }))
 
   return (
     <div className="min-h-screen bg-white text-gray-900 py-12 px-4 sm:px-6 lg:px-8 font-sans mt-10">
@@ -361,7 +350,7 @@ export default function Popular() {
                   src={top2.profilePicture || "/placeholder.svg?height=110&width=110&query=company logo"}
                   width={110}
                   height={110}
-                  className="relative rounded-full border-[2px] border-gray-300 shadow-[0_4px_20px_rgba(224,224,224,0.25)] object-cover"
+                  className="relative rounded-full h-25 w-25 border-[2px] border-gray-200 shadow-[0_4px_20px_rgba(224,224,224,0.25)] object-cover"
                 />
               </div>
             </div>
@@ -416,7 +405,7 @@ export default function Popular() {
                   src={top1.profilePicture || "/placeholder.svg?height=110&width=110&query=company logo"}
                   width={110}
                   height={110}
-                  className="relative rounded-full border-[2px] border-yellow-300 shadow-[0_4px_20px_rgba(250,204,21,0.25)] object-cover"
+                  className="relative rounded-full h-25 w-25 border-[2px] border-yellow-300 shadow-[0_4px_20px_rgba(250,204,21,0.25)] object-cover"
                 />
               </div>
             </div>
@@ -469,7 +458,7 @@ export default function Popular() {
                   src={top3.profilePicture || "/placeholder.svg?height=110&width=110&query=company logo"}
                   width={110}
                   height={110}
-                  className="relative rounded-full border-[2px] border-gray-300 shadow-[0_4px_20px_rgba(224,224,224,0.25)]  object-cover"
+                  className="relative h-25 w-25 rounded-full border-[2px] border-gray-300 shadow-[0_4px_20px_rgba(224,224,224,0.25)]  object-cover"
                 />
               </div>
             </div>
@@ -570,8 +559,8 @@ export default function Popular() {
                         <img
                           src={company.profilePicture || "/placeholder.svg?height=40&width=40&query=company logo"}
                           alt={company.businessName}
-                          width={40}
-                          height={40}
+                          width={50}
+                          height={30}
                           className="rounded-full border border-gray-200 object-cover"
                         />
                         <div>

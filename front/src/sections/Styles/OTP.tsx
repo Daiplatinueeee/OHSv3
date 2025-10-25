@@ -293,7 +293,7 @@ const OTP: React.FC<OTPProps> = ({ email, onClose, onOtpVerifiedSuccess, visible
               <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6 animate-pulse">
                 <CheckCircle2 className="h-10 w-10 text-green-500 animate-bounce" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Verified Successfully</h3>
+              <h3 className="text-xl font-medium mb-2">Verified Successfully</h3>
               <p className="text-gray-600 mb-6">You have been successfully authenticated.</p>
             </div>
           ) : showRecaptcha ? (

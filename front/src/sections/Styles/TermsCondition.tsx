@@ -1,6 +1,24 @@
 import { useState, useEffect } from "react"
 import { X, ChevronRight, CheckCircle2 } from "lucide-react"
 
+import proposition1 from "@/assets/Terms/worker4.mp4"
+import proposition2 from "@/assets/Terms/10.jpg"
+import proposition3 from "@/assets/Terms/1.jpg"
+import about1 from '@/assets/Terms/21.jpg'
+import about2 from '@/assets/Terms/23.jpg'
+import about3 from '@/assets/Terms/27.jpeg'
+import about4 from '@/assets/Terms/29.jpg'
+import img1 from "../../assets/Terms/30.jpg"
+import img2 from "../../assets/Terms/31.jpg"
+import img3 from "../../assets/Terms/32.jpg"
+import img4 from "../../assets/Terms/33.png"
+import img5 from "../../assets/Terms/34.jpg"
+import img6 from "../../assets/Terms/35.jpg"
+import img7 from "../../assets/Terms/38.jpg"
+import img8 from "@/assets/Home/dec1.jpg"
+import img9 from "@/assets/Login/20210423103706.jpg"
+import img10 from "@/assets/Login/6.jpg"
+
 interface TermsConditionProps {
   onClose: (accepted: boolean) => void
 }
@@ -10,7 +28,8 @@ const termsContent = [
     id: 1,
     title: "Introduction and Acceptance of Terms",
     content: `
-      <p class="mb-4 text-gray-700">Welcome to HandyGo! These Terms and Services ("Terms") govern your access to and use of the HandyGo website, mobile applications, and services (collectively, the "Platform"). By accessing or using the Platform, you signify that you have read, understood, and agree to be bound by these Terms, whether or not you are a registered user of our Platform. If you do not agree with these Terms, you must not use or access the Platform.</p>
+      <p class="mb-4 text-gray-700">Welcome to HandyGo! These Terms of Service (“Terms”) govern your access to and use of the HandyGo website and related services (collectively, the “Platform”). By accessing or using the Platform, you signify that you have read, understood, and agree to be bound by these Terms, whether or not you are a registered user of our Platform. If you do not agree with these Terms, you must not use or access the Platform.</p>
+
       <p class="mb-4">We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion. Your continued use of the Platform after any such changes constitutes your acceptance of the new Terms. It is your responsibility to review these Terms periodically for changes.</p>
       <p class="mb-4">This document outlines the legal framework for your interaction with HandyGo, ensuring clarity on both your rights and obligations, as well as ours. We are committed to fostering a transparent and secure environment for all users. Your engagement with our Platform is a direct acknowledgment of your understanding and agreement to these provisions.</p>
       <p class="mb-4">Please note that these Terms are legally binding. If you have any questions or concerns regarding these Terms, we encourage you to contact us before using the Platform. Your understanding of these terms is crucial for a smooth and beneficial experience on HandyGo.</p>
@@ -35,8 +54,11 @@ const termsContent = [
     title: "Privacy Policy Overview",
     content: `
       <p class="mb-4">Your privacy is paramount to us. Our Privacy Policy, which is incorporated by reference into these Terms, describes how we collect, use, and disclose your personal information. By using the Platform, you consent to the collection, use, and disclosure of your information as described in our Privacy Policy. We are committed to protecting your privacy and ensuring the security of your data in compliance with applicable data protection laws, including the Data Privacy Act (DPA) in the Philippines.</p>
-      <p class="mb-4">We collect various types of information, including personal data (such as your name, email address, contact number, and payment information), usage data (like IP addresses, browser types, and access times), and information related to your interactions with the Platform. This data is used to provide, maintain, and improve our services, process transactions, communicate with you, and for security purposes.</p>
-      <p class="mb-4">We implement robust security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. These measures include encryption, firewalls, and secure socket layer technology. However, no method of transmission over the Internet or method of electronic storage is 100% secure, and we cannot guarantee absolute security.</p>
+
+      <p class="mb-4">We collect various types of information, including personal data (such as your name, email address, contact number, and payment information), usage data (such as IP addresses, browser types, and access times), and information related to your interactions with the Platform. This data is used to provide, maintain, and improve our services, process transactions, communicate with you, and ensure the security and integrity of our Platform.</p>
+      <p class="mb-4">We implement strong security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. Passwords are protected using encrypted hashing algorithms, including MD5, SHA1, SHA256, and SHA512. All stored data is securely maintained within encrypted cloud storage solutions, including MongoDB and Vercel Blob. While we take extensive precautions to safeguard your information, please note that no method of transmission over the Internet or electronic storage is completely secure, and absolute security cannot be guaranteed.</p>
+
+
       <p class="mb-4">You have certain rights regarding your personal data, including the right to access, correct, or delete your information. For more details on how to exercise these rights, please refer to our full Privacy Policy. We may share your information with trusted third-party service providers who assist us in operating our Platform and delivering services, always under strict confidentiality agreements.</p>
       <p class="mb-4">Our Privacy Policy also details our use of cookies and similar tracking technologies to enhance your experience on the Platform. You can manage your cookie preferences through your browser settings. We encourage you to review our Privacy Policy regularly for any updates.</p>
       <p class="mb-4">By continuing to use HandyGo, you acknowledge that you have read and understood our Privacy Policy and agree to its terms. Your trust is important to us, and we are dedicated to maintaining the highest standards of data protection.</p>
@@ -48,7 +70,10 @@ const termsContent = [
     content: `
       <p class="mb-4">You agree to use the Platform only for lawful purposes and in a manner that does not infringe the rights of, or restrict or inhibit the use and enjoyment of the Platform by any third party. Prohibited conduct includes, but is not limited to, transmitting any unlawful, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, or otherwise objectionable material, or engaging in any conduct that would constitute a criminal offense, give rise to civil liability, or otherwise violate any applicable local, national, or international law.</p>
       <p class="mb-4">You must not misuse our Platform by knowingly introducing viruses, trojans, worms, logic bombs, or other material that is malicious or technologically harmful. You must not attempt to gain unauthorized access to our Platform, the server on which our Platform is stored, or any server, computer, or database connected to our Platform. You must not attack our Platform via a denial-of-service attack or a distributed denial-of-service attack.</p>
-      <p class="mb-4">Any breach of this provision may result in immediate termination of your account, reporting to relevant law enforcement authorities, and legal action. We reserve the right to monitor user activity and content to ensure compliance with these Terms and to protect the safety and security of our community.</p>
+
+     <p class="mb-4">Any breach of this provision may result in immediate termination of your account, reporting to relevant law enforcement authorities, and legal action. We reserve the right to monitor user activity and content to ensure compliance with these Terms and to protect the safety and security of our community. In cases where users are verified victims of scams or fraudulent activity conducted through or related to the Platform, HandyGo may issue refund coupons as compensation, with the discount amount determined based on the total verified amount lost.</p>
+
+
       <p class="mb-4">Furthermore, you agree not to use the Platform to: (a) impersonate any person or entity, or falsely state or otherwise misrepresent your affiliation with a person or entity; (b) collect or store personal data about other users without their express consent; (c) engage in spamming, phishing, or any other form of unsolicited communication; or (d) interfere with or disrupt the integrity or performance of the Platform or the data contained therein.</p>
       <p class="mb-4">We expect all users to interact respectfully and professionally. Any form of harassment, discrimination, or hate speech is strictly prohibited. Our goal is to create a positive and productive environment for everyone. Violations of this acceptable use policy will be taken seriously and may lead to permanent suspension from the Platform.</p>
     `
@@ -66,39 +91,32 @@ const termsContent = [
   },
   {
     id: 6,
-    title: "Disclaimers and Limitation of Liability",
+    title: "Payment Policy",
     content: `
-      <p class="mb-4">THE PLATFORM AND ITS SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT ANY WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR COURSE OF PERFORMANCE. HANDYGO DOES NOT WARRANT THAT THE PLATFORM WILL BE UNINTERRUPTED, ERROR-FREE, SECURE, OR THAT ANY DEFECTS WILL BE CORRECTED.</p>
-      <p class="mb-4">IN NO EVENT SHALL HANDYGO, NOR ITS DIRECTORS, EMPLOYEES, PARTNERS, AGENTS, SUPPLIERS, OR AFFILIATES, BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (I) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE PLATFORM; (II) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON THE PLATFORM; (III) ANY CONTENT OBTAINED FROM THE PLATFORM; AND (IV) UNAUTHORIZED ACCESS, USE, OR ALTERATION OF YOUR TRANSMISSIONS OR CONTENT, WHETHER BASED ON WARRANTY, CONTRACT, TORT (INCLUDING NEGLIGENCE), OR ANY OTHER LEGAL THEORY, WHETHER OR NOT WE HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGE, AND EVEN IF A REMEDY SET FORTH HEREIN IS FOUND TO HAVE FAILED OF ITS ESSENTIAL PURPOSE.</p>
-      <p class="mb-4">Some jurisdictions do not allow the exclusion of certain warranties or the exclusion or limitation of liability for consequential or incidental damages, so the limitations above may not apply to you. In such cases, HandyGo's liability will be limited to the fullest extent permitted by applicable law.</p>
-      <p class="mb-4">You acknowledge that HandyGo is a platform that connects customers with service providers, and we do not directly provide the services listed on the Platform. We are not responsible for the quality, safety, or legality of the services advertised, the truth or accuracy of the listings, or the ability of service providers to deliver services or customers to pay for services. Any disputes between users must be resolved directly between them.</p>
-      <p class="mb-4">Your use of the Platform is at your sole risk. You are responsible for evaluating the accuracy, completeness, and usefulness of all opinions, advice, services, and other information provided through the Platform. We strongly advise you to conduct your own due diligence before engaging in any transactions or interactions with other users.</p>
-    `
+    <p class="mb-4">All payments made through the HandyGo Platform are processed securely via <strong>PayMongo</strong>, our authorized third-party payment gateway. By proceeding with any payment, you acknowledge and agree that HandyGo does not directly collect or store your payment details, and that all transactions are subject to PayMongo’s terms and conditions.</p>
+
+    <p class="mb-4">In the event that a payment is not received, delayed, or otherwise disrupted due to issues within PayMongo’s system, HandyGo shall not be held responsible, as such matters fall outside our control. However, in cases of miscalculations or overcharges caused by our system or internal processing errors, please submit a ticket through our report system. Our support team will review the case and take the necessary steps to resolve the issue promptly.</p>
+
+    <p class="mb-4">All total payment amounts displayed on the Platform are considered <strong>preliminary estimates</strong> and may be subject to change based on actual on-site conditions, damages, or other factors agreed upon between the customer and HandyGo employees. Final charges will be confirmed only after the completion of the service.</p>
+
+    <p class="mb-4">By using the Platform and completing a payment, you agree to this Payment Policy and acknowledge that HandyGo’s role is limited to facilitating transactions through PayMongo, without direct control over the payment processing or settlement timeline.</p>
+  `
   },
   {
     id: 7,
-    title: "Termination",
+    title: "Booking Cancellation Policy",
     content: `
-      <p class="mb-4">We may terminate or suspend your account and bar access to the service immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms. This includes, but is not limited to, violations of our acceptable use policy, fraudulent activities, or any conduct that harms the integrity or reputation of HandyGo or its users.</p>
-      <p class="mb-4">Upon termination, your right to use the service will immediately cease. If you wish to terminate your account, you may simply discontinue using the service or contact us to request account deletion. Please note that some of your data may be retained for a certain period after termination as required by law or for legitimate business purposes, such as record-keeping and dispute resolution.</p>
-      <p class="mb-4">All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability. Termination of your account does not relieve you of any obligations incurred prior to termination, including payment obligations.</p>
-      <p class="mb-4">We reserve the right to investigate any suspected violations of these Terms. If we determine, in our sole discretion, that a violation has occurred, we may take various actions, including issuing a warning, suspending or terminating your account, removing content, or pursuing legal remedies. Our decision to terminate an account is final and binding.</p>
-      <p class="mb-4">You understand that termination of your account may involve deletion of your user content associated with your account from our live databases. HandyGo will not have any liability whatsoever to you for any termination of your rights under these Terms, including for deletion of your user content.</p>
+      <p class="mb-4">In the event of a booking cancellation after acceptance by the Chief Operating Officer (COO), any payment or deposit made is generally non-refundable unless the assigned employee fails to complete the agreed service. If no deposit (“DP”) has been made, no refund will be issued.</p>
+
+      <p class="mb-4">If the company fails to respond or fulfill its obligations without valid reason after a booking has been accepted, it will be subject to internal review and appropriate disciplinary actions. Users or entities found engaging in scam-related activities will be permanently banned from the Platform, and their documentation will remain blacklisted in our system.</p>
+
+      <p class="mb-4">In verified cases where a customer is targeted or affected by a scam related to the Platform, HandyGo may provide refund coupons as compensation. The value of such coupons will depend on the total verified amount lost, as determined by our support team after investigation.</p>
+
+      <p class="mb-4">This policy ensures fairness and accountability between customers, employees, and the company. All cancellations and refund-related concerns must be reported through our official report system so that our team can review and address them appropriately.</p>
     `
   },
   {
     id: 8,
-    title: "Governing Law and Dispute Resolution",
-    content: `
-      <p class="mb-4">These Terms shall be governed and construed in accordance with the laws of the Republic of the Philippines, without regard to its conflict of law provisions. You agree that any legal action or proceeding between HandyGo and you for any purpose concerning these Terms or the parties' obligations hereunder shall be brought exclusively in a federal or state court of competent jurisdiction sitting in the Philippines.</p>
-      <p class="mb-4">Any dispute arising out of or relating to these Terms, or your use of the Platform, shall first be attempted to be resolved through good faith negotiations between the parties. If the dispute cannot be resolved through negotiation within a reasonable period, the parties agree to consider mediation as a next step. If mediation is unsuccessful, the dispute shall be submitted to binding arbitration in accordance with the rules of a recognized arbitration body in the Philippines.</p>
-      <p class="mb-4">The arbitration shall be conducted by a single arbitrator, mutually agreed upon by the parties. The decision of the arbitrator shall be final and binding upon both parties. The costs of arbitration, including the arbitrator's fees, shall be shared equally by the parties, unless otherwise determined by the arbitrator. This clause is intended to provide an efficient and cost-effective means of resolving disputes.</p>
-      <p class="mb-4">You agree that, by entering into these Terms, you and HandyGo are each waiving the right to a trial by jury or to participate in a class action. All claims must be brought in the parties' individual capacity, and not as a plaintiff or class member in any purported class or representative proceeding.</p>
-      <p class="mb-4">This governing law and dispute resolution clause is crucial for ensuring that any legal matters are handled under a clear and consistent legal framework, providing predictability and fairness for both users and HandyGo. We aim to resolve all issues amicably, but this framework ensures a clear path for resolution if necessary.</p>
-    `
-  },
-  {
-    id: 9,
     title: "Changes to Terms and Platform",
     content: `
       <p class="mb-4">We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion. By continuing to access or use our Platform after any revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, you are no longer authorized to use the Platform.</p>
@@ -109,22 +127,128 @@ const termsContent = [
     `
   },
   {
-    id: 10,
-    title: "Miscellaneous Provisions and Contact Information",
+    id: 9,
+    title: "Copyright and Image Credits",
     content: `
-      <p class="mb-4"><strong>Entire Agreement:</strong> These Terms, together with the Privacy Policy and any other legal notices published by HandyGo on the Platform, constitute the entire agreement between you and HandyGo concerning the Platform. They supersede all prior or contemporaneous communications and proposals, whether oral, written, or electronic, between you and HandyGo with respect to the Platform.</p>
-      <p class="mb-4"><strong>Severability:</strong> If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect. The invalid or unenforceable provision shall be replaced by a valid and enforceable provision that most closely matches the intent of the original provision.</p>
-      <p class="mb-4"><strong>Waiver:</strong> No waiver of any term of these Terms shall be deemed a further or continuing waiver of such term or any other term, and HandyGo's failure to assert any right or provision under these Terms shall not constitute a waiver of such right or provision.</p>
-      <p class="mb-4"><strong>Assignment:</strong> These Terms, and any rights and licenses granted hereunder, may not be transferred or assigned by you, but may be assigned by HandyGo without restriction. Any attempted transfer or assignment in violation hereof shall be null and void.</p>
-      <p class="mb-4"><strong>Force Majeure:</strong> HandyGo shall not be liable for any failure to perform its obligations hereunder where such failure results from any cause beyond HandyGo's reasonable control, including, without limitation, mechanical, electronic, or communications failure or degradation.</p>
-      <p class="mb-4"><strong>Headings:</strong> The headings used in these Terms are for convenience only and shall not affect the interpretation of these Terms.</p>
-      <p class="mb-4"><strong>Contact Us:</strong> If you have any questions about these Terms, please contact us:</p>
-      <ul class="list-disc list-inside ml-4 mb-4">
-        <li>By email: <a href="mailto:support@handygo.com" class="text-sky-500 hover:underline">support@handygo.com</a></li>
-        <li>By visiting this page on our website: <a href="#" class="text-sky-500 hover:underline">www.handygo.com/contact</a></li>
-      </ul>
-      <p class="mb-4">We appreciate your understanding and cooperation in adhering to these Terms. Our aim is to provide a secure, efficient, and fair platform for everyone. Your feedback is always welcome as we continuously strive to improve our services and policies.</p>
-    `
+    <p class="mb-4"><strong>Copyright and Image Credits:</strong> All images displayed on the Platform are the copyright of their respective owners. HandyGo provides a full list of images used, along with links and credits to the original creators. Users are encouraged to review Sections 1 through 8 carefully; this should not take much time but is important for understanding your rights and obligations.</p>
+
+    <h3 class="mb-[-60px] text-sky-500">Proposition Page</h3>
+
+    <div class="flex flex-col">
+        <video class="inline w-full mr-2 mt-20" controls pause>
+          <source src="${proposition1}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+ 
+        <strong class="mt-2">Credit:</strong> <a href=" https://www.pexels.com/video/a-day-at-the-mall-1338598" target="_blank">Richarles Moral</a>
+    </div>
+    
+    <div class="flex flex-col">
+      <img src="${proposition2}" class="inline w-full h-full mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://www.bworldonline.com/banking-finance/2025/03/17/659539/paymongo-could-raise-fresh-capital-early-next-year/" target="_blank">BusinessWorld</a>
+    </div>
+
+     <div class="flex flex-col">
+      <img src="${proposition3}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://www.bworldonline.com/banking-finance/2025/03/17/659539/paymongo-could-raise-fresh-capital-early-next-year/" target="_blank">The Borgen Project</a>
+    </div>
+
+     <div class="flex flex-col">
+      <img src="${about1}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://philippinesesim.com/use-cell-phone/" target="_blank">philippinesesim</a>
+    </div>
+
+    <div class="flex flex-col">
+      <img src="${about2}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://www.lalamove.com/en-ph/newsroom/betis-furnituremakers-success-path" target="_blank">LalaMove</a>
+    </div>
+
+     <div class="flex flex-col">
+      <img src="${about3}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://hir.harvard.edu/overseas-filipino-workers-the-modern-day-heroes-of-the-philippines/ " target="_blank">Harvard Edu</a>
+    </div>
+
+     <div class="flex flex-col">
+      <img src="${about4}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://www.bworldonline.com/top-stories/2023/04/14/516613/filipino-workers-need-270-years-to-earn-1m/ " target="_blank">BusinessWorld</a>
+    </div>
+
+      <div class="flex flex-col">
+      <img src="${img1}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://www.wat-aire.com/services/plumbing-services-metro-manila/ " target="_blank">WAT-AIR TRADING</a>
+    </div>
+
+      <div class="flex flex-col">
+      <img src="${img2}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://www.adobomagazine.com/philippine-news/brand-business-two-months-after-odette-brigadangayala-helps-over-500-families-rebuild-their-homes/ " target="_blank">AdoboMagazine</a>
+    </div>
+
+      <div class="flex flex-col">
+      <img src="${img3}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://ensun.io/search/hvac/philippines " target="_blank">Ensun</a>
+    </div>
+
+      <div class="flex flex-col">
+      <img src="${img4}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://farmlandgrab.org/post/31730-philippines-kalap-s-agribusiness-ecosystem-is-a-system-of-dispossessing-farmers-and-abusing-agri-workers-uma " target="_blank">FarmLand</a>
+    </div>
+
+      <div class="flex flex-col">
+      <img src="${img5}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://southfumigation.com.ph/ " target="_blank">SouthFumigation</a>
+    </div>
+
+      <div class="flex flex-col">
+      <img src="${img6}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://asia.nikkei.com/location/east-asia/japan/filipino-housekeepers-japan-dream " target="_blank">Asia Nikkie</a>
+    </div>
+
+      <div class="flex flex-col">
+      <img src="${img7}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://metronewscentral.net/lifestyle/62-of-filipino-workers-use-ai-at-work-mdashsurvey " target="_blank">Metro News Central</a>
+    </div>
+
+    <h3 class="mt-10 mb-10 text-sky-500">Login Page</h3>
+
+    <div class="flex flex-col">
+      <img src="${img8}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://metronewscentral.net/lifestyle/62-of-filipino-workers-use-ai-at-work-mdashsurvey " target="_blank">Cengo</a>
+    </div>
+
+    <div class="flex flex-col">
+      <img src="${img9}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://metronewscentral.net/lifestyle/62-of-filipino-workers-use-ai-at-work-mdashsurvey " target="_blank">Visayan Electric Company</a>
+    </div>
+
+    <div class="flex flex-col">
+      <img src="${img10}" class="inline w-full h-100 mr-2"/>  
+ 
+        <strong class="mt-2">Credit:</strong> <a href="https://metronewscentral.net/lifestyle/62-of-filipino-workers-use-ai-at-work-mdashsurvey " target="_blank">Massage</a>
+    </div>
+
+    <p class="mb-4"><strong>Contact Us:</strong> If you have any questions about these Terms, please contact us:</p>
+    <ul class="list-disc list-inside ml-4 mb-4">
+      <li>By email: <a href="mailto:support@handygo.com" class="text-sky-500 hover:underline">support@handygo.com</a></li>
+      <li>By visiting this page on our website: <a href="#" class="text-sky-500 hover:underline">www.handygo.com/contact</a></li>
+    </ul>
+
+    <p class="mb-4">We appreciate your understanding and cooperation in adhering to these Terms. Our aim is to provide a secure, efficient, and fair platform for everyone. Your feedback is always welcome as we continuously strive to improve our services and policies.</p>
+  `
   }
 ]
 
@@ -183,7 +307,7 @@ function TermsCondition({ onClose }: TermsConditionProps) {
         </button>
 
         <div className="flex flex-col items-center justify-center py-8 border-b border-gray-200">
-          <h1 className="text-3xl font-semibold text-gray-800">
+          <h1 className="text-3xl font-medium text-gray-800">
             Terms and Services & Privacy Policy
           </h1>
           <p className="text-gray-500 mt-2">Please review all sections before accepting</p>
@@ -196,18 +320,16 @@ function TermsCondition({ onClose }: TermsConditionProps) {
                 <button
                   key={section.id}
                   onClick={() => setCurrentSection(index)}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 group ${
-                    currentSection === index
-                      ? "bg-sky-500 text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 group ${currentSection === index
+                    ? "bg-sky-500 text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-100"
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-start gap-3">
                       <span
-                        className={`text-sm font-medium ${
-                          currentSection === index ? "text-white" : "text-gray-400"
-                        }`}
+                        className={`text-sm font-medium ${currentSection === index ? "text-white" : "text-gray-400"
+                          }`}
                       >
                         {section.id}
                       </span>
@@ -217,11 +339,10 @@ function TermsCondition({ onClose }: TermsConditionProps) {
                     </div>
                     <ChevronRight
                       size={18}
-                      className={`transition-transform duration-300 ${
-                        currentSection === index
-                          ? "translate-x-1 text-white"
-                          : "opacity-0 group-hover:opacity-100"
-                      }`}
+                      className={`transition-transform duration-300 ${currentSection === index
+                        ? "translate-x-1 text-white"
+                        : "opacity-0 group-hover:opacity-100"
+                        }`}
                     />
                   </div>
                 </button>

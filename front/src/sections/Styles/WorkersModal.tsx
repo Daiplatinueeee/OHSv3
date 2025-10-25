@@ -111,8 +111,8 @@ interface Location {
 }
 
 const COMPANY_LOCATION = {
-  lat: 10.3125,
-  lng: 123.8924,
+  lat: 10.243302,
+  lng: 123.788994,
   name: "HandyGO Headquarters",
 }
 
@@ -684,9 +684,9 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
         date: formatDate(selectedDate),
         time: selectedTime
           ? new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString([], {
-              hour: "numeric",
-              minute: "2-digit",
-            })
+            hour: "numeric",
+            minute: "2-digit",
+          })
           : "Not specified",
         location: selectedLocation.name,
         distance: selectedLocation.distance.toFixed(1),
@@ -1029,11 +1029,10 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
                                 e.stopPropagation()
                                 handleBook(seller)
                               }}
-                              className={`px-6 py-2.5 rounded-full font-medium shadow-sm transition-all duration-200 ${
-                                seller.totalRating === 0 && seller.reviews === 0
+                              className={`px-6 py-2.5 rounded-full font-medium shadow-sm transition-all duration-200 ${seller.totalRating === 0 && seller.reviews === 0
                                   ? "bg-sky-500 text-white hover:bg-sky-600 shadow-lg"
                                   : "bg-sky-500 text-white hover:bg-sky-600"
-                              }`}
+                                }`}
                             >
                               {seller.totalRating === 0 && seller.reviews === 0 ? "Book First & Save!" : "Book Now"}
                             </button>
@@ -1206,9 +1205,9 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
                               <span className="text-sky-500 font-medium">
                                 {selectedTime.includes(":")
                                   ? new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString([], {
-                                      hour: "numeric",
-                                      minute: "2-digit",
-                                    })
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                  })
                                   : selectedTime}
                               </span>
                             ) : selectedTime === "custom" ? (
@@ -1443,9 +1442,9 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
                           <span className="font-medium">
                             {selectedTime
                               ? new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString([], {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                })
+                                hour: "numeric",
+                                minute: "2-digit",
+                              })
                               : "Not specified"}
                           </span>
                         </div>
@@ -1507,9 +1506,8 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
                     <button
                       onClick={handleClaimCoupon}
                       disabled={isCouponLoading}
-                      className={`px-6 py-2 bg-green-500 text-white rounded-full font-medium shadow-sm hover:bg-green-600 active:scale-95 transition-all duration-200 flex items-center gap-2 mx-auto mb-2 ${
-                        isCouponLoading ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                      className={`px-6 py-2 bg-green-500 text-white rounded-full font-medium shadow-sm hover:bg-green-600 active:scale-95 transition-all duration-200 flex items-center gap-2 mx-auto mb-2 ${isCouponLoading ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                     >
                       {isCouponLoading ? (
                         <>
@@ -1567,9 +1565,9 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
                         <span className="font-medium text-base">
                           {selectedTime
                             ? new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString([], {
-                                hour: "numeric",
-                                minute: "2-digit",
-                              })
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })
                             : "Not specified"}
                         </span>
                       </div>
@@ -1639,9 +1637,9 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
                       <span className="font-medium text-base">
                         {selectedTime
                           ? new Date(`2000-01-01T${selectedTime}`).toLocaleTimeString([], {
-                              hour: "numeric",
-                              minute: "2-digit",
-                            })
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })
                           : "Not specified"}
                       </span>
                     </div>
@@ -1729,11 +1727,10 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
               <button
                 onClick={handleBookNow}
                 disabled={!selectedLocation}
-                className={`px-6 py-2 rounded-full transition-colors ${
-                  selectedLocation
+                className={`px-6 py-2 rounded-full transition-colors ${selectedLocation
                     ? "bg-sky-600 text-white hover:bg-sky-700 shadow-sm hover:shadow-md"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 Book Now
               </button>
@@ -1746,9 +1743,8 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
               <button
                 onClick={handleConfirmBooking}
                 disabled={isSubmitting}
-                className={`px-8 py-3 bg-sky-500 text-white rounded-full font-medium shadow-sm ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700 hover:shadow-md"
-                }`}
+                className={`px-8 py-3 bg-sky-500 text-white rounded-full font-medium shadow-sm ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-sky-700 hover:shadow-md"
+                  }`}
               >
                 {isSubmitting ? (
                   <span className="flex items-center">
@@ -1762,9 +1758,8 @@ function WorkersModal({ isOpen, onClose, serviceDetails, staticSellers }: Worker
               <button
                 onClick={() => setConfirmationStep(false)}
                 disabled={isSubmitting}
-                className={`text-gray-500 hover:text-gray-700 transition-colors ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`text-gray-500 hover:text-gray-700 transition-colors ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 Wait, I want to review again
               </button>

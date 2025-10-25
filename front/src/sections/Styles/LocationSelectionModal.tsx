@@ -85,9 +85,9 @@ const LocationSelectionModal = ({
   const routePulseRef = useRef<any>(null)
 
   // Define Cebu City boundary parameters
-  const cebuCityCenterLat = 10.3178 // Approx. Ayala Center Cebu
-  const cebuCityCenterLng = 123.9054
-  const cebuCityRadiusMeters = 7000 // Approx. 7km radius
+  const cebuCityCenterLat = 10.243302
+  const cebuCityCenterLng = 123.788994
+  const cebuCityRadiusMeters = 30000
 
   // Utility function to check if a point is within a circle
   const isPointInCircle = (
@@ -141,55 +141,55 @@ const LocationSelectionModal = ({
     const defaultLocations = savedLocations.length
       ? savedLocations
       : [
-          {
-            id: "loc-1",
-            name: "Manhattan Home Service",
-            lat: 40.7831,
-            lng: -73.9712,
-            distance: calculateDistance(40.7831, -73.9712, companyLocation.lat, companyLocation.lng),
-            price: 85.5,
-          },
-          {
-            id: "loc-2",
-            name: "Brooklyn Home Service",
-            lat: 40.6782,
-            lng: -73.9442,
-            distance: calculateDistance(40.6782, -73.9442, companyLocation.lat, companyLocation.lng),
-            price: 75.25,
-          },
-          {
-            id: "loc-3",
-            name: "Queens Home Service",
-            lat: 40.7282,
-            lng: -73.7949,
-            distance: calculateDistance(40.7282, -73.7949, companyLocation.lat, companyLocation.lng),
-            price: 80.0,
-          },
-          {
-            id: "loc-4",
-            name: "Bronx Home Service",
-            lat: 40.8448,
-            lng: -73.8648,
-            distance: calculateDistance(40.8448, -73.8648, companyLocation.lat, companyLocation.lng),
-            price: 90.75,
-          },
-          {
-            id: "loc-5",
-            name: "Staten Island Service",
-            lat: 40.5795,
-            lng: -74.1502,
-            distance: calculateDistance(40.5795, -74.1502, companyLocation.lat, companyLocation.lng),
-            price: 95.5,
-          },
-          {
-            id: "loc-6",
-            name: "Jersey City Service",
-            lat: 40.7178,
-            lng: -74.0431,
-            distance: calculateDistance(40.7178, -74.0431, companyLocation.lat, companyLocation.lng),
-            price: 82.75,
-          },
-        ]
+        {
+          id: "loc-1",
+          name: "Naga City",
+          lat: 10.2084724,
+          lng: 123.7590963,
+          distance: calculateDistance(10.2084724, 123.7590963, companyLocation.lat, companyLocation.lng),
+          price: 200,
+        },
+        {
+          id: "loc-2",
+          name: "Toledo Cebu",
+          lat: 10.3833,
+          lng: 123.6500,
+          distance: calculateDistance(10.3833, 123.6500, companyLocation.lat, companyLocation.lng),
+          price: 500,
+        },
+        {
+          id: "loc-3",
+          name: "Carcar City Cebu",
+          lat: 10.1048,
+          lng: 123.6415,
+          distance: calculateDistance(10.1048, 123.6415, companyLocation.lat, companyLocation.lng),
+          price: 80.0,
+        },
+        {
+          id: "loc-4",
+          name: "Manipis Talisay Cebu",
+          lat: 10.3243,
+          lng: 123.7909,
+          distance: calculateDistance(10.3243, 123.7909, companyLocation.lat, companyLocation.lng),
+          price: 90.75,
+        },
+        {
+          id: "loc-5",
+          name: "Minglanilla Cebu",
+          lat: 10.2454,
+          lng: 123.7960,
+          distance: calculateDistance(10.2454, 123.7960, companyLocation.lat, companyLocation.lng),
+          price: 95.5,
+        },
+        {
+          id: "loc-6",
+          name: "Tubod Minglanilla",
+          lat: 10.2678,
+          lng: 123.7993,
+          distance: calculateDistance(10.2678, 123.7993, companyLocation.lat, companyLocation.lng),
+          price: 82.75,
+        },
+      ]
 
     const locationsWithIds = defaultLocations.map((loc) => {
       if (!loc.id) {
@@ -333,13 +333,13 @@ const LocationSelectionModal = ({
           locationToPin === userLocation
             ? userLocationIcon
             : L.icon({
-                iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
-                shadowSize: [41, 41],
-              })
+              iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+              shadowSize: [41, 41],
+            })
 
         const marker = L.marker([locationToPin.lat, locationToPin.lng], { icon: markerIcon })
           .addTo(mapRef.current)
@@ -1117,9 +1117,9 @@ const LocationSelectionModal = ({
         )}
       </div>
 
-      <div className="absolute top-4 left-4 w-90 max-h-[calc(100vh-200px)] bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/40 flex flex-col z-30 overflow-hidden">
+      <div className="absolute top-4 left-4 w-90 max-h-[calc(100vh-200px)] bg-white backdrop-blur-sm rounded-xl shadow-2xl border border-white/40 flex flex-col z-30 overflow-hidden">
         {/* Header with close button */}
-        <div className="p-4 flex justify-between items-center bg-white/95 backdrop-blur-sm border-b border-gray-100/50">
+        <div className="p-4 flex justify-between items-center bg-white backdrop-blur-sm border-b border-gray-100/50">
           <h2 className="text-lg font-medium text-gray-700">Select your service location</h2>
           <button
             onClick={onClose}
@@ -1188,21 +1188,19 @@ const LocationSelectionModal = ({
         {/* Tabs */}
         <div className="flex border-b border-gray-100/50">
           <button
-            className={`flex-1 py-2 px-4 font-medium rounded-t-lg ${
-              activeTab === "locations"
+            className={`flex-1 py-2 px-4 font-medium rounded-t-lg ${activeTab === "locations"
                 ? "bg-gray-50 text-gray-800"
                 : "bg-transparent text-gray-500 hover:bg-gray-50/50"
-            }`}
+              }`}
             onClick={() => setActiveTab("locations")}
           >
             Saved Locations
           </button>
           <button
-            className={`flex-1 py-2 px-4 font-medium rounded-t-lg flex items-center justify-center ${
-              activeTab === "travelTimes"
+            className={`flex-1 py-2 px-4 font-medium rounded-t-lg flex items-center justify-center ${activeTab === "travelTimes"
                 ? "bg-blue-50/70 text-blue-600"
                 : "bg-transparent text-gray-500 hover:bg-blue-50/30"
-            }`}
+              }`}
             onClick={() => {
               if (selectedMapLocation) {
                 setActiveTab("travelTimes")
@@ -1228,11 +1226,10 @@ const LocationSelectionModal = ({
               savedLocationsList.map((location) => (
                 <div
                   key={`saved-${location.id}`}
-                  className={`p-3 border-b border-gray-100/50 ${
-                    selectedMapLocation && selectedMapLocation.id === location.id
+                  className={`p-3 border-b border-gray-100/50 ${selectedMapLocation && selectedMapLocation.id === location.id
                       ? "bg-blue-50/70 rounded-lg my-1 mx-1"
                       : "hover:bg-gray-50/70 rounded-lg my-1 mx-1"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start">
                     <div className="flex-1 cursor-pointer" onClick={() => selectLocationItem(location)}>
@@ -1287,63 +1284,63 @@ const LocationSelectionModal = ({
               ))
             )
           ) : // Travel Times Content
-          selectedMapLocation ? (
-            <div className="p-4">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <h5 className="text-sm font-medium mb-3 border-b pb-2">Estimated Travel Times</h5>
+            selectedMapLocation ? (
+              <div className="p-4">
+                <div className="bg-white p-4">
+                  <h5 className="text-sm font-medium mb-3 border-b pb-2">Estimated Travel Times</h5>
 
-                <div className="space-y-3">
-                  <div className="bg-green-50 p-3 rounded-lg border border-green-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                        Light Traffic
-                      </span>
-                      <span className="font-medium text-green-600">{selectedMapLocation.lightTrafficTime} min</span>
+                  <div className="space-y-3">
+                    <div className="bg-green-50 p-3 rounded-lg border border-green-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                          Light Traffic
+                        </span>
+                        <span className="font-medium text-green-600">{selectedMapLocation.lightTrafficTime} min</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">20% faster than normal conditions</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">20% faster than normal conditions</p>
-                  </div>
 
-                  <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2"></div>
-                        Medium Traffic
-                      </span>
-                      <span className="font-medium text-yellow-600">{selectedMapLocation.midTrafficTime} min</span>
+                    <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2"></div>
+                          Medium Traffic
+                        </span>
+                        <span className="font-medium text-yellow-600">{selectedMapLocation.midTrafficTime} min</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Normal traffic conditions</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Normal traffic conditions</p>
-                  </div>
 
-                  <div className="bg-orange-50 p-3 rounded-lg border border-orange-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-orange-500 mr-2"></div>
-                        Heavy Traffic
-                      </span>
-                      <span className="font-medium text-orange-600">{selectedMapLocation.heavyTrafficTime} min</span>
+                    <div className="bg-orange-50 p-3 rounded-lg border border-orange-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-orange-500 mr-2"></div>
+                          Heavy Traffic
+                        </span>
+                        <span className="font-medium text-orange-600">{selectedMapLocation.heavyTrafficTime} min</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">50% slower than normal conditions</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">50% slower than normal conditions</p>
-                  </div>
 
-                  <div className="bg-red-50 p-3 rounded-lg border border-red-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700 flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
-                        Weather Issues
-                      </span>
-                      <span className="font-medium text-red-600">{selectedMapLocation.weatherIssuesTime} min</span>
+                    <div className="bg-red-50 p-3 rounded-lg border border-red-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                          Weather Issues
+                        </span>
+                        <span className="font-medium text-red-600">{selectedMapLocation.weatherIssuesTime} min</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">80% slower due to adverse weather</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">80% slower due to adverse weather</p>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="p-4 text-center text-gray-500">
-              <p>Select a location on the map to view estimated travel times.</p>
-            </div>
-          )}
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                <p>Select a location on the map to view estimated travel times.</p>
+              </div>
+            )}
         </div>
 
         {/* Footer */}
@@ -1369,11 +1366,10 @@ const LocationSelectionModal = ({
             <button
               onClick={saveLocation}
               disabled={!selectedMapLocation}
-              className={`w-full py-3 rounded-xl transition-all font-medium ${
-                selectedMapLocation
+              className={`w-full py-3 rounded-xl transition-all font-medium ${selectedMapLocation
                   ? "bg-blue-500 text-white hover:bg-blue-600 shadow-sm hover:shadow-md"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
-              }`}
+                }`}
             >
               Confirm Location
             </button>

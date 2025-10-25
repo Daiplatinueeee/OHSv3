@@ -857,11 +857,26 @@ export const updateBookingStatusOnly = async (req, res) => {
         break
 
       case "declined":
-        notificationTitle = "Booking Declined"
-        notificationMessage = `Your booking for ${updatedBooking.productName} was declined.${
-          updatedBooking.declineReason ? ` Reason: ${updatedBooking.declineReason}` : ""
-        }`
-        break
+        notificationTitle = "Booking Declined";
+
+        notificationMessage = `Your booking for "${updatedBooking.productName}" has been declined.`;
+
+        if (updatedBooking.declineReason && updatedBooking.declineReason.trim() !== "") {
+          notificationMessage += `\n\nDecline Reason: ${updatedBooking.declineReason}`;
+        }
+
+        await UserActivity.create({
+          userId: req.userId,
+          action: "Declined Booking",
+          category: "booking",
+          description: `Declined booking for "${updatedBooking.productName}". Reason: ${updatedBooking.declineReason || "No reason provided."}`,
+          status: "failed",
+          link: `/bookings/${updatedBooking._id}`,
+          relatedEntityId: updatedBooking._id,
+          relatedEntityType: "Booking",
+        });
+        console.log("User activity logged: Declined Booking");
+        break;
 
       case "active":
         notificationTitle = "Booking Active"
@@ -1795,9 +1810,8 @@ export const updateProviderReview = async (req, res) => {
       userId: providerId,
       title: "New Review Received",
       type: "success",
-      message: `${customerName} rated your service for ${booking.productName} on ${formattedDate} at ${formattedTime} with ${providerRating} star(s). ${
-        providerReview ? "Review: " + providerReview : ""
-      }`,
+      message: `${customerName} rated your service for ${booking.productName} on ${formattedDate} at ${formattedTime} with ${providerRating} star(s). ${providerReview ? "Review: " + providerReview : ""
+        }`,
       status: "unread",
       link: `/provider/bookings/${booking._id}`,
     })
@@ -2047,7 +2061,7 @@ export const getAllCompletedBookings = async (req, res) => {
       // ✅ Construct provider name (handle businessName)
       const providerName = provider
         ? provider.businessName?.trim() ||
-          `${provider.firstName || ""} ${provider.middleName ? provider.middleName + " " : ""}${provider.lastName || ""}`.trim()
+        `${provider.firstName || ""} ${provider.middleName ? provider.middleName + " " : ""}${provider.lastName || ""}`.trim()
         : b.providerName || "Unknown Provider";
 
       return {

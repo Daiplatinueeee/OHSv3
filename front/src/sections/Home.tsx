@@ -218,7 +218,7 @@ function Home() {
           )
 
           const existingProduct = tempCombinedProducts.find((p) => p.name === service.mainCategory)
-          if (!existingProduct && service.mainCategory !== "Suggest a Service") {
+          if (!existingProduct && service.mainCategory) {
             console.log("Home.tsx: Creating new main category product:", service.mainCategory)
             tempCombinedProducts.push({
               id: service.id,
@@ -281,21 +281,6 @@ function Home() {
           tempCombinedProducts.map((p) => p.name),
         )
         console.log("Home.tsx: Final combined subcategories:", Object.keys(tempCombinedSubcategories))
-
-        const suggestServiceIndex = tempCombinedProducts.findIndex((p) => p.name === "Suggest a Service")
-        if (suggestServiceIndex !== -1) {
-          const suggestService = tempCombinedProducts.splice(suggestServiceIndex, 1)[0]
-          tempCombinedProducts.push(suggestService)
-        } else {
-          tempCombinedProducts.push({
-            id: "suggest-service",
-            name: "Suggest a Service",
-            price: 0,
-            category: "Community",
-            image: "/placeholder.svg?height=48&width=48",
-            description: "Can't find what you're looking for? Suggest a new service and help us grow our offerings!",
-          })
-        }
 
         setCombinedProducts(tempCombinedProducts)
         setCombinedServiceSubcategories(tempCombinedSubcategories)

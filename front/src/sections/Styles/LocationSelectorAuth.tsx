@@ -71,9 +71,9 @@ export default function LocationSelector({
   const allMarkersLayerRef = useRef<VectorLayer<VectorSource> | null>(null)
 
   // Define Cebu City boundary parameters
-  const cebuCityCenterLat = 10.3178 // Approx. Ayala Center Cebu
-  const cebuCityCenterLng = 123.9054
-  const cebuCityRadiusMeters = 100000 // Approx. 7km radius
+  const cebuCityCenterLat = 10.243302 // Approx. Ayala Center Cebu
+  const cebuCityCenterLng = 123.788994
+  const cebuCityRadiusMeters = 30000 // Approx. 7km radius
 
   // Stable callback for reverse geocoding (now imported)
   const memoizedReverseGeocode = useCallback(reverseGeocode, [])

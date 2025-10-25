@@ -36,8 +36,8 @@ interface CustomerRequirementsProps {
 
 // Define companyLocation outside the component to ensure a stable reference
 const companyLocation = {
-  lat: 10.3125,
-  lng: 123.8924,
+  lat: 10.243302,
+  lng: 123.788994,
 }
 
 export default function CustomerRequirements({ onClose, minimalMode = false, accountType }: CustomerRequirementsProps) {
@@ -471,7 +471,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="first-name" className="mb-1 block text-sm font-medium">
-                      First Name (optional)
+                      First Name 
                     </label>
                     <input
                       id="first-name"
@@ -484,7 +484,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                   <div>
                     <label htmlFor="last-name" className="mb-1 block text-sm font-medium">
-                      Last Name (optional)
+                      Last Name 
                     </label>
                     <input
                       id="last-name"
@@ -497,7 +497,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                   <div>
                     <label htmlFor="middle-name" className="mb-1 block text-sm font-medium">
-                      Middle Name (optional)
+                      Middle Name 
                     </label>
                     <input
                       id="middle-name"
@@ -510,7 +510,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                   <div>
                     <label htmlFor="email" className="mb-1 block text-sm font-medium">
-                      Email Address (optional)
+                      Email Address 
                     </label>
                     <input
                       id="email"
@@ -524,7 +524,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                   <div>
                     <label htmlFor="mobile-number" className="mb-1 block text-sm font-medium">
-                      Mobile Number (optional)
+                      Mobile Number 
                     </label>
                     <input
                       id="mobile-number"
@@ -537,7 +537,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                   <div>
                     <label htmlFor="gender" className="mb-1 block text-sm font-medium">
-                      Gender (optional)
+                      Gender 
                     </label>
                     <select
                       id="gender"
@@ -558,7 +558,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                 <div className="space-y-4">
                   {/* Location Selection */}
                   <div>
-                    <h4 className="text-sm font-medium mb-2 text-gray-700">Select Your Location (optional)</h4>
+                    <h4 className="text-sm font-medium mb-2 text-gray-700">Select Your Location </h4>
                     <button
                       type="button"
                       onClick={() => setShowLocationModal(true)}
@@ -612,7 +612,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                   <div>
                     <div>
                       <label htmlFor="password" className="mb-1 block text-sm font-medium">
-                        Password (optional)
+                        Password 
                       </label>
                       <input
                         id="password"
@@ -626,7 +626,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                     <div className="mt-4">
                       <label htmlFor="confirm-password" className="mb-1 block text-sm font-medium">
-                        Confirm Password (optional)
+                        Confirm Password 
                       </label>
                       <input
                         id="confirm-password"
@@ -745,7 +745,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                         {/* Front ID */}
                         <div className="mb-4">
                           <label htmlFor="front-id" className="mb-2 block text-sm font-medium">
-                            Front of ID (optional)
+                            Front of ID 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${frontIdPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
@@ -791,7 +791,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                         {/* Back ID */}
                         <div className="mb-4">
                           <label htmlFor="back-id" className="mb-2 block text-sm font-medium">
-                            Back of ID (optional)
+                            Back of ID 
                           </label>
                           <div
                             className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${backIdPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
@@ -875,7 +875,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                         <div className="space-y-4">
                           <div>
                             <label htmlFor="first-name" className="mb-1 block text-sm font-medium">
-                              First Name (optional)
+                              First Name 
                             </label>
                             <input
                               id="first-name"
@@ -888,7 +888,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                           <div>
                             <label htmlFor="last-name" className="mb-1 block text-sm font-medium">
-                              Last Name (optional)
+                              Last Name 
                             </label>
                             <input
                               id="last-name"
@@ -901,7 +901,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                           <div>
                             <label htmlFor="middle-name" className="mb-1 block text-sm font-medium">
-                              Middle Name (optional)
+                              Middle Name 
                             </label>
                             <input
                               id="middle-name"
@@ -914,7 +914,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                           <div>
                             <label htmlFor="gender" className="mb-1 block text-sm font-medium">
-                              Gender (optional)
+                              Gender 
                             </label>
                             <select
                               id="gender"
@@ -932,7 +932,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                           <div>
                             <label htmlFor="email" className="mb-1 block text-sm font-medium">
-                              Email Address (optional)
+                              Email Address 
                             </label>
                             <input
                               id="email"
@@ -946,7 +946,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                           <div>
                             <label htmlFor="password" className="mb-1 block text-sm font-medium">
-                              Password (optional)
+                              Password 
                             </label>
                             <input
                               id="password"
@@ -960,7 +960,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                           <div>
                             <label htmlFor="confirm-password" className="mb-1 block text-sm font-medium">
-                              Confirm Password (optional)
+                              Confirm Password 
                             </label>
                             <input
                               id="confirm-password"
@@ -974,7 +974,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
                           <div>
                             <label htmlFor="mobile-number" className="mb-1 block text-sm font-medium">
-                              Mobile Number (optional)
+                              Mobile Number 
                             </label>
                             <input
                               id="mobile-number"
@@ -1080,7 +1080,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                           {/* Bio */}
                           <div className="mb-6">
                             <label htmlFor="bio" className="mb-2 block text-sm font-medium">
-                              Bio (optional)
+                              Bio 
                             </label>
                             <textarea
                               id="bio"
@@ -1095,7 +1095,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                           {/* Cover Photo */}
                           <div className="mb-4">
                             <label htmlFor="cover-photo" className="mb-2 block text-sm font-medium">
-                              Cover Photo (optional)
+                              Cover Photo 
                             </label>
                             <div
                               className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors h-40 ${coverPhotoPreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
@@ -1130,7 +1130,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                           {/* Profile Picture */}
                           <div className="mb-4">
                             <label htmlFor="profile-picture" className="mb-2 block text-sm font-medium">
-                              Profile Picture (optional)
+                              Profile Picture 
                             </label>
                             <div
                               className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${profilePicturePreview ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-gray-400"}`}
@@ -1166,7 +1166,7 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
                         {/* Right side - Profile Preview */}
                         <div>
                           <h4 className="text-lg font-medium mb-4 text-gray-700">
-                            Secret Question & Answer (optional)
+                            Secret Question & Answer 
                           </h4>
                           <div className="bg-white border rounded-lg p-6 space-y-4">
                             <div>

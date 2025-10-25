@@ -210,33 +210,7 @@ const EighthSection: React.FC<EighthSectionProps> = ({ onCardSelect }) => {
             {metric.serviceName !== "Create an account to start booking your favorite services!" && (
               <p className="text-sm opacity-75 mb-1 tracking-widest">Approximate price</p>
             )}
-
-            <div className="absolute top-0 left-115 z-40 group">
-              {/* Tooltip */}
-              <div className="absolute bottom-full mb-2 left-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div
-                  className="bg-white text-black text-xs font-medium px-3 py-2 rounded-lg shadow-md border border-gray-200 max-w-[360px] whitespace-normal break-words leading-relaxed select-text"
-                >
-                  Layout (1) by philippinesesim , Link : https://philippinesesim.com/use-cell-phone/ <br />
-                  <br />
-                  Layout (2) by LalaMove , Link : https://www.lalamove.com/en-ph/newsroom/betis-furnituremakers-success-path <br />
-                  <br />
-                  Layout (3) by Harvard Edu , Link : https://hir.harvard.edu/overseas-filipino-workers-the-modern-day-heroes-of-the-philippines/ <br />
-                  <br />
-
-                  Layout (4) by BusinessWorld , Link : https://www.bworldonline.com/top-stories/2023/04/14/516613/filipino-workers-need-270-years-to-earn-1m/
-                  <div className="absolute top-full left-4 w-0 h-0 border-l-6 border-r-6 border-t-6 border-l-transparent border-r-transparent border-t-white"></div>
-                </div>
-              </div>
-
-              {/* Icon */}
-              <div className="bg-transparent text-white p-2 rounded-full duration-300 flex items-center justify-center cursor-default">
-                <span className="text-lg font-bold">&copy;</span>
-              </div>
-            </div>
-
             <p className="text-3xl sm:text-4xl font-medium text-green-400">{metric.startingPrice}</p>
-
           </div>
         </div>
 

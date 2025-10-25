@@ -288,7 +288,7 @@ export const registerAccount = async (req, res) => {
           back: getOptionalValue(idDocuments.back),
         }
         : null,
-      status: minimalMode ? "active" : "pending",
+      status: minimalMode ? "pending" : "pending",
       isVerified: minimalMode ? true : false,
     }
 
@@ -465,7 +465,7 @@ export const registerCustomer = async (req, res) => {
           back: getOptionalValue(idDocuments.back),
         }
         : null,
-      status: minimalMode ? "active" : "pending",
+      status: minimalMode ? "pending" : "pending",
       isVerified: minimalMode ? true : false,
     }
 
@@ -595,7 +595,7 @@ export const registerCOO = async (req, res) => {
       propertyDamage: getOptionalValue(propertyDamage),
       businessInterruption: getOptionalValue(businessInterruption),
       bondingInsurance: getOptionalValue(bondingInsurance),
-      status: minimalMode ? "active" : "pending",
+      status: minimalMode ? "pending" : "pending",
       isVerified: minimalMode ? true : false,
     }
 
@@ -1467,7 +1467,7 @@ export const bulkAddProviders = async (req, res) => {
         !provider.lastName ||
         !provider.email ||
         !provider.location ||
-        !provider.age ||
+        !provider.gender ||
         !provider.providerNumber) {
         console.log("[v0] Provider", i, "has missing required fields")
         invalidProviders.push({

@@ -373,7 +373,7 @@ function ProvidersManagement() {
     const wb = XLSX.utils.book_new()
 
     // ✅ Updated headers: use separate first and last name columns
-    const headers = ["Provider ID", "First Name", "Last Name", "Email", "Location", "Age", "Provider Number"]
+    const headers = ["Provider ID", "First Name", "Last Name", "Email", "Location", "Gender", "Provider Number"]
 
     // ✅ Updated sample row matching new headers
     const sampleRow = {
@@ -382,7 +382,7 @@ function ProvidersManagement() {
       "Last Name": "Doe",
       Email: "john.doe@example.com",
       Location: "New York",
-      Age: "35",
+      Gender: "Male",
       "Provider Number": "09xx-xxxx-xxx",
     }
 
@@ -417,7 +417,7 @@ function ProvidersManagement() {
           email: p.email,
           company: p.company,
           location: typeof p.location === "object" ? p.location.name || "" : p.location,
-          age: p.age,
+          gender: p.gender,
           providerNumber: p.providerNumber,
           status: p.status,
           avatar: p.avatar,
@@ -536,7 +536,7 @@ function ProvidersManagement() {
         email: provider.email,
         company: provider.company,
         location: provider.location,
-        age: provider.age,
+        gender: provider.gender,
         providerNumber: provider.providerNumber,
         status: provider.status,
         avatar: provider.avatar,
@@ -1041,7 +1041,7 @@ function ProvidersManagement() {
                         <div>• Last Name</div>
                         <div>• Email</div>
                         <div>• Location</div>
-                        <div>• Age</div>
+                        <div>• Gender</div>
                         <div>• Provider Number</div>
                       </div>
                       <p className="text-xs text-gray-500 mt-3">

@@ -170,6 +170,43 @@ export default function Bookings() {
   const [, setBusinessInterruptionPreview] = useState<string | null>(null)
   const [, setBondingInsurancePreview] = useState<string | null>(null)
   const [, setEditedDetails] = useState<Partial<UserDetails>>({})
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch(`http://localhost:3000/api/upload/image`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image")
+      }
+
+      const data = await response.json()
+      setNewService({
+        ...newService,
+        image: data.url,
+      })
+
+      e.target.value = ""
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      alert("Failed to upload image. Please try again.")
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
 
   const [subscription, setSubscription] = useState<SubscriptionInfo>({
     tier: "free",
@@ -200,7 +237,7 @@ export default function Bookings() {
   const [itemsPerPage] = useState(8)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isTerminationModalOpen, setIsTerminationModalOpen] = useState(false)
-  const [terminationStep, setTerminationStep] = useState(1) // 1: Strategic, 2: Legal, 3: Financial, 4: Scheduled
+  const [terminationStep, setTerminationStep] = useState(1)
   const [serviceToTerminate, setServiceToTerminate] = useState<Service | null>(null)
   const [terminationReason, setTerminationReason] = useState("")
   const [legalReviewNotes, setLegalReviewNotes] = useState("")
@@ -1085,15 +1122,35 @@ export default function Bookings() {
                 <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
                   Image URL
                 </label>
-                <input
-                  type="text"
-                  id="image"
-                  name="image"
-                  value={newService.image || ""}
-                  onChange={handleNewServiceInputChange}
-                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-gray-900"
-                  placeholder="Enter image URL or leave blank for default"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="image"
+                    name="image"
+                    value={newService.image || ""}
+                    onChange={handleNewServiceInputChange}
+                    className="flex-1 px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-gray-900"
+                    placeholder="Enter image URL or upload one below"
+                  />
+                  <div className="relative">
+                    <input
+                      type="file"
+                      id="imageUpload"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={isUploadingImage}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById("imageUpload")?.click()}
+                      disabled={isUploadingImage}
+                      className="px-4 py-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap font-medium"
+                    >
+                      {isUploadingImage ? "Uploading..." : "Upload Image"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2057,7 +2114,7 @@ export default function Bookings() {
     const startTime = Date.now()
     setTerminationStartTime(startTime)
     setIsTerminationScheduled(true)
-    setTerminationTimer(Math.ceil(TERMINATION_DURATION_MS / 1000)) // Set initial timer in seconds
+    setTerminationTimer(Math.ceil(TERMINATION_DURATION_MS / 10000)) // Set initial timer in seconds
     setTerminationStep(4) // Move to scheduled view
     // setIsTerminationModalOpen(false); // Keep modal open to show timer
 
@@ -2224,7 +2281,7 @@ export default function Bookings() {
           setIsSuccessModalOpen(true)
           setSuccessMessage(`Service"${service.name}" was terminated.`)
         } else {
-          setTerminationTimer(Math.ceil(remaining / 1000))
+          setTerminationTimer(Math.ceil(remaining / 10000))
         }
       }
     }
@@ -2286,7 +2343,7 @@ export default function Bookings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
+    <div className="min-h-screen bg-white font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
       <style>{keyframes}</style>
       {/* Floating Dock */}
       <div className="sticky top-0 z-40 flex">
@@ -3042,7 +3099,7 @@ export default function Bookings() {
           <DialogPanel className="mx-auto max-w-md w-full bg-white rounded-2xl overflow-hidden shadow-xl">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
-                <DialogTitle className="text-xl font-semibold text-gray-900">Decline Booking</DialogTitle>
+                <DialogTitle className="text-xl font-medium text-gray-900">Decline Booking</DialogTitle>
                 <button onClick={() => setIsDeclineModalOpen(false)} className="text-gray-400 hover:text-gray-500">
                   <X className="h-5 w-5" />
                 </button>
@@ -3072,14 +3129,14 @@ export default function Bookings() {
                   <div className="flex space-x-3">
                     <button
                       onClick={() => setIsDeclineModalOpen(false)}
-                      className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors rounded-full"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={() => handleDeclineBooking(selectedBooking._id || selectedBooking._id)}
                       disabled={!declineReason.trim() || isLoading}
-                      className={`flex-1 px-4 py-2.5 text-white rounded-lg transition-colors ${!declineReason.trim()
+                      className={`flex-1 px-4 py-2.5 text-white transition-colors rounded-full ${!declineReason.trim()
                         ? "bg-gray-400 cursor-not-allowed"
                         : isLoading && processingBookingId === (selectedBooking._id || selectedBooking._id)
                           ? "bg-red-400 cursor-wait"
@@ -3087,7 +3144,7 @@ export default function Bookings() {
                         }`}
                     >
                       {isLoading && processingBookingId === (selectedBooking._id || selectedBooking._id) ? (
-                        <span className="flex items-center justify-center">
+                        <span className="flex items-center justify-center rounded-full">
                           <svg
                             className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
                             xmlns="http://www.w3.org/2000/svg"
@@ -3103,7 +3160,7 @@ export default function Bookings() {
                               strokeWidth="4"
                             ></circle>
                             <path
-                              className="opacity-75"
+                              className="opacity-75 rounded-full"
                               fill="currentColor"
                               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                             ></path>
@@ -3307,7 +3364,7 @@ export default function Bookings() {
                         <span className="font-semibold">{serviceToTerminate.name}</span>.
                       </p>
                       <p className="text-sm text-gray-500 mt-1">
-                        This process requires a 2-day countdown, during which the termination can be cancelled.
+                        This process requires a 1 month countdown, during which the termination can be cancelled.
                       </p>
                     </div>
                   )}
@@ -3354,7 +3411,7 @@ export default function Bookings() {
                     <div className="space-y-4">
                       <div>
                         <label htmlFor="terminationReason" className="block text-sm font-medium text-gray-700 mb-1">
-                          Reason for Termination (COO)
+                          Reason for Termination
                         </label>
                         <select
                           id="terminationReason"

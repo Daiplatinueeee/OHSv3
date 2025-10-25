@@ -1,5 +1,7 @@
+"use client"
+
 import type React from "react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { X, AlertTriangle, XCircle, Clock, CheckCircle2, AlertCircle } from "lucide-react"
 import CustomerRequirements from "./Styles/CustomerRequirements"
 import COORequirements from "./Styles/COORequirements"
@@ -7,7 +9,9 @@ import OTP from "../sections/Styles/OTP"
 import TermsCondition from "../sections/Styles/TermsCondition"
 import Cookies from "js-cookie"
 import ForgotPassword from "../sections/Styles/ForgotPassword"
-import logo1 from "@/assets/Home/undraw_traveling_c18z.png"
+import logo1 from "@/assets/undraw_my-current-location_tudq.png"
+import ReCAPTCHA from "./Styles/Recaptcha"
+import { verifyRecaptchaClient } from "../../../server/Recaptcha/Recaptcha"
 
 const keyframes = `
 @keyframes fadeIn {
@@ -140,19 +144,19 @@ export default function LoginAlt() {
   const [showPasswordField, setShowPasswordField] = useState(false)
   const [saveCredentials, setSaveCredentials] = useState(false)
   const [activeSlide, setActiveSlide] = useState(0)
-  const [showModal, setShowModal] = useState(false) // State for Select Account Type modal
+  const [showModal, setShowModal] = useState(false)
   const [accountType, setAccountType] = useState<string | null>(null)
   const [registrationStep, setRegistrationStep] = useState<"type" | "requirements">("type")
   const [showPendingWarning, setShowPendingWarning] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [showOtpModal, setShowOtpModal] = useState(false)
-  const [showTermsModal, setShowTermsModal] = useState(false) // State for TermsCondition modal
-  const [showUnsuccessModal, setShowUnsuccessModal] = useState(false) // State for unsuccess modal
-  const [unsuccessMessage, setUnsuccessMessage] = useState("") // Message for unsuccess modal
-  const [showSuccessModal, setShowSuccessModal] = useState(false) // State for success modal
-  const [successMessage, setSuccessMessage] = useState("") // Message for success modal
-  const [termsAccepted, setTermsAccepted] = useState(() => Cookies.get("terms_accepted") === "true") // New state to track terms acceptance
-  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false) // New state for ForgotPassword modal
+  const [showTermsModal, setShowTermsModal] = useState(false)
+  const [showUnsuccessModal, setShowUnsuccessModal] = useState(false)
+  const [unsuccessMessage, setUnsuccessMessage] = useState("")
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [termsAccepted, setTermsAccepted] = useState(() => Cookies.get("terms_accepted") === "true")
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false)
 
   const [, setValidId] = useState<File | null>(null)
   const [, setSalaryCertificate] = useState<File | null>(null)
@@ -162,13 +166,17 @@ export default function LoginAlt() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // New states for customer registration flow
   const [showFillAllPrompt, setShowFillAllPrompt] = useState(false)
   const [showUnverifiedWarning, setShowUnverifiedWarning] = useState(false)
   const [customerMinimalMode, setCustomerMinimalMode] = useState(false)
 
   const [countdown, setCountdown] = useState(0)
   const [isCountdownActive, setIsCountdownActive] = useState(false)
+
+  const [showRecaptcha, setShowRecaptcha] = useState(false)
+  const [isRecaptchaVerifying, setIsRecaptchaVerifying] = useState(false)
+  const [verifiedResponseData, setVerifiedResponseData] = useState<any | null>(null)
+  const recaptchaRef = useRef<any>(null)
 
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -199,12 +207,11 @@ export default function LoginAlt() {
         })
 
         const data = await response.json()
-        console.log("Server response data (password login):", data) // Debugging log
+        console.log("Server response data (password login):", data)
 
         if (response.ok) {
           const user = data.user
 
-          // ✅ --- STATUS CHECKS START ---
           if (user.status === "pending") {
             setUnsuccessMessage("Your account is still pending approval. Please wait for confirmation from our team.")
             setShowUnsuccessModal(true)
@@ -215,7 +222,7 @@ export default function LoginAlt() {
 
           if (user.status === "declined") {
             setUnsuccessMessage(
-              `Your account has been declined.\nReason: ${user.declinedReason || "No reason provided."}`
+              `Your account has been declined.\nReason: ${user.declinedReason || "No reason provided."}`,
             )
             setShowUnsuccessModal(true)
             setTimeout(() => setShowUnsuccessModal(false), 5000)
@@ -224,13 +231,10 @@ export default function LoginAlt() {
           }
 
           if (user.status === "suspended") {
-            const {
-              suspensionDuration,
-              suspensionReason,
-            } = user
+            const { suspensionDuration, suspensionReason } = user
 
             setUnsuccessMessage(
-              `Your account is suspended.\n\nDuration: ${suspensionDuration || "N/A"} days\nReason: ${suspensionReason || "N/A"}`
+              `Your account is suspended.\n\nDuration: ${suspensionDuration || "N/A"} days\nReason: ${suspensionReason || "N/A"}`,
             )
 
             setShowUnsuccessModal(true)
@@ -238,67 +242,11 @@ export default function LoginAlt() {
             setLoading(false)
             return
           }
-          // ✅ --- STATUS CHECKS END ---
 
-          // Continue normal login flow
-          setSuccessMessage(
-            "Please take a moment to review our policies, terms of service, and important safety guidelines to prevent any unnecessary incidents and ensure a smooth experience."
-          )
-          setShowSuccessModal(true)
-          setIsCountdownActive(true)
-          setCountdown(20)
-
-          // Store user data and token separately
-          localStorage.setItem("user", JSON.stringify(user))
-          if (data.token) {
-            localStorage.setItem("token", data.token)
-            console.log("Token saved to localStorage:", data.token)
-          } else {
-            console.warn("No token received from password login response.")
-          }
-
-          // --- SAVE CREDENTIALS ---
-          if (saveCredentials) {
-            localStorage.setItem("savedEmail", email)
-            localStorage.setItem("savedPassword", password)
-          } else {
-            localStorage.removeItem("savedEmail")
-            localStorage.removeItem("savedPassword")
-          }
-
-          // Redirect by account type
-          const userAccountType = user.accountType
-          let redirectPath = "/"
-          switch (userAccountType) {
-            case "customer":
-              redirectPath = "/"
-              break
-            case "coo":
-              redirectPath = "/coo"
-              break
-            case "admin":
-              redirectPath = "/admin"
-              break
-            case "provider":
-              redirectPath = "/provider"
-              break
-            default:
-              redirectPath = "/"
-          }
-
-          // Countdown redirect
-          const timer = setInterval(() => {
-            setCountdown((prev) => {
-              if (prev <= 1) {
-                clearInterval(timer)
-                setIsCountdownActive(false)
-                setShowSuccessModal(false)
-                window.location.href = redirectPath
-                return 0
-              }
-              return prev - 1
-            })
-          }, 1000)
+          setVerifiedResponseData({ user, token: data.token })
+          setShowRecaptcha(true)
+          setLoading(false)
+          return
         } else {
           setUnsuccessMessage(data.message || "Login failed. Please check your credentials.")
           setShowUnsuccessModal(true)
@@ -344,56 +292,86 @@ export default function LoginAlt() {
     }
   }
 
+  const handleRecaptchaSuccess = useCallback(
+    async (token: string) => {
+      setIsRecaptchaVerifying(true)
+      setError("")
+      try {
+        const result = await verifyRecaptchaClient(token)
+
+        if (result.success) {
+          setSuccessMessage(
+            "Please take a moment to review our policies, terms of service, and important safety guidelines to prevent any unnecessary incidents and ensure a smooth experience.",
+          )
+          setShowSuccessModal(true)
+          setIsCountdownActive(true)
+          setCountdown(20)
+
+          if (verifiedResponseData) {
+            localStorage.setItem("user", JSON.stringify(verifiedResponseData.user))
+            if (verifiedResponseData.token) {
+              localStorage.setItem("token", verifiedResponseData.token)
+              console.log("Token saved to localStorage:", verifiedResponseData.token)
+            }
+          }
+
+          const userAccountType = verifiedResponseData?.user?.accountType
+          let redirectPath = "/"
+          switch (userAccountType) {
+            case "customer":
+              redirectPath = "/"
+              break
+            case "coo":
+              redirectPath = "/coo"
+              break
+            case "admin":
+              redirectPath = "/admin"
+              break
+            case "provider":
+              redirectPath = "/provider"
+              break
+            default:
+              redirectPath = "/"
+          }
+
+          const timer = setInterval(() => {
+            setCountdown((prev) => {
+              if (prev <= 1) {
+                clearInterval(timer)
+                setIsCountdownActive(false)
+                setShowSuccessModal(false)
+                setShowRecaptcha(false)
+                window.location.href = redirectPath
+                return 0
+              }
+              return prev - 1
+            })
+          }, 1000)
+        } else {
+          setError(result.message || "reCAPTCHA verification failed.")
+          recaptchaRef.current?.reset()
+        }
+      } catch (err: any) {
+        console.error("Error during reCAPTCHA verification:", err)
+        setError(`Network error during reCAPTCHA verification: ${err.message}`)
+        recaptchaRef.current?.reset()
+      } finally {
+        setIsRecaptchaVerifying(false)
+      }
+    },
+    [verifiedResponseData],
+  )
+
+  const handleRecaptchaError = useCallback(() => {
+    setError("reCAPTCHA encountered an error. Please try again.")
+    setIsRecaptchaVerifying(false)
+    recaptchaRef.current?.reset()
+  }, [])
 
   const handleFinalLoginSuccess = useCallback((responsePayload: { user: any; token?: string }) => {
-    setSuccessMessage(
-      "OTP verified successfully! Please take a moment to review our policies, terms of service, and important safety guidelines to prevent any unnecessary incidents and ensure a smooth experience.",
-    )
-    setShowSuccessModal(true)
-    setIsCountdownActive(true)
-    setCountdown(20)
-
-    // Store user data and token separately
-    localStorage.setItem("user", JSON.stringify(responsePayload.user))
-    if (responsePayload.token) {
-      localStorage.setItem("token", responsePayload.token)
-      console.log("Token saved to localStorage from OTP verification:", responsePayload.token) // Debugging log
-    } else {
-      console.warn("No token received from OTP verification response.") // Debugging log
-    }
-    setShowOtpModal(false) // Close OTP modal
-
-    const userAccountType = responsePayload.user.accountType
-    let redirectPath = "/"
-    switch (userAccountType) {
-      case "customer":
-        redirectPath = "/"
-        break
-      case "coo":
-        redirectPath = "/coo"
-        break
-      case "admin":
-        redirectPath = "/admin"
-        break
-      case "provider":
-        redirectPath = "/provider"
-        break
-      default:
-        redirectPath = "/"
-    }
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          setIsCountdownActive(false)
-          setShowSuccessModal(false)
-          window.location.href = redirectPath
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+    setVerifiedResponseData(responsePayload)
+    setShowRecaptcha(true)
+    setShowOtpModal(false)
   }, [])
 
   const handleResendOtp = useCallback(async (email: string) => {
@@ -426,7 +404,7 @@ export default function LoginAlt() {
 
   const handleGoBackFromUnverifiedWarning = () => {
     setShowUnverifiedWarning(false)
-    setShowFillAllPrompt(true) // Go back to the previous prompt
+    setShowFillAllPrompt(true)
   }
 
   const handleConfirmSkipUnverified = () => {
@@ -457,7 +435,6 @@ export default function LoginAlt() {
   }, [showModal])
 
   useEffect(() => {
-    // This effect now correctly manages body overflow based on any modal being open
     if (
       showModal ||
       showTermsModal ||
@@ -465,9 +442,10 @@ export default function LoginAlt() {
       showPendingWarning ||
       showUnsuccessModal ||
       showSuccessModal ||
-      showFillAllPrompt || // Include new modals
-      showUnverifiedWarning || // Include new modals
-      showForgotPasswordModal // Include ForgotPassword modal
+      showFillAllPrompt ||
+      showUnverifiedWarning ||
+      showForgotPasswordModal ||
+      showRecaptcha // Added showRecaptcha to modal state management
     ) {
       document.body.style.overflow = "hidden"
     } else {
@@ -486,7 +464,8 @@ export default function LoginAlt() {
     showFillAllPrompt,
     showUnverifiedWarning,
     showForgotPasswordModal,
-  ]) // Include all modal states
+    showRecaptcha, // Added showRecaptcha to dependency array
+  ])
 
   useEffect(() => {
     setValidId(null)
@@ -557,11 +536,9 @@ export default function LoginAlt() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault()
-      // Only proceed if form is valid (same validation as button)
       if (email && (!showPasswordField || password) && !loading) {
-        // Create a synthetic mouse event to match the existing handleLogin signature
         const syntheticEvent = {
-          preventDefault: () => { },
+          preventDefault: () => {},
         } as React.MouseEvent<HTMLButtonElement>
         handleLogin(syntheticEvent)
       }
@@ -570,19 +547,18 @@ export default function LoginAlt() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Include animation keyframes */}
       <style>{keyframes}</style>
 
       {/* Left side with image and description */}
       <div className="relative w-full md:w-1/2 overflow-hidden justify-center items-center p-2">
         <div className="relative h-full">
-          {/* Slideshow */}
           <div className="relative h-full w-full rounded-full">
             {slideshowImages.map((image, index) => (
               <div
                 key={index}
-                className={`absolute inset-0 transition-opacity duration-1000 ${activeSlide === index ? "opacity-100" : "opacity-0"
-                  }`}
+                className={`absolute inset-0 transition-opacity duration-1000 ${
+                  activeSlide === index ? "opacity-100" : "opacity-0"
+                }`}
               >
                 <img src={image.src || "/placeholder.svg"} className="object-cover w-full h-full rounded-br-[200px]" />
               </div>
@@ -595,7 +571,7 @@ export default function LoginAlt() {
       <div className="w-full md:w-1/2 p-8 flex flex-col justify-center max-w-md mx-auto font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]">
         <div className="mb-10 flex flex-col justify-center items-center">
           <div className="flex flex-col items-center gap-1 mt-6 text-gray-600">
-            <img src={logo1 || "/placeholder.svg"} width={190} height={190} className="mt-[-25px]" />
+            <img src={logo1 || "/placeholder.svg"} width={190} height={190} className="mt-[-50px] mb-5 mr-6" />
           </div>
           <h2 className="text-3xl font-medium text-sky-500">Welcome Back</h2>
           <p className="text-[14px] mt-2 mb-[-30px] text-gray-500">
@@ -614,7 +590,7 @@ export default function LoginAlt() {
               placeholder="example@mail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={handleKeyDown} // Added Enter key handler
+              onKeyDown={handleKeyDown}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
             />
             <button
@@ -624,10 +600,10 @@ export default function LoginAlt() {
               {showPasswordField ? "Use Magic Link Instead" : "Use Password Instead"}
             </button>
           </div>
-          {/* Password field with animation */}
           <div
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${showPasswordField ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-              }`}
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              showPasswordField ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+            }`}
           >
             <div className="space-y-1.5 pt-4">
               <label htmlFor="password" className="text-sm font-medium">
@@ -639,7 +615,7 @@ export default function LoginAlt() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={handleKeyDown} // Added Enter key handler
+                onKeyDown={handleKeyDown}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
               />
             </div>
@@ -691,48 +667,7 @@ export default function LoginAlt() {
               {error}
             </div>
           )}
-          <div className="relative flex items-center justify-center text-xs text-gray-500 my-4 ">
-            <span className="bg-white px-2 mt-10">or sign in with</span>
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t"></span>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-2 rounded-full text-sm font-medium border border-gray-300 py-2 hover:bg-gray-50 transition-colors hover:cursor-pointer hover:border-sky-500 hover:text-sky-500 duration-300">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M18.1711 8.36788H17.5V8.33329H10V11.6666H14.6789C14.0454 13.6063 12.1909 15 10 15C7.23858 15 5 12.7614 5 10C5 7.23858 7.23858 5 10 5C11.2843 5 12.4565 5.48078 13.3569 6.28118L15.8211 3.81705C14.2709 2.32555 12.2539 1.42857 10 1.42857C5.25329 1.42857 1.42857 5.25329 1.42857 10C1.42857 14.7467 5.25329 18.5714 10 18.5714C14.7467 18.5714 18.5714 14.7467 18.5714 10C18.5714 9.43363 18.5214 8.88263 18.4257 8.34933L18.1711 8.36788Z"
-                  fill="#FFC107"
-                />
-                <path
-                  d="M2.62891 6.12416L5.5049 8.23416C6.25462 6.38155 7.9907 5 10.0003 5C11.2846 5 12.4568 5.48078 13.3572 6.28118L15.8214 3.81705C14.2712 2.32555 12.2542 1.42857 10.0003 1.42857C6.75891 1.42857 3.95498 3.39048 2.62891 6.12416Z"
-                  fill="#FF3D00"
-                />
-                <path
-                  d="M9.99968 18.5714C12.2018 18.5714 14.1761 17.7053 15.7129 16.2643L12.9975 13.9857C12.1368 14.6394 10.9979 15 9.99968 15C7.81968 15 5.97168 13.6161 5.33168 11.6875L2.49268 13.8946C3.80332 16.6768 6.64368 18.5714 9.99968 18.5714Z"
-                  fill="#4CAF50"
-                />
-                <path
-                  d="M18.1711 8.36795H17.5V8.33337H10V11.6667H14.6789C14.3746 12.5902 13.8055 13.3973 13.0578 13.9867L13.0589 13.986L15.7743 16.2646C15.6057 16.4196 18.5714 14.1667 18.5714 10.0001C18.5714 9.4337 18.5214 8.8827 18.4257 8.3494L18.1711 8.36795Z"
-                  fill="#1976D2"
-                />
-              </svg>
-              Google
-            </button>
-            <button className="flex items-center justify-center gap-2 rounded-full text-sm font-medium border border-gray-300 py-2 hover:bg-gray-50 transition-colors hover:cursor-not-allowed">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M14.0756 10.5C14.0654 9.25225 14.6607 8.10938 15.6725 7.4165C15.0908 6.54163 14.1432 5.97488 13.1166 5.9165C12.0287 5.80925 10.8854 6.56188 10.3332 6.56188C9.74844 6.56188 8.7666 5.94275 7.91094 5.94275C6.42969 5.96675 4.82656 7.07613 4.82656 9.34275C4.82656 10.0166 4.94219 10.7155 5.17344 11.4395C5.49531 12.4155 6.74219 15.2249 8.04219 15.1916C8.84844 15.1749 9.39844 14.6124 10.4332 14.6124C11.4322 14.6124 11.9412 15.1916 12.8412 15.1916C14.1578 15.1749 15.2791 12.6082 15.5834 11.6291C13.8537 10.8207 14.0756 10.5498 14.0756 10.5Z"
-                  fill="black"
-                />
-                <path
-                  d="M12.3084 4.6875C12.8209 4.06838 13.1178 3.25325 13.0459 2.5C12.2709 2.5835 11.5584 2.9585 11.0334 3.56675C10.5459 4.12263 10.2178 4.9585 10.3053 5.6875C11.1428 5.7335 11.7959 5.30663 12.3084 4.6875Z"
-                  fill="black"
-                />
-              </svg>
-              Apple ID
-            </button>
-          </div>
+
           <div className="text-center text-sm text-gray-500 mt-4">
             Don't have account?{" "}
             <button
@@ -744,7 +679,7 @@ export default function LoginAlt() {
                   setShowTermsModal(true)
                 }
               }}
-              className="font-medium text-black hover:cursor-pointer hover:text-sky-500 duration-300"
+              className="font-medium hover:cursor-pointer text-sky-500 hover:text-gray-500 duration-300"
             >
               Create Account
             </button>
@@ -756,10 +691,62 @@ export default function LoginAlt() {
       <OTP
         email={email}
         onClose={() => setShowOtpModal(false)}
-        onOtpVerifiedSuccess={handleFinalLoginSuccess} // Changed prop name and function
+        onOtpVerifiedSuccess={handleFinalLoginSuccess}
         visible={showOtpModal}
-        onResendOtp={handleResendOtp} // Pass the new resend function
+        onResendOtp={handleResendOtp}
       />
+
+      {showRecaptcha && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
+            style={{ opacity: 1 }}
+          />
+
+          <div
+            className="relative bg-white/90 backdrop-blur-md rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transition-all duration-300 transform"
+            style={{
+              opacity: 1,
+              transform: "scale(1)",
+              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <button
+              onClick={() => {
+                setShowRecaptcha(false)
+                setVerifiedResponseData(null)
+              }}
+              className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 z-10"
+            >
+              <X size={20} />
+              <span className="sr-only">Close</span>
+            </button>
+
+            <div className="px-6 py-8 bg-white">
+              <div className="text-center">
+                <h3 className="text-xl font-medium text-gray-700 text-center mb-4">Complete Security Check</h3>
+                <p className="text-center text-gray-600 mb-6">Please complete the reCAPTCHA challenge to proceed.</p>
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+                  onSuccess={handleRecaptchaSuccess}
+                  onError={handleRecaptchaError}
+                />
+                {isRecaptchaVerifying && (
+                  <p className="text-center text-sm text-gray-500 mt-4">Verifying reCAPTCHA...</p>
+                )}
+                {error && (
+                  <p
+                    className={`text-center text-sm mt-4 ${error.includes("sent") ? "text-green-500" : "text-red-500"}`}
+                  >
+                    {error}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -772,7 +759,7 @@ export default function LoginAlt() {
                 setShowModal(false)
                 setRegistrationStep("type")
                 setAccountType(null)
-                setTermsAccepted(false) // Reset terms acceptance on modal close
+                setTermsAccepted(false)
               }}
               className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 z-10"
             >
@@ -787,15 +774,16 @@ export default function LoginAlt() {
                   <button
                     onClick={() => {
                       if (termsAccepted) {
-                        setShowFillAllPrompt(true) // Show the new prompt first
+                        setShowFillAllPrompt(true)
                       } else {
                         setShowTermsModal(true)
                       }
                     }}
-                    disabled={!termsAccepted} // Disabled if terms not accepted
+                    disabled={!termsAccepted}
                     className={`flex flex-col items-center justify-center p-6 border-2 rounded-xl transition-all w-[13rem] cursor-pointer
-                ${termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
-                      }`}
+                ${
+                  termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
+                }`}
                   >
                     <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
                       <svg
@@ -823,10 +811,11 @@ export default function LoginAlt() {
                       setAccountType("coo")
                       setRegistrationStep("requirements")
                     }}
-                    disabled={!termsAccepted} // Disabled if terms not accepted
+                    disabled={!termsAccepted}
                     className={`flex flex-col items-center justify-center p-6 border-2 rounded-xl transition-all w-[13rem] cursor-pointer
-                ${termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
-                      }`}
+                ${
+                  termsAccepted ? "hover:border-sky-400 hover:bg-sky-50" : "opacity-50 cursor-not-allowed bg-gray-100"
+                }`}
                   >
                     <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
                       <svg
@@ -879,17 +868,14 @@ export default function LoginAlt() {
         </div>
       )}
 
-      {/* Swift UI / Apple-inspired Status Modal */}
       {showPendingWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop with blur effect */}
           <div
             className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
             style={{ opacity: modalVisible ? 1 : 0 }}
             onClick={closeStatusModal}
           />
 
-          {/* Modal card with Apple-inspired design */}
           <div
             className="relative bg-white/90 backdrop-blur-md rounded-2xl max-w-md w-full overflow-hidden transition-all duration-300 transform"
             style={{
@@ -898,12 +884,10 @@ export default function LoginAlt() {
               boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
             }}
           >
-            {/* Status icon at top */}
             <div className={`w-full flex justify-center pt-8 pb-2`}>
               <div className={`rounded-full p-4 bg-${statusContent.color}-50`}>{statusContent.icon}</div>
             </div>
 
-            {/* Content */}
             <div className="px-6 pb-6 pt-2">
               <h3 className="text-xl font-semibold text-center mb-2 font-['SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif]">
                 {statusContent.title}
@@ -913,7 +897,6 @@ export default function LoginAlt() {
                 {statusContent.description}
               </p>
 
-              {/* Apple-style buttons */}
               <div className="space-y-3">
                 <button
                   onClick={() => (window.location.href = "mailto:support@handygo.com")}
@@ -934,37 +917,33 @@ export default function LoginAlt() {
         </div>
       )}
 
-      {/* Render TermsCondition Modal */}
       {showTermsModal && (
         <TermsCondition
           onClose={(accepted: boolean) => {
-            setShowTermsModal(false) // Close the terms modal
+            setShowTermsModal(false)
             if (accepted) {
-              Cookies.set("terms_accepted", "true", { expires: 365 }) // Store for 1 year
+              Cookies.set("terms_accepted", "true", { expires: 365 })
               setSuccessMessage(
                 "Thank you for participating in our system! We wish you the best and a wonderful time on our platform.",
               )
-              setShowSuccessModal(true) // Show the success modal
-              setTermsAccepted(true) // Set terms as accepted
-              // After a short delay, open the account type modal
+              setShowSuccessModal(true)
+              setTermsAccepted(true)
               setTimeout(() => {
-                setShowSuccessModal(false) // Dismiss success modal
-                setShowModal(true) // Open the account type modal
-              }, 1500) // Adjust delay as needed
+                setShowSuccessModal(false)
+                setShowModal(true)
+              }, 1500)
             } else {
-              // If terms were not accepted (i.e., Cancel was clicked)
-              Cookies.remove("terms_accepted") // Remove the cookie if terms are not accepted
+              Cookies.remove("terms_accepted")
               setUnsuccessMessage(
                 "Sorry for making you dislike our terms and services. You cannot find a website just like us.",
               )
-              setShowUnsuccessModal(true) // Show the unsuccess modal
-              setTermsAccepted(false) // Ensure terms are not accepted
+              setShowUnsuccessModal(true)
+              setTermsAccepted(false)
             }
           }}
         />
       )}
 
-      {/* Unsuccess Modal (based on Transaction.tsx success modal) */}
       {showUnsuccessModal && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center justify-center p-4"
@@ -987,11 +966,10 @@ export default function LoginAlt() {
               </h3>
 
               <div className="text-gray-600 mb-6" style={{ animation: "fadeIn 0.5s ease-out 0.2s both" }}>
-                {unsuccessMessage.split('\n').map((line, index) => (
+                {unsuccessMessage.split("\n").map((line, index) => (
                   <p key={index}>{line}</p>
                 ))}
               </div>
-
 
               <button
                 onClick={() => setShowUnsuccessModal(false)}
@@ -1041,10 +1019,11 @@ export default function LoginAlt() {
                     setCountdown(0)
                   }}
                   disabled={isCountdownActive}
-                  className={`flex-1 px-6 py-3 rounded-full font-medium transition-all duration-200 ${isCountdownActive
-                    ? "bg-gray-400 text-white cursor-not-allowed"
-                    : "bg-sky-500 text-white hover:bg-sky-600 active:scale-95"
-                    }`}
+                  className={`flex-1 px-6 py-3 rounded-full font-medium transition-all duration-200 ${
+                    isCountdownActive
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-sky-500 text-white hover:bg-sky-600 active:scale-95"
+                  }`}
                 >
                   {isCountdownActive ? `Continue (${countdown}s)` : "Continue"}
                 </button>
@@ -1055,7 +1034,6 @@ export default function LoginAlt() {
                     setIsCountdownActive(false)
                     setCountdown(0)
 
-                    // Get user data and redirect immediately
                     const userItem = localStorage.getItem("user")
                     const userData = userItem && userItem !== "undefined" ? JSON.parse(userItem) : {}
                     const userAccountType = userData.accountType
@@ -1090,7 +1068,6 @@ export default function LoginAlt() {
         </div>
       )}
 
-      {/* New: Fill All Requirements Prompt Modal */}
       {showFillAllPrompt && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-md font-['SF_Pro_Display',-apple-system,BlinkMacSystemFont,sans-serif]"
@@ -1191,7 +1168,6 @@ export default function LoginAlt() {
                 If you skip verification, your account will remain unverified, which has the following limitations:
               </p>
               <div className="grid md:grid-cols-2 gap-8 mb-8">
-                {/* Left Column - Limitations */}
                 <div className="bg-amber-50 p-6 rounded-xl border border-amber-100">
                   <h4 className="font-medium text-gray-800 mb-4 flex items-center text-lg border-b pb-3 border-amber-200">
                     <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
@@ -1231,7 +1207,6 @@ export default function LoginAlt() {
                   </ul>
                 </div>
 
-                {/* Right Column - Example Account */}
                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
                   <h4 className="font-medium text-gray-800 mb-4 flex items-center text-lg border-b pb-3 border-gray-200">
                     <AlertCircle className="h-5 w-5 mr-2 text-gray-500" />
@@ -1291,7 +1266,6 @@ export default function LoginAlt() {
         </div>
       )}
 
-      {/* Forgot Password Modal */}
       <ForgotPassword visible={showForgotPasswordModal} onClose={() => setShowForgotPasswordModal(false)} />
     </div>
   )

@@ -1,22 +1,22 @@
 import { LayoutDashboard, UploadCloud, ShieldCheck, Tag, CloudUpload, Brain } from 'lucide-react';
 
 import customer1 from '../assets/default-avatar-profile-icon-social-600nw-1913928688.png';
-import customerbg1 from '../assets/proposition/team photo/jv.jpg';
+import customerbg1 from '../assets/kim.jpg';
 
 import customer2 from '../assets/default-avatar-profile-icon-social-600nw-1913928688.png';
-import customerbg2 from '../assets/proposition/team photo/kath.jpg';
+import customerbg2 from '../assets/kat.jpg';
 
 import customer3  from '../assets/default-avatar-profile-icon-social-600nw-1913928688.png';
-import customerbg3 from '../assets/proposition/team photo/kc.jpg';
+import customerbg3 from '../assets/bens.jpg';
 
 import customer4 from '../assets/default-avatar-profile-icon-social-600nw-1913928688.png';
-import customerbg4 from '../assets/proposition/team photo/waris.jpg';
+import customerbg4 from '../assets/waris.jpg';
 
 import customer5 from '../assets/default-avatar-profile-icon-social-600nw-1913928688.png';
-import customerbg5 from '../assets/proposition/team photo/kyle.jpg';
+import customerbg5 from '../assets/jv.jpg';
 
 import customer6  from '../assets/default-avatar-profile-icon-social-600nw-1913928688.png';
-import customerbg6 from '../assets/Terms/20.jpg';
+import customerbg6 from '../assets/unsa.jpg';
 
 import about1 from '../assets/Terms/21.jpg';
 import about2 from '../assets/Terms/23.jpg';
@@ -29,6 +29,13 @@ import benifit3 from '../assets/Terms/11.jpg';
 import benifit4 from '../assets/Terms/10.jpg';
 import benifit5 from '../assets/Terms/12.jpg';
 import benifit6 from '../assets/Terms/1.jpg';
+
+import feature1 from '../assets/features/final1.mp4'
+import feature2 from '../assets/features/final2.mp4'
+import feature3 from '../assets/features/final3.mp4'
+import feature4 from '../assets/features/final4.mp4'
+import feature5 from '../assets/features/final5.mp4'
+import feature6 from '../assets/features/final6.mp4'
 
 export interface Benefit {
     id: number;
@@ -203,7 +210,7 @@ export const aboutHandyGo = [
         id: 3,
         title: "READY WHEN YOU ARE",
         subtitle: "24/7 AVAILABILITY",
-        description: "The 'Go' in HandyGo signifies our readiness. We're prepared to mobilize at a moment's notice, adapting to your production needs regardless of timeline or complexity.",
+        description: "While our platform operates 24/7, actual service availability depends on the company and the specific services you are looking for",
         image: about3,
         bgColor: "bg-sky-50",
         accentColor: "text-sky-500"
@@ -212,7 +219,7 @@ export const aboutHandyGo = [
         id: 4,
         title: "SIMPLICITY IN COMPLEXITY",
         subtitle: "SEAMLESS SOLUTIONS",
-        description: "Our name reflects our approach to production challenges. We take complex production requirements and make them handy – simple, manageable, and achievable.",
+        description: "Our name reflects our approach to production challenges. We take complex production requirements and make them handy, simple, manageable, and achievable.",
         image: about4,
         bgColor: "bg-pink-50",
         accentColor: "text-pink-500"
@@ -295,7 +302,7 @@ export const systemFeatures = [
     description:
       "A modern and unique navigation system that replaces the usual navbar and sidebar. Giving users a cleaner, more intuitive interface.",
     video:
-      "https://cdn.pixabay.com/vimeo/479559144/UI%20-%2047941.mp4?width=640&hash=abc123def456ghi789",
+      feature1,
   },
   {
     icon: UploadCloud,
@@ -303,7 +310,7 @@ export const systemFeatures = [
     description:
       "Add multiple service providers at once with our hassle-free bulk upload feature. Saving time and improving company efficiency.",
     video:
-      "https://cdn.pixabay.com/vimeo/484017267/Data%20Upload%20-%2048401.mp4?width=640&hash=xyz987654321abc",
+      feature2,
   },
   {
     icon: ShieldCheck,
@@ -311,7 +318,7 @@ export const systemFeatures = [
     description:
       "Powered by Google reCAPTCHA for enhanced system security. Keeping the platform safe from spam, bots, and unauthorized activity.",
     video:
-      "https://cdn.pixabay.com/vimeo/529533910/Digital%20Security%20-%2068318.mp4?width=640&hash=a1b2c3d4e5f6g7h8i9j0k",
+      feature3,
   },
   {
     icon: Tag,
@@ -319,7 +326,7 @@ export const systemFeatures = [
     description:
       "Engage users with exclusive coupon codes for discounts and special offers. Making every booking more rewarding.",
     video:
-      "https://cdn.pixabay.com/vimeo/527438842/Promo%20-%2067087.mp4?width=640&hash=promo123hash456",
+      feature4,
   },
   {
     icon: CloudUpload,
@@ -327,14 +334,14 @@ export const systemFeatures = [
     description:
       "Integrated with Vercel Blob for secure, efficient image uploading and online storage. Ensuring smooth media management.",
     video:
-      "https://cdn.pixabay.com/vimeo/527438875/Database%20-%2067088.mp4?width=640&hash=storagehash999",
+      feature5,
   },
   {
     icon: Brain,
     title: "AI-Powered Assistance",
     description:
-      "Built with DeepSeek R1 for advanced AI integration. Offering intelligent insights, automation, and a smarter user experience.",
+      "Built with Gemma 3 4B for AI integration. Offering smart service, main Category and subcategory placement",
     video:
-      "https://cdn.pixabay.com/vimeo/480626496/Artificial%20Intelligence%20-%2048166.mp4?width=640&hash=ai123deep456seek",
+      feature6,
   },
 ];
