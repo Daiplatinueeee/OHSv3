@@ -64,15 +64,8 @@ const BookingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "active", "ongoing", "cancelled", "completed", "declined"],
+      enum: ["pending", "active", "ongoing", "cancelled", "completed"],
       default: "pending",
-    },
-
-    declineReason: {
-      type: String,
-      trim: true,
-      maxlength: [200, "Decline reason cannot exceed 200 characters"],
-      default: "",
     },
     autoCancelDate: {
       type: Date,

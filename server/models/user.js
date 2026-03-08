@@ -118,6 +118,7 @@ const userSchema = new mongoose.Schema(
     },
     teamSize: {
       type: String,
+      enum: ["1-5", "6-10", "11-25", "26-50", "51-100", "101-500", "500+"],
     },
     companyNumber: {
       type: String,
