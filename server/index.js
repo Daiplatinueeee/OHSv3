@@ -99,6 +99,10 @@ import { createReport, getAllReports, updateReportStatus } from "./controller/re
 import { saveSubscription, getSubscription } from "./controller/subscriptionController.js"
 import { saveAdvertisement, showAdvertisement } from "./controller/advertiseController.js"
 
+import dns from "node:dns/promises";
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
+
 dotenv.config()
 
 const app = express()

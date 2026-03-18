@@ -15,7 +15,7 @@ import {
 import LocationSelector from "./LocationSelectorAuth"
 import ImagePopup from "../Styles/ImagePopup"
 
-const initialSavedLocations: Location[] = []
+const initialSavedLocations: Location[] = [] // typed as local Location, not browser Location
 
 interface Location {
   name: string
@@ -25,6 +25,7 @@ interface Location {
   price?: number
   id?: string
   zipCode?: string
+  isUserLocation?: boolean
 }
 
 interface CustomerRequirementsProps {
@@ -1742,22 +1743,17 @@ export default function CustomerRequirements({ onClose, minimalMode = false, acc
 
         {/* Location selection modal */}
         {showLocationModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/20" onClick={() => setShowLocationModal(false)}></div>
-            <div className="relative bg-white rounded-xl w-full max-w-3xl max-h-[80vh] overflow-auto p-4 z-10">
-              <LocationSelector
-                isOpen={showLocationModal}
-                onClose={() => setShowLocationModal(false)}
-                onSelectLocation={(location) => {
-                  handleLocationSelect(location)
-                  setShowLocationModal(false)
-                }}
-                companyLocation={companyLocation}
-                savedLocations={initialSavedLocations}
-                previousLocation={selectedLocation}
-              />
-            </div>
-          </div>
+          <LocationSelector
+            isOpen={showLocationModal}
+            onClose={() => setShowLocationModal(false)}
+            onSelectLocation={(location) => {
+              handleLocationSelect(location)
+              setShowLocationModal(false)
+            }}
+            companyLocation={companyLocation}
+            savedLocations={initialSavedLocations}
+            previousLocation={selectedLocation}
+          />
         )}
       </div>
 
