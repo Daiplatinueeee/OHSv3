@@ -20,6 +20,36 @@ import {
   sellers,
   products as staticProducts,
 } from "../sections/Home-data"
+// Category descriptions for both static and AI-generated categories
+const serviceCategoryDescriptions: Record<string, string> = {
+  "Plumbing Services": "Essential water and drainage system services including repairs, installations, and maintenance.",
+  "Handyman Services": "General home repair and maintenance services covering multiple trades.",
+  "Home Cleaning Services": "Comprehensive cleaning solutions from regular maintenance to deep cleaning.",
+  "Pest Control Services": "Professional pest management services targeting common household pests.",
+  "Landscaping Services": "Garden and outdoor space design, maintenance, and enhancement services.",
+  "Massage Services": "Therapeutic and relaxation massage services including traditional Filipino healing practices.",
+  "Roofing Services": "Roof installation, repair, and maintenance services designed for Philippine weather.",
+  "Interior Design": "Professional interior design and decoration services for beautiful living spaces.",
+  "Technology Services": "Home and office technology installation, repair, and setup services.",
+  "Automotive Services": "Vehicle maintenance, repair, and detailing services.",
+  "Childcare Services": "Professional care services for children, elderly, and pets.",
+  "Electrical Services": "Licensed electrical work including installations, repairs, and safety inspections.",
+  "Air Conditioning Services": "Essential cooling system services for the tropical Philippine climate.",
+  "Security Services": "Home and business security solutions including surveillance and access control.",
+  "Appliance Services": "Repair and maintenance services for household appliances.",
+  "Construction & Renovation": "Building and renovation services for Philippine homes.",
+  "Water Services": "Water system installation, maintenance, and quality services.",
+  "Laundry Services": "Professional laundry and garment care services.",
+  "Moving Services": "Relocation and moving services for households and businesses.",
+  "Event Services": "Complete event planning and execution services for Filipino celebrations.",
+  "Health & Wellness": "Home-based health and wellness services for Filipino families.",
+  "Pet Services": "Professional care, grooming, and wellness services for your beloved pets.",
+  "Beauty & Grooming": "Personal care and grooming services delivered right to your door.",
+  "Tutoring & Education": "Academic support and educational services for learners of all ages.",
+  "Fitness & Sports": "Professional fitness coaching and sports training services.",
+  "Photography Services": "Professional photography and videography for events and personal use.",
+  "Music & Arts": "Creative lessons and services for music, art, and performing arts.",
+}
 import SuggestServiceModal from "../sections/Styles/SuggestServiceModal"
 import { io } from "socket.io-client"
 
@@ -220,13 +250,16 @@ function Home() {
           const existingProduct = tempCombinedProducts.find((p) => p.name === service.mainCategory)
           if (!existingProduct && service.mainCategory) {
             console.log("Home.tsx: Creating new main category product:", service.mainCategory)
+            const categoryDescription =
+              serviceCategoryDescriptions[service.mainCategory as keyof typeof serviceCategoryDescriptions] ||
+              `Professional ${service.mainCategory.toLowerCase()} services available in your area.`
             tempCombinedProducts.push({
               id: service.id,
               name: service.mainCategory,
               price: service.price,
               category: service.mainCategory,
               image: service.image || "/placeholder.svg?height=48&width=48",
-              description: `Explore services related to ${service.mainCategory}.`,
+              description: categoryDescription,
               cooId: service.cooId,
               totalRating: service.totalRating,
               totalReviews: service.totalReviews,
@@ -496,7 +529,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/nvidia.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/c/c8/Logo_of_Giant_Hypermarket.svg"
                     alt="Nvidia Logo"
                     height="14"
                     width="auto"
@@ -506,7 +539,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/column.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Logo_Banco_Ciudad.svg"
                     alt="Column Logo"
                     height="16"
                     width="auto"
@@ -515,7 +548,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/github.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Radio_10_logo.svg"
                     alt="GitHub Logo"
                     height="16"
                     width="auto"
@@ -524,7 +557,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/nike.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Yes_Bank_Logo_in_2024.png"
                     alt="Nike Logo"
                     height="20"
                     width="auto"
@@ -533,7 +566,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Logo_Banco_Ciudad.svg"
                     alt="Lemon Squeezy Logo"
                     height="20"
                     width="auto"
@@ -542,7 +575,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/laravel.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Celcom_logo.svg"
                     alt="Laravel Logo"
                     height="16"
                     width="auto"
@@ -551,7 +584,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/lilly.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/6/68/Logo_of_Filmfare.svg"
                     alt="Lilly Logo"
                     height="28"
                     width="auto"
@@ -561,7 +594,7 @@ function Home() {
                 <div className="flex">
                   <img
                     className="mx-auto h-10 w-fit dark:invert"
-                    src="https://html.tailus.io/blocks/customers/openai.svg"
+                    src="https://upload.wikimedia.org/wikipedia/commons/b/b6/HDMI_Logo_High_Resolution.svg"
                     alt="OpenAI Logo"
                     height="24"
                     width="auto"

@@ -27,7 +27,7 @@ export const createService = async (req, res, io) => {
       aiData = null
     }
 
-    let mainCategory = "Uncategorized Services"
+    let mainCategory = ""
     let subCategory = name
     let isValidService = true
     let invalidReason = ""
@@ -37,7 +37,7 @@ export const createService = async (req, res, io) => {
     if (aiData) {
       isValidService = aiData.isValid
       if (isValidService) {
-        mainCategory = aiData.mainCategory || mainCategory
+        mainCategory = aiData.mainCategory || ""
         subCategory = aiData.subCategory || subCategory
         workersNeeded = aiData.workersNeeded || 1
         estimatedTime = aiData.estimatedTime || "Varies"
@@ -50,9 +50,18 @@ export const createService = async (req, res, io) => {
     } else {
       console.warn("AI classification returned null, using defaults")
       isValidService = true
-      mainCategory = "Uncategorized Services"
+      mainCategory = ""
       subCategory = name
       workersNeeded = 1
+    }
+
+    // Guard: never store "Uncategorized Services", "Other", or blank as mainCategory
+    const vagueCategories = ["uncategorized services", "uncategorized", "other", "others", ""]
+    if (isValidService && vagueCategories.includes(mainCategory.trim().toLowerCase())) {
+      const words = name.trim().split(/\s+/)
+      const keyword = words[words.length - 1] || words[0] || "General"
+      mainCategory = `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Services`
+      console.warn(`serviceController (create): Overriding vague category to "${mainCategory}"`)
     }
 
     console.log("Service Classification Result:", {
@@ -350,7 +359,7 @@ export const updateServiceDetails = async (req, res, io) => {
     // --- AI Classification Step --- //
     const aiData = await classifyServiceAI(name, description)
 
-    let newMainCategory = "Uncategorized Services"
+    let newMainCategory = ""
     let newSubCategory = name
     let isValidService = true
     let invalidReason = ""
@@ -359,7 +368,7 @@ export const updateServiceDetails = async (req, res, io) => {
     if (aiData) {
       isValidService = aiData.isValid
       if (isValidService) {
-        newMainCategory = aiData.mainCategory || newMainCategory
+        newMainCategory = aiData.mainCategory || ""
         newSubCategory = aiData.subCategory || newSubCategory
         newWorkersNeeded = aiData.workersNeeded || 1
       } else {
@@ -368,6 +377,15 @@ export const updateServiceDetails = async (req, res, io) => {
         invalidReason = aiData.reason || "Service deemed invalid by AI."
         newWorkersNeeded = 1
       }
+    }
+
+    // Guard: never store "Uncategorized Services", "Other", or blank as mainCategory
+    const vagueCategories = ["uncategorized services", "uncategorized", "other", "others", ""]
+    if (isValidService && vagueCategories.includes(newMainCategory.trim().toLowerCase())) {
+      const words = name.trim().split(/\s+/)
+      const keyword = words[words.length - 1] || words[0] || "General"
+      newMainCategory = `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Services`
+      console.warn(`serviceController (update): Overriding vague category to "${newMainCategory}"`)
     }
 
     console.log("Service Reclassification Result:", {
