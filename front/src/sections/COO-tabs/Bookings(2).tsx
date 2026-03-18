@@ -42,7 +42,6 @@ import {
 } from "./bookings-data"
 import Footer from "../Styles/Footer"
 import SubscriptionInfoCard from "./SubInfoCard"
-import AITool from './AITool'
 
 const keyframes = `
 @keyframes fadeIn {
@@ -250,7 +249,6 @@ export default function Bookings() {
   const [isAdvertiseFlowModalOpen, setIsAdvertiseFlowModalOpen] = useState(0) // Changed to number for step
   const [advertiseFlowStep, setAdvertiseFlowStep] = useState(1) // 1: Ask to advertise, 2: Choose plan
   const [isPleaseWaitModalOpen, setIsPleaseWaitModalOpen] = useState(false)
-  const [isAIOpen, setIsAIOpen] = useState(false)
 
   const [coupons, setCoupons] = useState<any[]>([])
   const [newCoupon, setNewCoupon] = useState({
@@ -1353,12 +1351,6 @@ export default function Bookings() {
               </div>
               {/* Create Service button moved to the bottom */}
               <div className="flex justify-center mr-2">
-                <button
-                  onClick={() => setIsAIOpen(true)}
-                  className="mr-3 border ring-1 ring-sky-500 text-sky-500 px-5 rounded-full flex items-center gap-2"
-                >
-                  AI Assistant
-                </button>
                 <button
                   onClick={handleCreateService}
                   className={`px-6 py-3 rounded-full flex items-center gap-2 ${services.length >= subscription.maxServices
@@ -3940,7 +3932,6 @@ export default function Bookings() {
                 </div>
               </div>
             </div>
-
           </div>
 
           <style>{`
@@ -3958,8 +3949,6 @@ export default function Bookings() {
         </div>
       )}
 
-      {/* Modal */}
-      <AITool isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
       <Footer />
     </div>
   )
